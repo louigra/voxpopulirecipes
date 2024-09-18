@@ -1,0 +1,19 @@
+<h1> {{ recipe.title }} </h1>
+<fieldset>
+    <h2> Ingredients </h2>
+    <ul>
+        {% for ingredient in recipe.ingredient_set.all %}
+            <li>{{ ingredient.ingredient_amount }} {{ ingredient.ingredient_unit }} of {{ ingredient.ingredient_text }}</li>
+        {% endfor %}
+    </ul>
+</fieldset>
+<br>
+<fieldset>
+    <h2> Instructions </h2>
+    <ol>
+        {% for instruction in recipe.instruction_set.all %}
+          <li>{{ instruction.instruction_text }}</li>
+        {% endfor %}
+    </ol>
+</fieldset>
+<a href="{% url 'voxpopulirecipes:index' %}" class="btn">Back To Recipe List</a>
