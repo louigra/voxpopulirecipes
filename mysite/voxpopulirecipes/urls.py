@@ -10,4 +10,6 @@ urlpatterns = [
     path("recipedetail/<int:recipe_id>/", views.detail, name="detail"),
     
     path("submit_recipe/", views.submit_recipe, name="submit_recipe"),
+    
+    path("random_recipe/", views.random_recipe, name="random_recipe"),
 ]

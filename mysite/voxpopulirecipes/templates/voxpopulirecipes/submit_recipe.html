@@ -1,5 +1,6 @@
 <form action="{% url 'voxpopulirecipes:submit_recipe' %}" method="post">
     {% csrf_token %}
+    {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
     <fieldset>
         <legend><h1>Create a new recipe</h1></legend>
         <label for="id_title">Recipe Name:</label>
@@ -9,8 +10,8 @@
             <legend>Ingredients</legend>
             <div class="ingredient">
                 <input type="text" name="ingredient_amount_1" placeholder="Amount" required>
-                <input type="text" name="ingredient_unit_1" placeholder="Unit" required>
-                <input type="text" name="ingredient_text_1" placeholder="Ingredient" required>
+                <input type="text" name="ingredient_unit_1" placeholder="Unit">
+                <input type="text" name="ingredient_text_1" placeholder="Ingredient">
             </div>
         </fieldset>
 

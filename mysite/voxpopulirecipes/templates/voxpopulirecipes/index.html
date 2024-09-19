@@ -1,11 +1,142 @@
 {% if latest_recipe_list %}
+    <h1>Check Out the 5 Latest recipes</h1>
     <ul>
     {% for recipe in latest_recipe_list %}
         <li><a href="{% url 'voxpopulirecipes:detail' recipe.id %}">{{ recipe.title }}</a></li>
     {% endfor %}
     </ul>
+    <br>
+    <h1>Search for a recipe</h1>
+        <div class="dropdown">
+            <button onclick="toggleFunction()" class="dropbtn">Search by Recipe Name</button>
+            <div id="search-by-name" class="dropdown-content">
+                <input type="text" id="search-name" placeholder="Search.." onkeyup="searchRecipeName()">
+                <ul id="recipe-list">
+                    {% for recipe in all_recipes %}
+                        <li><a href="#" data-id="{{ recipe.id }}">{{ recipe.title }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    <h1>Or, click here to be taken to a random recipe</h1>
+    <button id="random_recipe"> Random Recipe </button>
 {% else %}
     <p>No recipes are available.</p>
 {% endif %}
     <h1>Submit a new recipe</h1>
     <a href="{% url 'voxpopulirecipes:submit_recipe' %}" class="btn">Submit a new recipe</a>
+
+    <!-- CSS for dropdown -->
+    <style>
+        /* Hide dropdown by default */
+        .dropdown-content {
+            display: none;
+        }
+
+        /* Show dropdown when class 'show' is added */
+        .dropdown-content.show {
+            display: block;
+        }
+
+        /* Dropdown Button */
+        .dropbtn {
+        background-color: #04AA6D;
+        color: white;
+        padding: 16px;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+        }
+
+        /* Dropdown button on hover & focus */
+        .dropbtn:hover, .dropbtn:focus {
+        background-color: #3e8e41;
+        }
+
+        /* The search field */
+        #myInput {
+        box-sizing: border-box;
+        background-image: url('searchicon.png');
+        background-position: 14px 12px;
+        background-repeat: no-repeat;
+        font-size: 16px;
+        padding: 14px 20px 12px 45px;
+        border: none;
+        border-bottom: 1px solid #ddd;
+        }
+
+        /* The search field when it gets focus/clicked on */
+        #myInput:focus {outline: 3px solid #ddd;}
+
+        /* The container <div> - needed to position the dropdown content */
+        .dropdown {
+        position: relative;
+        display: inline-block;
+        }
+
+        /* Dropdown Content (Hidden by Default) */
+        .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f6f6f6;
+        min-width: 230px;
+        border: 1px solid #ddd;
+        z-index: 1;
+        }
+
+        /* Links inside the dropdown */
+        .dropdown-content a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        }
+
+        /* Change color of dropdown links on hover */
+        .dropdown-content a:hover {background-color: #f1f1f1}
+    </style>
+
+    <script>
+
+        // Toggle the dropdown
+        function toggleFunction() {
+            var dropdown = document.getElementById("search-by-name");
+            dropdown.classList.toggle("show");  // Toggle the 'show' class to display/hide dropdown
+        }
+
+        // Search the dropdown by recipe name
+        function searchRecipeName() {
+            var input, filter, ul, li, a, i, txtValue;
+            input = document.getElementById('search-name');
+            filter = input.value.toUpperCase();
+            ul = document.getElementById("recipe-list");
+            li = ul.getElementsByTagName('li');
+
+            // Loop through all list items, and hide those that don't match the search query
+            for (i = 0; i < li.length; i++) {
+                a = li[i].getElementsByTagName("a")[0];
+                txtValue = a.textContent || a.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    li[i].style.display = "";
+                } else {
+                    li[i].style.display = "none";
+                }
+            }
+        }
+
+        // Add click event listeners to each recipe in the dropdown
+        document.querySelectorAll('#recipe-list a').forEach(function(recipeLink) {
+            recipeLink.addEventListener('click', function(event) {
+                // Get the recipe ID from the 'data-id' attribute
+                var recipeId = this.getAttribute('data-id');
+                // Redirect to the recipe detail page
+                window.location.href = "{% url 'voxpopulirecipes:detail' 0 %}".replace('0', recipeId);
+            });
+        });
+
+        // Handle random recipe button click
+        document.getElementById("random_recipe").addEventListener("click", function() {
+            window.location.href = "{% url 'voxpopulirecipes:random_recipe' %}";
+        });
+    
+    </script>
