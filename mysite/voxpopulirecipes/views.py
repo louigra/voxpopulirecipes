@@ -24,66 +24,132 @@ def detail(request, recipe_id):
     recipe = get_object_or_404(Recipe, pk=recipe_id)
     return render(request, "voxpopulirecipes/recipe.html", {"recipe": recipe})
 
-def submit_recipe(request):
+def submit_recipe(request, recipe_id=None):
+    #if editing, fetch the recipe object
+    if recipe_id:
+        recipe = get_object_or_404(Recipe, id=recipe_id)
+    else:
+        recipe = None
+
     if request.method == 'POST':
         recipe_title = request.POST.get('title')
-
+        # if title is missing, render the page back with the error message
         if recipe_title:
-            recipe = Recipe.objects.create(title=recipe_title, pub_date=timezone.now())
-            ingredient_text_1 = request.POST.get('ingredient_text_1')
-            instruction_text_1 = request.POST.get('instruction_text_1')
+            
+            if recipe:
+                # If editing, update the existing recipe
+                recipe.title = recipe_title
+                recipe.save()
                 
-            if not ingredient_text_1:
-                return render(request, 'voxpopulirecipes/submit_recipe.html', {'error_message': 'Recipe must have at least one ingredient.'})
+                # Handle deleted ingredients
+                deleted_ingredients = request.POST.get('deleted_ingredients', '').split(',')
+                # Remove any empty strings from the list
+                deleted_ingredients = [ingredient_id for ingredient_id in deleted_ingredients if ingredient_id]
+                if deleted_ingredients:
+                    Ingredient.objects.filter(id__in=deleted_ingredients, recipe=recipe).delete()
+
+                # Handle deleted instructions
+                deleted_instructions = request.POST.get('deleted_instructions', '').split(',')
+                # Remove any empty strings from the list
+                deleted_instructions = [instruction_id for instruction_id in deleted_instructions if instruction_id]
+                if deleted_instructions:
+                    Instruction.objects.filter(id__in=deleted_instructions, recipe=recipe).delete()
                     
-            if not instruction_text_1:
-                return render(request, 'voxpopulirecipes/submit_recipe.html', {'error_message': 'Recipe must have at least one instruction.'})
+            else:
+                # If creating a new recipe
+                recipe = Recipe.objects.create(title=recipe_title, pub_date=timezone.now())
 
-            # Process the ingredients one at a time
-            ingredient_count = 1
-            while True:
-                ingredient_text = request.POST.get(f'ingredient_text_{ingredient_count}')
-                ingredient_amount = request.POST.get(f'ingredient_amount_{ingredient_count}','')
-                ingredient_unit = request.POST.get(f'ingredient_unit_{ingredient_count}','')
+            # Extract the posted ingredient IDs from the form data
+            posted_ingredient_ids = [key.split('_')[-1] for key in request.POST if key.startswith('ingredient_text_')]
+            
+            # if there are no ingredients, render the page back with the error message
+            if not posted_ingredient_ids:
+                return render(request, 'voxpopulirecipes/submit_recipe.html', {
+                    'error_message': 'Recipe must have at least one ingredient.',
+                    'recipe': recipe
+                })
 
- 
-                # must have at least an ingredient text, otherwise break the loop
+            # Process the ingredients
+            for ingredient_id in posted_ingredient_ids:
+                ingredient_text = request.POST.get(f'ingredient_text_{ingredient_id}')
+                ingredient_amount = request.POST.get(f'ingredient_amount_{ingredient_id}', '')
+                ingredient_unit = request.POST.get(f'ingredient_unit_{ingredient_id}', '')
+
                 if ingredient_text:
-                    # Create and save the Ingredient object
-                    Ingredient.objects.create(
-                        recipe=recipe,
-                        ingredient_text=ingredient_text,
-                        ingredient_amount=ingredient_amount or None, # allow empty values
-                        ingredient_unit=ingredient_unit or None # allow empty values
-                    )
-                    ingredient_count += 1
-                else:
-                    break
-            
-            instruction_count = 1
-            while True:
-                instruction_text = request.POST.get(f'instruction_text_{instruction_count}')
+                    if ingredient_id.isdigit():  # If it's an existing ingredient
+                        ingredient = Ingredient.objects.filter(recipe=recipe, id=ingredient_id).first()
+                        if ingredient:
+                            # Update the existing ingredient
+                            ingredient.ingredient_text = ingredient_text
+                            ingredient.ingredient_amount = ingredient_amount
+                            ingredient.ingredient_unit = ingredient_unit
+                            ingredient.save()
+                        else:
+                            # Create a new ingredient if the ID does not exist
+                            Ingredient.objects.create(
+                                recipe=recipe,
+                                ingredient_text=ingredient_text,
+                                ingredient_amount=ingredient_amount,
+                                ingredient_unit=ingredient_unit
+                            )
+                    else:
+                        # Create new ingredients for any dynamically added ones (no ID)
+                        Ingredient.objects.create(
+                            recipe=recipe,
+                            ingredient_text=ingredient_text,
+                            ingredient_amount=ingredient_amount,
+                            ingredient_unit=ingredient_unit
+                        )
 
-                # Check if the instruction exists; if not, break the loop
-                if instruction_text:
-                    # Create and save the Instruction object
-                    Instruction.objects.create(
-                        recipe=recipe,
-                        instruction_text=instruction_text,
-                        instruction_order=instruction_count
-                    )
-                    instruction_count += 1
-                else:
-                    break
+            # Process the instructions similarly by extracting posted instruction IDs
+            posted_instruction_ids = [key.split('_')[-1] for key in request.POST if key.startswith('instruction_text_')]
             
-            # Redirect to a success page or recipe list view after form submission
-            return redirect('voxpopulirecipes:index')  # Change to the appropriate view
+            # if there are no instructions, render the page back with the error message
+            if not posted_instruction_ids:
+                return render(request, 'voxpopulirecipes/submit_recipe.html', {
+                    'error_message': 'Recipe must have at least one instruction.',
+                    'recipe': recipe
+                    })
+
+            for instruction_id in posted_instruction_ids:
+                instruction_text = request.POST.get(f'instruction_text_{instruction_id}')
+
+                if instruction_text:
+                    if instruction_id.isdigit():  # If it's an existing instruction
+                        instruction = Instruction.objects.filter(recipe=recipe, id=instruction_id).first()
+                        if instruction:
+                            # Update the existing instruction
+                            instruction.instruction_text = instruction_text
+                            instruction.save()
+                        else:
+                            # Create a new instruction if the ID does not exist
+                            Instruction.objects.create(
+                                recipe=recipe,
+                                instruction_text=instruction_text,
+                                instruction_order=instruction_id  # Make sure instruction order is set correctly
+                            )
+                    else:
+                        # Create new instructions for dynamically added ones (no ID)
+                        Instruction.objects.create(
+                            recipe=recipe,
+                            instruction_text=instruction_text,
+                            instruction_order=instruction_id
+                        )
+                
+
+
+            # Redirect to the recipe detail page or some success page after submission
+            return redirect('voxpopulirecipes:detail', recipe_id=recipe.id)
+
         else:
             # Handle the case where the title is missing
-            return render(request, 'voxpopulirecipes/submit_recipe.html', {'error_message': 'Recipe name is required.'})
+            return render(request, 'voxpopulirecipes/submit_recipe.html', {
+                'error_message': 'Recipe name is required.',
+                'recipe': recipe
+            })
 
-    # If it's a GET request, render the form
-    return render(request, 'voxpopulirecipes/submit_recipe.html')
+    # If it's a GET request, render the form for editing or creating
+    return render(request, 'voxpopulirecipes/submit_recipe.html', {'recipe': recipe})
 
 def random_recipe(request):
     random_recipe = Recipe.objects.order_by("?").first()
@@ -91,3 +157,12 @@ def random_recipe(request):
         return redirect('voxpopulirecipes:detail', recipe_id=random_recipe.id)
     else:
         return redirect('voxpopulirecipes:index')
+    
+def edit_recipe(request, recipe_id):
+    recipe = get_object_or_404(Recipe, pk=recipe_id)
+    return render(request, 'voxpopulirecipes/submit_recipe.html', {'recipe': recipe})
+
+def delete_recipe(request, recipe_id):
+    recipe = get_object_or_404(Recipe, pk=recipe_id)
+    recipe.delete()
+    return redirect('voxpopulirecipes:index')

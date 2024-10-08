@@ -1,42 +1,186 @@
-<form action="{% url 'voxpopulirecipes:submit_recipe' %}" method="post">
-    {% csrf_token %}
-    {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-    <fieldset>
-        <legend><h1>Create a new recipe</h1></legend>
-        <label for="id_title">Recipe Name:</label>
-        <input type="text" name="title" id="id_title" required>
+{% extends 'voxpopulirecipes/base.html' %}
 
-        <fieldset id="ingredients-section">
-            <legend>Ingredients</legend>
-            <div class="ingredient">
-                <input type="text" name="ingredient_amount_1" placeholder="Amount" required>
-                <input type="text" name="ingredient_unit_1" placeholder="Unit">
-                <input type="text" name="ingredient_text_1" placeholder="Ingredient">
-            </div>
+{% block content %}
+
+{% comment %} {% load static %}
+
+<link rel='stylesheet' href="{% static 'voxpopulirecipes/style.css' %}"> {% endcomment %}
+
+<form action="{% if recipe %}{% url 'voxpopulirecipes:submit_recipe' recipe.id %}{% else %}{% url 'voxpopulirecipes:submit_recipe' %}{% endif %}" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="deleted_ingredients" id="deleted_ingredients">
+    <input type="hidden" name="deleted_instructions" id="deleted_instructions">
+
+    {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+    {% if recipe %}
+
+    <fieldset>
+        <fieldset id="recipe-name-section" class="create_section">
+            <legend><h1>Edit this recipe</h1></legend>
+            <label for="id_title">Recipe Name:</label>
+            <input autofocus type="text" name="title" id="id_title" value="{{ recipe.title }}" required>
         </fieldset>
 
-        <button type="button" id="add-ingredient">Add another ingredient</button>
+        <fieldset id="ingredients-section" class="create_section">
+            <legend><h1>Ingredients</h1></legend>
+            {% for ingredient in recipe.ingredient_set.all %}
+            <div class="ingredient">
+                <input type="text" name="ingredient_amount_{{ ingredient.id }}" placeholder="Amount" class="create_ingredient_input" value="{{ ingredient.ingredient_amount }}">
+                <input type="text" name="ingredient_unit_{{ ingredient.id }}" placeholder="Unit" class="create_ingredient_input" value="{{ ingredient.ingredient_unit }}">
+                <input type="text" name="ingredient_text_{{ ingredient.id }}" placeholder="Ingredient" class="create_ingredient_input" value="{{ ingredient.ingredient_text }}"required >
+                <button type="button" onclick="deleteIngredient(this, {{ ingredient.id }})">Delete</button>
+            </div>
+            {% endfor %}
+            <div id="ingredients-list">
+            </div>
 
-        <fieldset id="instructions-section">
-        <div class="instruction">
-            <input type="text" name="instruction_text_1" placeholder="Instruction" required>
-        </div>
+            <button type="button" id="add-ingredient">Add another ingredient</button>
+        </fieldset>
 
+        <fieldset id="instructions-section" class="create_section">
+            <legend><h1>Instructions</h1></legend>
+            {% for instruction in recipe.instruction_set.all %}
+            <div class="instruction">
+                <textarea name="instruction_text_{{ instruction.id }}" placeholder="Instruction" class="create_instruction_input" required>{{ instruction.instruction_text }}</textarea>
+                <button type = "button" onclick="deleteInstruction(this, {{ instruction.id }})">Delete</button>
+            </div>
+            {% endfor %}
+            <div id="instructions-list">
+            </div>
         <button type="button" id="add-instruction">Add another instruction</button>
         </fieldset>
     </fieldset>
     <input type="submit" value="Publish">
+
+    {% else %}
+    <fieldset>
+        <fieldset id="recipe-name-section" class="create_section">
+            <legend><h1>Create a new recipe</h1></legend>
+            <label for="id_title">Recipe Name:</label>
+            <input autofocus type="text" name="title" id="id_title" required>
+        </fieldset>
+
+        <fieldset id="ingredients-section" class="create_section">
+            <legend><h1>Ingredients</h1></legend>
+            <div class="ingredient">
+                <input type="text" id="ingredient_amount_1" name="ingredient_amount_1" placeholder="Amount" class="create_ingredient_input">
+                <input type="text" id="ingredient_unit_1" name="ingredient_unit_1" placeholder="Unit" class="create_ingredient_input">
+                <input type="text" id="ingredient_text_1" name="ingredient_text_1" placeholder="Ingredient" class="create_ingredient_input" required >
+                <button type="button" onclick="deleteIngredient(this)">Delete</button>
+            </div>
+            <div id="ingredients-list">
+            </div>
+
+            <button type="button" id="add-ingredient">Add another ingredient</button>
+        </fieldset>
+
+        
+
+        <fieldset id="instructions-section" class="create_section">
+            <legend><h1>Instructions</h1></legend>
+            <div class="instruction">
+                <textarea name="instruction_text_1" placeholder="Instruction" class="create_instruction_input" required></textarea>
+                <button type = "button" onclick="deleteInstruction(this)">Delete</button>
+            </div>
+            <div id="instructions-list">
+            </div>
+        <button type="button" id="add-instruction">Add another instruction</button>
+        </fieldset>
+    </fieldset>
+    <input type="submit" value="Publish">
+    {% endif %}
 </form>
 
+
+
+<style>
+    .ingredient, .instruction {
+        margin-bottom: 10px;
+    }
+
+    .create_section {
+        margin-bottom: 20px;
+    }
+
+    .create_ingredient_input, .create_instruction_input {
+        margin-right: 10px;
+        margin-bottom: 10px;
+    }
+
+    .create_instruction_input {
+        width: 100%;
+    }
+</style>
+
 <script>
+
+    let deletedIngredients = [];
+    let deletedInstructions = [];
+
+    function deleteIngredient(button, ingredientId=null) {
+
+        const ingredientDiv = button.parentNode;
+        const inputs = ingredientDiv.querySelectorAll('input');
+    
+        inputs.forEach(input => input.disabled = true);
+        ingredientDiv.style.display = 'none';
+
+        if (ingredientId) {
+            deletedIngredients.push(ingredientId);
+            document.getElementById('deleted_ingredients').value = deletedIngredients.join(',');
+        }
+    }
+
+    function deleteInstruction(button, instructionId=null) {
+        const instructionDiv = button.parentNode;
+        const inputs = instructionDiv.querySelectorAll('textarea');
+    
+        inputs.forEach(input => input.disabled = true);
+        instructionDiv.style.display = 'none';
+        if (instructionId) {
+            deletedInstructions.push(instructionId);
+            document.getElementById('deleted_instructions').value = deletedInstructions.join(',');
+        }
+    }
+
     // on page load, create the event listeners and set up incrementing ingredient count
     document.addEventListener("DOMContentLoaded", function() {
+
         let ingredientCount = 1;
         let instructionCount = 1;
+    
+        // checks if there was a recipe passed in therefore it is an edit instead of a fresh recipe
+        const editing = {% if recipe %}true{% else %}false{% endif %};
+        console.log(editing);
+    
+        if (editing) {
+            {% if recipe.ingredient_set.all %}
+                {% with recipe.ingredient_set.all|dictsort:"id" as sorted_ingredients %}
+                    {% with sorted_ingredients|last as last_ingredient %}
+                        ingredientCount = {{ last_ingredient.id }};
+                    {% endwith %}
+                {% endwith %}
+            {% endif %}
+    
+        console.log("Highest Ingredient ID:", ingredientCount);
+            {% if recipe.instruction_set.all %}
+                {% with recipe.instruction_set.all|dictsort:"id" as sorted_instructions %}
+                    {% with sorted_instructions|last as last_instruction %}
+                        instructionCount = {{ last_instruction.id }};
+                    {% endwith %}
+                {% endwith %}
+            {% endif %}
+            
+            instructionCount = {{ recipe.instruction_set.all|length }};
+            console.log("Highest Instruction ID: ", instructionCount);
+        }
 
         // add a listener for the add ingredient button
         document.getElementById("add-ingredient").addEventListener("click", function() {
+            console.log(ingredientCount);
             ingredientCount++;
+            console.log(ingredientCount);
 
             // onclick of add ingredient button, make a new div and set the class
             const ingredientDiv = document.createElement("div");
@@ -44,13 +188,14 @@
 
             // set the content of the new div using the ingredient count so each set has its own unique names
             ingredientDiv.innerHTML = `
-                <input type="text" name="ingredient_amount_${ingredientCount}" placeholder="Amount" required>
-                <input type="text" name="ingredient_unit_${ingredientCount}" placeholder="Unit" required>
-                <input type="text" name="ingredient_text_${ingredientCount}" placeholder="Ingredient" required>
+                <input type="text" id="ingredient_amount_${ingredientCount}" name="ingredient_amount_${ingredientCount}" placeholder="Amount" class="create_ingredient_input">
+                <input type="text" id="ingredient_unit_${ingredientCount}" name="ingredient_unit_${ingredientCount}" placeholder="Unit" class="create_ingredient_input">
+                <input type="text" id="ingredient_text_${ingredientCount}" name="ingredient_text_${ingredientCount}" placeholder="Ingredient" class="create_ingredient_input" required>
+                <button type="button" onclick="deleteIngredient(this)">Delete</button>
             `;
 
             // append to the ingredient section
-            document.getElementById("ingredients-section").appendChild(ingredientDiv);
+            document.getElementById("ingredients-list").appendChild(ingredientDiv);
         });
 
         // basically does the same thing but for instructions
@@ -61,10 +206,13 @@
             instructionDiv.classList.add("instruction");
 
             instructionDiv.innerHTML = `
-                <input type="text" name="instruction_text_${instructionCount}" placeholder="Instruction" required>
+                <textarea name="instruction_text_${instructionCount}" placeholder="Instruction" class="create_instruction_input" required></textarea>
+                <button type="button" onclick="deleteInstruction(this)">Delete</button>
             `;
 
-            document.getElementById("instructions-section").appendChild(instructionDiv);
+            document.getElementById("instructions-list").appendChild(instructionDiv);
         });
     });
 </script>
+
+{% endblock %}

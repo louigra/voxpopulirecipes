@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'users.apps.UsersConfig',
     'voxpopulirecipes.apps.VoxpopulirecipesConfig',
     'polls.apps.PollsConfig',
     'django.contrib.admin',
