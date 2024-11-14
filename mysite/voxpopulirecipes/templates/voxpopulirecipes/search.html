@@ -1,0 +1,235 @@
+{% extends 'voxpopulirecipes/base.html' %}
+
+{% block content %}
+
+<div id="body">
+<fieldset>
+    <h1>Search for a recipe</h1>
+    <div class="dropdown">
+        <button onclick="toggleFunctionRecipeSearch()" class="dropbtn">Search by Recipe Name</button>
+        <div id="search-by-name" class="dropdown-content">
+            <input type="text" id="search-name" placeholder="Search.." onkeyup="searchRecipeName()">
+            <ul id="recipe-list">
+                {% for recipe in all_recipes %}
+                    <li class="recipe_option" data-ingredients="{{ recipe.ingredient_set.all|join:',' }}">
+                        <a href="#" data-id="{{ recipe.id }}">{{ recipe.title }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <h2>Filter by ingredient</h2>
+    <div class="dropdown">
+        <button onclick="toggleFunctionIngredientFilter()" class="dropbtn">Filter for Ingredient</button>
+        <div id="filter-by-ingredient" class="dropdown-content">
+            <input type="text" id="filter-ingredient" placeholder="Select to filter" onkeyup="searchIngredientName()">
+            <ul id="ingredient-list">
+                {% for ingredient in all_unique_ingredients %}
+                    <li><a href="#" class="ingredient-filter">{{ ingredient }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        <fieldset>
+            <div id="appliedFilters">
+                <h2>Applied Filters</h2>
+                <ul id="appliedFiltersList">
+                </ul>
+            </div>
+        </fieldset>
+    </div>
+
+</fieldset>
+</div>
+
+<script>
+    var appliedFilters = [];
+
+    // Toggle the dropdown for recipe search
+    function toggleFunctionRecipeSearch() {
+        var dropdown = document.getElementById("search-by-name");
+        dropdown.classList.toggle("show");
+    }
+
+    // Toggle the dropdown for ingredient filter
+    function toggleFunctionIngredientFilter() {
+        var dropdown = document.getElementById("filter-by-ingredient");
+        dropdown.classList.toggle("show");
+    }
+
+    document.querySelectorAll(".recipe_option").forEach(function(recipeOption) {
+        recipeOption.addEventListener("click", function(event) {
+            var recipeId = this.querySelector('a').getAttribute('data-id');
+            window.location.href = "{% url 'voxpopulirecipes:detail' 0 %}".replace('0', recipeId);
+        });
+    });
+
+    // Search the recipe dropdown by name
+    function searchRecipeName() {
+        var input, filter, ul, li, a, i, txtValue;
+        input = document.getElementById('search-name');
+        filter = input.value.toUpperCase();
+        ul = document.getElementById("recipe-list");
+        li = ul.getElementsByTagName('li');
+
+        for (i = 0; i < li.length; i++) {
+            a = li[i].getElementsByTagName("a")[0];
+            txtValue = a.textContent || a.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                li[i].style.display = "";
+            } else {
+                li[i].style.display = "none";
+            }
+        }
+    }
+
+    // Search the ingredient dropdown by name
+    function searchIngredientName() {
+        var input, filter, ul, li, i, txtValue;
+        input = document.getElementById('filter-ingredient');
+        filter = input.value.toUpperCase();
+        ul = document.getElementById("ingredient-list");
+        li = ul.getElementsByTagName('li');
+
+        for (i = 0; i < li.length; i++) {
+            txtValue = li[i].textContent || li[i].innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                li[i].style.display = "";
+            } else {
+                li[i].style.display = "none";
+            }
+        }
+    }
+
+    // Function to update the applied filters list in the UI
+    function updateAppliedFiltersUI() {
+        var appliedFiltersList = document.getElementById('appliedFiltersList');
+        appliedFiltersList.innerHTML = '';  // Clear the current list
+    
+        appliedFilters.forEach(function(filter) {
+            var li = document.createElement('li');
+            li.textContent = filter;
+    
+            // Add click event to remove filter from the list
+            li.addEventListener('click', function() {
+                // Remove the filter from the applied filters array
+                appliedFilters = appliedFilters.filter(function(item) {
+                    return item !== filter;
+                });
+    
+                // Make the filter available again in the dropdown by showing it
+                document.querySelectorAll('.ingredient-filter').forEach(function(ingredientLink) {
+                    if (ingredientLink.textContent.toUpperCase() === filter) {
+                        ingredientLink.style.display = ""; // Show the ingredient again
+                    }
+                });
+    
+                // Update the UI with the current applied filters
+                updateAppliedFiltersUI();
+    
+                // Filter recipes based on the current applied filters
+                filterRecipes();
+            });
+    
+            appliedFiltersList.appendChild(li);
+        });
+    }
+    
+
+    // Function to filter recipes based on applied filters
+    function filterRecipes() {
+        var recipeItems = document.querySelectorAll('#recipe-list li');
+
+        recipeItems.forEach(function(item) {
+            var ingredients = item.getAttribute('data-ingredients').toUpperCase().split(',');
+
+            // Check if all applied filters are in the ingredients list of the recipe
+            var hasAllFilters = appliedFilters.every(function(filter) {
+                return ingredients.indexOf(filter) > -1;
+            });
+
+            // Show or hide the recipe based on whether it matches all applied filters
+            if (hasAllFilters) {
+                item.style.display = "";
+            } else {
+                item.style.display = "none";
+            }
+        });
+    }
+
+    document.querySelectorAll('.ingredient-filter').forEach(function(ingredientLink) {
+        ingredientLink.addEventListener('click', function(event) {
+            var selectedIngredient = this.textContent.toUpperCase();
+    
+            // Add the selected ingredient to the applied filters array if not already present
+            if (appliedFilters.indexOf(selectedIngredient) === -1) {
+                appliedFilters.push(selectedIngredient);
+                // Hide the ingredient in the dropdown
+                this.style.display = "none";
+            }
+    
+            // Update the UI with the current applied filters
+            updateAppliedFiltersUI();
+    
+            // Filter recipes based on the current applied filters
+            filterRecipes();
+        });
+    });
+
+    // Handle random recipe button click
+    document.getElementById("random_recipe").addEventListener("click", function() {
+        window.location.href = "{% url 'voxpopulirecipes:random_recipe' %}";
+    });
+
+    document.getElementById("new_recipe").addEventListener("click", function() {
+        window.location.href = "{% url 'voxpopulirecipes:submit_recipe' %}";
+    });
+</script>
+
+<!-- CSS for dropdown -->
+<style>
+    /* Dropdown content with scrollable behavior */
+    .dropdown-content {
+        display: none; /* Initially hidden */
+        position: absolute; /* Position it absolutely to keep it within the dropdown */
+        background-color: #f9f9f9;
+        min-width: 160px;
+        max-height: 200px; /* Set max-height to limit to 10 results */
+        overflow-y: auto; /* Enable scrolling within the dropdown */
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+        z-index: 1;
+    }
+    
+    /* Show dropdown when class 'show' is added */
+    .dropdown-content.show {
+        display: block;
+    }
+    
+    /* Dropdown Button */
+
+    
+    /* Dropdown button on hover & focus */
+
+    
+    /* Links inside the dropdown */
+    .dropdown-content a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+    }
+    
+    /* Change color of dropdown links on hover */
+    .dropdown-content a:hover {
+        background-color: #f1f1f1;
+    }
+    
+    /* Set max-height for the dropdown list items to limit it to 10 items */
+    #recipe-list,
+    #ingredient-list {
+        max-height: 200px; /* Adjust this to match the approximate height of 10 list items */
+        overflow-y: auto; /* Enable scroll inside the dropdown */
+    }
+</style>
+
+{% endblock %}

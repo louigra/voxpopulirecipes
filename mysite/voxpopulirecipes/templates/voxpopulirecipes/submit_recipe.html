@@ -2,10 +2,7 @@
 
 {% block content %}
 
-{% comment %} {% load static %}
-
-<link rel='stylesheet' href="{% static 'voxpopulirecipes/style.css' %}"> {% endcomment %}
-
+<div class='shadow p-4 mb-5 bg-body rounded'> 
 <form action="{% if recipe %}{% url 'voxpopulirecipes:submit_recipe' recipe.id %}{% else %}{% url 'voxpopulirecipes:submit_recipe' %}{% endif %}" method="post">
     {% csrf_token %}
     <input type="hidden" name="deleted_ingredients" id="deleted_ingredients">
@@ -29,13 +26,13 @@
                 <input type="text" name="ingredient_amount_{{ ingredient.id }}" placeholder="Amount" class="create_ingredient_input" value="{{ ingredient.ingredient_amount }}">
                 <input type="text" name="ingredient_unit_{{ ingredient.id }}" placeholder="Unit" class="create_ingredient_input" value="{{ ingredient.ingredient_unit }}">
                 <input type="text" name="ingredient_text_{{ ingredient.id }}" placeholder="Ingredient" class="create_ingredient_input" value="{{ ingredient.ingredient_text }}"required >
-                <button type="button" onclick="deleteIngredient(this, {{ ingredient.id }})">Delete</button>
+                <button type="button" class="btn btn-danger" onclick="deleteIngredient(this, {{ ingredient.id }})">Delete</button>
             </div>
             {% endfor %}
             <div id="ingredients-list">
             </div>
 
-            <button type="button" id="add-ingredient">Add another ingredient</button>
+            <button type="button" class="btn btn-secondary" id="add-ingredient">Add another ingredient</button>
         </fieldset>
 
         <fieldset id="instructions-section" class="create_section">
@@ -43,15 +40,15 @@
             {% for instruction in recipe.instruction_set.all %}
             <div class="instruction">
                 <textarea name="instruction_text_{{ instruction.id }}" placeholder="Instruction" class="create_instruction_input" required>{{ instruction.instruction_text }}</textarea>
-                <button type = "button" onclick="deleteInstruction(this, {{ instruction.id }})">Delete</button>
+                <button type = "button" class="btn btn-danger" onclick="deleteInstruction(this, {{ instruction.id }})">Delete</button>
             </div>
             {% endfor %}
             <div id="instructions-list">
             </div>
-        <button type="button" id="add-instruction">Add another instruction</button>
+        <button type="button" class="btn btn-secondary" id="add-instruction">Add another instruction</button>
         </fieldset>
     </fieldset>
-    <input type="submit" value="Publish">
+    <input type="submit" class="btn btn-success" value="Publish">
 
     {% else %}
     <fieldset>
@@ -67,12 +64,12 @@
                 <input type="text" id="ingredient_amount_1" name="ingredient_amount_1" placeholder="Amount" class="create_ingredient_input">
                 <input type="text" id="ingredient_unit_1" name="ingredient_unit_1" placeholder="Unit" class="create_ingredient_input">
                 <input type="text" id="ingredient_text_1" name="ingredient_text_1" placeholder="Ingredient" class="create_ingredient_input" required >
-                <button type="button" onclick="deleteIngredient(this)">Delete</button>
+                <button type="button" class="btn btn-danger" onclick="deleteIngredient(this)">Delete</button>
             </div>
             <div id="ingredients-list">
             </div>
 
-            <button type="button" id="add-ingredient">Add another ingredient</button>
+            <button type="button" class="btn btn-secondary" id="add-ingredient">Add another ingredient</button>
         </fieldset>
 
         
@@ -81,20 +78,36 @@
             <legend><h1>Instructions</h1></legend>
             <div class="instruction">
                 <textarea name="instruction_text_1" placeholder="Instruction" class="create_instruction_input" required></textarea>
-                <button type = "button" onclick="deleteInstruction(this)">Delete</button>
+                <button type="button" class="btn btn-danger" onclick="deleteInstruction(this)">Delete</button>
             </div>
             <div id="instructions-list">
             </div>
-        <button type="button" id="add-instruction">Add another instruction</button>
+        <button type="button" class="btn btn-secondary" id="add-instruction">Add another instruction</button>
         </fieldset>
     </fieldset>
-    <input type="submit" value="Publish">
+    <input type="submit" class="btn btn-success" value="Publish">
     {% endif %}
 </form>
-
+</div>
 
 
 <style>
+
+    .instruction {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .create_instruction_input {
+        flex:1;
+        min-width: 200px;
+    }
+
+    .btn-danger {
+        flex-shrink: 0;
+    }
+
     .ingredient, .instruction {
         margin-bottom: 10px;
     }
@@ -112,6 +125,7 @@
         width: 100%;
     }
 </style>
+
 
 <script>
 
@@ -191,7 +205,7 @@
                 <input type="text" id="ingredient_amount_${ingredientCount}" name="ingredient_amount_${ingredientCount}" placeholder="Amount" class="create_ingredient_input">
                 <input type="text" id="ingredient_unit_${ingredientCount}" name="ingredient_unit_${ingredientCount}" placeholder="Unit" class="create_ingredient_input">
                 <input type="text" id="ingredient_text_${ingredientCount}" name="ingredient_text_${ingredientCount}" placeholder="Ingredient" class="create_ingredient_input" required>
-                <button type="button" onclick="deleteIngredient(this)">Delete</button>
+                <button type="button" class="btn btn-danger" onclick="deleteIngredient(this)">Delete</button>
             `;
 
             // append to the ingredient section
@@ -207,7 +221,7 @@
 
             instructionDiv.innerHTML = `
                 <textarea name="instruction_text_${instructionCount}" placeholder="Instruction" class="create_instruction_input" required></textarea>
-                <button type="button" onclick="deleteInstruction(this)">Delete</button>
+                <button type="button" class="btn btn-danger" onclick="deleteInstruction(this)">Delete</button>
             `;
 
             document.getElementById("instructions-list").appendChild(instructionDiv);

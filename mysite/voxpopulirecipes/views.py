@@ -166,3 +166,14 @@ def delete_recipe(request, recipe_id):
     recipe = get_object_or_404(Recipe, pk=recipe_id)
     recipe.delete()
     return redirect('voxpopulirecipes:index')
+
+def search_recipe(request):
+    all_recipes = Recipe.objects.all().order_by("id")
+    all_unique_ingredients = Ingredient.objects.values_list("ingredient_text", flat=True).distinct().order_by("ingredient_text")
+    template = loader.get_template("voxpopulirecipes/search.html")
+    context = {
+        "all_recipes": all_recipes,
+        "all_unique_ingredients": all_unique_ingredients
+    }
+    return HttpResponse(template.render(context, request))
+
