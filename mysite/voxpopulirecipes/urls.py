@@ -4,7 +4,7 @@ from . import views
 app_name = "voxpopulirecipes"
 urlpatterns = [
 
-    path("", views.index, name="index"),
+    path("", views.main, name="main"),
     
     path("recipedetail/<int:recipe_id>/", views.detail, name="detail"),
     
@@ -19,4 +19,6 @@ urlpatterns = [
     path("<int:recipe_id>/delete", views.delete_recipe, name="delete_recipe"),
     
     path("search/", views.search_recipe, name="search_recipe"),
+    
+    path("all_recipes/", views.all_recipes, name="all_recipes"),
 ]

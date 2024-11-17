@@ -2,93 +2,108 @@
 
 {% block content %}
 
-<div class='shadow p-4 mb-5 bg-body rounded'> 
-<form action="{% if recipe %}{% url 'voxpopulirecipes:submit_recipe' recipe.id %}{% else %}{% url 'voxpopulirecipes:submit_recipe' %}{% endif %}" method="post">
-    {% csrf_token %}
-    <input type="hidden" name="deleted_ingredients" id="deleted_ingredients">
-    <input type="hidden" name="deleted_instructions" id="deleted_instructions">
+{% if user.is_authenticated %}
 
-    {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+    <div class='shadow p-4 mb-5 bg-body rounded'> 
+    <form action="{% if recipe %}{% url 'voxpopulirecipes:submit_recipe' recipe.id %}{% else %}{% url 'voxpopulirecipes:submit_recipe' %}{% endif %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="deleted_ingredients" id="deleted_ingredients">
+        <input type="hidden" name="deleted_instructions" id="deleted_instructions">
 
-    {% if recipe %}
+        {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
-    <fieldset>
-        <fieldset id="recipe-name-section" class="create_section">
-            <legend><h1>Edit this recipe</h1></legend>
-            <label for="id_title">Recipe Name:</label>
-            <input autofocus type="text" name="title" id="id_title" value="{{ recipe.title }}" required>
+        {% if recipe %}
+
+        <fieldset>
+            <fieldset id="recipe-name-section" class="create_section">
+                <legend><h1>Edit this recipe</h1></legend>
+                <label for="id_title">Recipe Name:</label>
+                <input autofocus type="text" name="title" id="id_title" value="{{ recipe.title }}" required>
+            </fieldset>
+
+            <fieldset id="ingredients-section" class="create_section">
+                <legend><h1>Ingredients</h1></legend>
+                {% for ingredient in recipe.ingredient_set.all %}
+                <div class="ingredient">
+                    <input type="text" name="ingredient_amount_{{ ingredient.id }}" placeholder="Amount" class="create_ingredient_input" value="{{ ingredient.ingredient_amount }}">
+                    <input type="text" name="ingredient_unit_{{ ingredient.id }}" placeholder="Unit" class="create_ingredient_input" value="{{ ingredient.ingredient_unit }}">
+                    <input type="text" name="ingredient_text_{{ ingredient.id }}" placeholder="Ingredient" class="create_ingredient_input" value="{{ ingredient.ingredient_text }}"required >
+                    <button type="button" class="btn btn-danger" onclick="deleteIngredient(this, {{ ingredient.id }})">Delete</button>
+                </div>
+                {% endfor %}
+                <div id="ingredients-list">
+                </div>
+
+                <button type="button" class="btn btn-secondary" id="add-ingredient">Add another ingredient</button>
+            </fieldset>
+
+            <fieldset id="instructions-section" class="create_section">
+                <legend><h1>Instructions</h1></legend>
+                {% for instruction in recipe.instruction_set.all %}
+                <div class="instruction">
+                    <textarea name="instruction_text_{{ instruction.id }}" placeholder="Instruction" class="create_instruction_input" required>{{ instruction.instruction_text }}</textarea>
+                    <button type = "button" class="btn btn-danger" onclick="deleteInstruction(this, {{ instruction.id }})">Delete</button>
+                </div>
+                {% endfor %}
+                <div id="instructions-list">
+                </div>
+            <button type="button" class="btn btn-secondary" id="add-instruction">Add another instruction</button>
+            </fieldset>
         </fieldset>
+        <input type="submit" class="btn btn-success" value="Publish">
 
-        <fieldset id="ingredients-section" class="create_section">
-            <legend><h1>Ingredients</h1></legend>
-            {% for ingredient in recipe.ingredient_set.all %}
-            <div class="ingredient">
-                <input type="text" name="ingredient_amount_{{ ingredient.id }}" placeholder="Amount" class="create_ingredient_input" value="{{ ingredient.ingredient_amount }}">
-                <input type="text" name="ingredient_unit_{{ ingredient.id }}" placeholder="Unit" class="create_ingredient_input" value="{{ ingredient.ingredient_unit }}">
-                <input type="text" name="ingredient_text_{{ ingredient.id }}" placeholder="Ingredient" class="create_ingredient_input" value="{{ ingredient.ingredient_text }}"required >
-                <button type="button" class="btn btn-danger" onclick="deleteIngredient(this, {{ ingredient.id }})">Delete</button>
-            </div>
-            {% endfor %}
-            <div id="ingredients-list">
-            </div>
+        {% else %}
+        <fieldset>
+            <fieldset id="recipe-name-section" class="create_section">
+                <legend><h1>Create a new recipe</h1></legend>
+                <label for="id_title">Recipe Name:</label>
+                <input autofocus type="text" name="title" id="id_title" required>
+            </fieldset>
 
-            <button type="button" class="btn btn-secondary" id="add-ingredient">Add another ingredient</button>
+            <fieldset id="ingredients-section" class="create_section">
+                <legend><h1>Ingredients</h1></legend>
+                <div class="ingredient">
+                    <input type="text" id="ingredient_amount_1" name="ingredient_amount_1" placeholder="Amount" class="create_ingredient_input">
+                    <input type="text" id="ingredient_unit_1" name="ingredient_unit_1" placeholder="Unit" class="create_ingredient_input">
+                    <input type="text" id="ingredient_text_1" name="ingredient_text_1" placeholder="Ingredient" class="create_ingredient_input" required >
+                    <button type="button" class="btn btn-danger" onclick="deleteIngredient(this)">Delete</button>
+                </div>
+                <div id="ingredients-list">
+                </div>
+
+                <button type="button" class="btn btn-secondary" id="add-ingredient">Add another ingredient</button>
+            </fieldset>
+
+            
+
+            <fieldset id="instructions-section" class="create_section">
+                <legend><h1>Instructions</h1></legend>
+                <div class="instruction">
+                    <textarea name="instruction_text_1" placeholder="Instruction" class="create_instruction_input" required></textarea>
+                    <button type="button" class="btn btn-danger" onclick="deleteInstruction(this)">Delete</button>
+                </div>
+                <div id="instructions-list">
+                </div>
+            <button type="button" class="btn btn-secondary" id="add-instruction">Add another instruction</button>
+            </fieldset>
         </fieldset>
+        <input type="submit" class="btn btn-success" value="Publish">
+        {% endif %}
+    </form>
+    </div>
 
-        <fieldset id="instructions-section" class="create_section">
-            <legend><h1>Instructions</h1></legend>
-            {% for instruction in recipe.instruction_set.all %}
-            <div class="instruction">
-                <textarea name="instruction_text_{{ instruction.id }}" placeholder="Instruction" class="create_instruction_input" required>{{ instruction.instruction_text }}</textarea>
-                <button type = "button" class="btn btn-danger" onclick="deleteInstruction(this, {{ instruction.id }})">Delete</button>
-            </div>
-            {% endfor %}
-            <div id="instructions-list">
-            </div>
-        <button type="button" class="btn btn-secondary" id="add-instruction">Add another instruction</button>
-        </fieldset>
-    </fieldset>
-    <input type="submit" class="btn btn-success" value="Publish">
+{% else %}
+<div class='shadow p-4 mb-5 bg-body rounded'>
+    <h1>You must be logged in to submit a recipe</h1>
 
-    {% else %}
-    <fieldset>
-        <fieldset id="recipe-name-section" class="create_section">
-            <legend><h1>Create a new recipe</h1></legend>
-            <label for="id_title">Recipe Name:</label>
-            <input autofocus type="text" name="title" id="id_title" required>
-        </fieldset>
+    <br>
+    <br>
 
-        <fieldset id="ingredients-section" class="create_section">
-            <legend><h1>Ingredients</h1></legend>
-            <div class="ingredient">
-                <input type="text" id="ingredient_amount_1" name="ingredient_amount_1" placeholder="Amount" class="create_ingredient_input">
-                <input type="text" id="ingredient_unit_1" name="ingredient_unit_1" placeholder="Unit" class="create_ingredient_input">
-                <input type="text" id="ingredient_text_1" name="ingredient_text_1" placeholder="Ingredient" class="create_ingredient_input" required >
-                <button type="button" class="btn btn-danger" onclick="deleteIngredient(this)">Delete</button>
-            </div>
-            <div id="ingredients-list">
-            </div>
-
-            <button type="button" class="btn btn-secondary" id="add-ingredient">Add another ingredient</button>
-        </fieldset>
-
-        
-
-        <fieldset id="instructions-section" class="create_section">
-            <legend><h1>Instructions</h1></legend>
-            <div class="instruction">
-                <textarea name="instruction_text_1" placeholder="Instruction" class="create_instruction_input" required></textarea>
-                <button type="button" class="btn btn-danger" onclick="deleteInstruction(this)">Delete</button>
-            </div>
-            <div id="instructions-list">
-            </div>
-        <button type="button" class="btn btn-secondary" id="add-instruction">Add another instruction</button>
-        </fieldset>
-    </fieldset>
-    <input type="submit" class="btn btn-success" value="Publish">
-    {% endif %}
-</form>
+    
+    <a href="{% url 'login' %}">Login Here</a>
 </div>
+
+{% endif %}
 
 
 <style>

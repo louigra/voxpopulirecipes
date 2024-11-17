@@ -8,11 +8,11 @@ from django.utils import timezone
 # import the models i need
 from .models import Recipe, Ingredient, Instruction
 
-def index(request):
+def main(request):
     lastest_recipe_list = Recipe.objects.filter(pub_date__lte=timezone.now()).order_by("-pub_date")[:5]
     all_recipes = Recipe.objects.all().order_by("id")
     all_unique_ingredients = Ingredient.objects.values_list("ingredient_text", flat=True).distinct().order_by("ingredient_text")
-    template = loader.get_template("voxpopulirecipes/index.html")
+    template = loader.get_template("voxpopulirecipes/main.html")
     context = {
         "latest_recipe_list": lastest_recipe_list,
         "all_recipes": all_recipes,
@@ -156,7 +156,7 @@ def random_recipe(request):
     if random_recipe:
         return redirect('voxpopulirecipes:detail', recipe_id=random_recipe.id)
     else:
-        return redirect('voxpopulirecipes:index')
+        return redirect('voxpopulirecipes:main')
     
 def edit_recipe(request, recipe_id):
     recipe = get_object_or_404(Recipe, pk=recipe_id)
@@ -165,7 +165,7 @@ def edit_recipe(request, recipe_id):
 def delete_recipe(request, recipe_id):
     recipe = get_object_or_404(Recipe, pk=recipe_id)
     recipe.delete()
-    return redirect('voxpopulirecipes:index')
+    return redirect('voxpopulirecipes:main')
 
 def search_recipe(request):
     all_recipes = Recipe.objects.all().order_by("id")
@@ -174,6 +174,14 @@ def search_recipe(request):
     context = {
         "all_recipes": all_recipes,
         "all_unique_ingredients": all_unique_ingredients
+    }
+    return HttpResponse(template.render(context, request))
+
+def all_recipes(request):
+    all_recipes = Recipe.objects.all().order_by("id")
+    template = loader.get_template("voxpopulirecipes/all_recipes.html")
+    context = {
+        "all_recipes": all_recipes
     }
     return HttpResponse(template.render(context, request))
 

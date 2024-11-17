@@ -2,10 +2,6 @@
 
 {% block content %}
 
-{% comment %} {% load static %}
-
-<link rel='stylesheet' href="{% static 'voxpopulirecipes/style.css' %}"> {% endcomment %}
-
 <!-- template for showing the details of an already completed recipe -->
 <h1> {{ recipe.title }} </h1>
 <fieldset>
@@ -34,8 +30,11 @@
     </ol>
 </fieldset>
 <button id="back_button">Back To Recipe List</button>
+
+{% if user.is_authenticated %}
 <button id="edit_button">Edit Recipe</button>
 <button id="delete_button">Delete Recipe</button>
+{% endif %}
 
 
 
@@ -43,12 +42,16 @@
     document.getElementById("back_button").addEventListener("click", function() {
         window.location.href = "/voxpopulirecipes/";
     });
+
+    {% if user.is_authenticated %}
     document.getElementById("edit_button").addEventListener("click", function() {
         window.location.href = "/voxpopulirecipes/{{ recipe.id }}/edit";
     });
     document.getElementById("delete_button").addEventListener("click", function() {
         window.location.href = "/voxpopulirecipes/{{ recipe.id }}/delete";
     });
+    
+    {% endif %}
 </script>
 
 {% endblock %}

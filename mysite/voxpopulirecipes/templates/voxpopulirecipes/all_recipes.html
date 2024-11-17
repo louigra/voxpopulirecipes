@@ -1,0 +1,20 @@
+{% extends 'voxpopulirecipes/base.html' %}
+
+{% block content %}
+
+<div class="container">
+    <h1>All Recipes</h1>
+    <p>Here are all the recipes in the database:</p>
+
+    {% comment %} {% if all_recipes|length <= 20 %} {% endcomment %}
+    <ul>
+        {% for recipe in all_recipes %}
+        <li>
+            <a href="{% url 'voxpopulirecipes:detail' recipe.id %}">{{ recipe.title }}</a>
+        </li>
+        {% endfor %}
+    </ul>
+
+
+
+{% endblock %}

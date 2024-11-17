@@ -14,7 +14,7 @@ def login_user(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect("voxpopulirecipes:index") 
+            return redirect("voxpopulirecipes:main") 
         else:
             messages.success(request, ("There was an error logging in. Please try again..."))
             return redirect("login")
@@ -24,7 +24,7 @@ def login_user(request):
 def logout_user(request):
     logout(request)
     messages.success(request, ("You have been logged out..."))
-    return redirect("voxpopulirecipes:index")
+    return redirect("voxpopulirecipes:main")
 
 def register_user(request):
     if request.method == "POST":
@@ -36,7 +36,7 @@ def register_user(request):
             user = authenticate(username=username, password=password)
             login(request, user)
             messages.success(request, ("You have registered..."))
-            return redirect("voxpopulirecipes:index")
+            return redirect("voxpopulirecipes:main")
     else:
         form = RegisterUserForm()    
     return render(request, 'authenticate/register_user.html', {
