@@ -3,39 +3,54 @@
 {% block content %}
 
 <!-- template for showing the details of an already completed recipe -->
-<h1> {{ recipe.title }} </h1>
-<fieldset>
-    <h2> Ingredients </h2>
-    <ul>
-        {% for ingredient in recipe.ingredient_set.all %}
-            {% if not ingredient.ingredient_amount %}
-                <li>{{ ingredient.ingredient_text }}</li>
-            {% else %}
-                {% if not ingredient.ingredient_unit %}
-                    <li>{{ ingredient.ingredient_amount }} {{ ingredient.ingredient_text }}</li>
-                {% else %}
-                    <li>{{ ingredient.ingredient_amount }} {{ ingredient.ingredient_unit }} of {{ ingredient.ingredient_text }}</li>
+<div class="card">
+    <div class="card-header">
+        <h1> {{ recipe.title }} </h1>
+        <div>
+            <p>Created by: {{ recipe.creator.username }}</p>
+            <p>Created on: {{ recipe.pub_date }}</p>
+        </div>
+    </div>
+    <div class="card-body">
+        <fieldset>
+            <h2> Ingredients </h2>
+            <ul>
+                {% for ingredient in recipe.ingredient_set.all %}
+                    {% if not ingredient.ingredient_amount %}
+                        <li>{{ ingredient.ingredient_text }}</li>
+                    {% else %}
+                        {% if not ingredient.ingredient_unit %}
+                            <li>{{ ingredient.ingredient_amount }} {{ ingredient.ingredient_text }}</li>
+                        {% else %}
+                            <li>{{ ingredient.ingredient_amount }} {{ ingredient.ingredient_unit }} of {{ ingredient.ingredient_text }}</li>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </fieldset>
+        <br>
+        <fieldset>
+            <h2> Instructions </h2>
+            <ol>
+                {% for instruction in recipe.instruction_set.all %}
+                <li>{{ instruction.instruction_text }}</li>
+                {% endfor %}
+            </ol>
+        </fieldset>
+    </div>
+    <div class="card-footer">
+        <div class="btn-group" role="group">
+            <button class='btn btn-secondary'id="back_button">Back To Recipe List</button>
+
+            {% if user.is_authenticated %}
+                {% if user == recipe.creator %}
+                    <button class='btn btn-warning'id="edit_button">Edit Recipe</button>
                 {% endif %}
+            <button class='btn btn-danger'id="delete_button">Delete Recipe</button>
             {% endif %}
-        {% endfor %}
-    </ul>
-</fieldset>
-<br>
-<fieldset>
-    <h2> Instructions </h2>
-    <ol>
-        {% for instruction in recipe.instruction_set.all %}
-          <li>{{ instruction.instruction_text }}</li>
-        {% endfor %}
-    </ol>
-</fieldset>
-<button id="back_button">Back To Recipe List</button>
-
-{% if user.is_authenticated %}
-<button id="edit_button">Edit Recipe</button>
-<button id="delete_button">Delete Recipe</button>
-{% endif %}
-
+        </div>
+    </div>
+</div>
 
 
 <script>
@@ -50,7 +65,7 @@
     document.getElementById("delete_button").addEventListener("click", function() {
         window.location.href = "/voxpopulirecipes/{{ recipe.id }}/delete";
     });
-    
+
     {% endif %}
 </script>
 

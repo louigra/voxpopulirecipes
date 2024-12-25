@@ -4,9 +4,12 @@ from django.http import HttpResponse
 from django.template import loader
 from django.utils import timezone
 
+# import pagination stuff
+from django.core.paginator import Paginator
+
 
 # import the models i need
-from .models import Recipe, Ingredient, Instruction
+from .models import Recipe, Ingredient, Instruction, User
 
 def main(request):
     lastest_recipe_list = Recipe.objects.filter(pub_date__lte=timezone.now()).order_by("-pub_date")[:5]
@@ -57,7 +60,11 @@ def submit_recipe(request, recipe_id=None):
                     
             else:
                 # If creating a new recipe
-                recipe = Recipe.objects.create(title=recipe_title, pub_date=timezone.now())
+                recipe = Recipe.objects.create(
+                    title=recipe_title, 
+                    pub_date=timezone.now(),
+                    creator=request.user
+                    )
 
             # Extract the posted ingredient IDs from the form data
             posted_ingredient_ids = [key.split('_')[-1] for key in request.POST if key.startswith('ingredient_text_')]
@@ -168,20 +175,36 @@ def delete_recipe(request, recipe_id):
     return redirect('voxpopulirecipes:main')
 
 def search_recipe(request):
+    search_text = ""
+    if request.method == "POST":
+        search_text = request.POST.get("search_text")
     all_recipes = Recipe.objects.all().order_by("id")
     all_unique_ingredients = Ingredient.objects.values_list("ingredient_text", flat=True).distinct().order_by("ingredient_text")
     template = loader.get_template("voxpopulirecipes/search.html")
     context = {
         "all_recipes": all_recipes,
-        "all_unique_ingredients": all_unique_ingredients
+        "all_unique_ingredients": all_unique_ingredients,
+        "search_text": search_text,
     }
     return HttpResponse(template.render(context, request))
 
 def all_recipes(request):
-    all_recipes = Recipe.objects.all().order_by("id")
     template = loader.get_template("voxpopulirecipes/all_recipes.html")
+    
+    # set up pagination
+    p = Paginator(Recipe.objects.all(), 5)
+    page = request.GET.get('page')
+    recipes = p.get_page(page)
+    
     context = {
-        "all_recipes": all_recipes
+        "recipes": recipes
     }
     return HttpResponse(template.render(context, request))
 
+def my_recipes(request):
+    template = loader.get_template("voxpopulirecipes/my_recipes.html")
+    recipes = Recipe.objects.all()
+    context = {
+        "recipes": recipes
+    }
+    return HttpResponse(template.render(context, request))

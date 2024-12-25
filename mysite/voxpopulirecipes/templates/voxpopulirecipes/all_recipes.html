@@ -8,13 +8,59 @@
 
     {% comment %} {% if all_recipes|length <= 20 %} {% endcomment %}
     <ul>
-        {% for recipe in all_recipes %}
-        <li>
-            <a href="{% url 'voxpopulirecipes:detail' recipe.id %}">{{ recipe.title }}</a>
-        </li>
+        {% for recipe in recipes %}
+            <div class="card">
+                <div class="card-body">
+                    <a href="{% url 'voxpopulirecipes:detail' recipe.id %}">{{ recipe.title }}</a>
+                </div>
+            </div>
         {% endfor %}
     </ul>
 
 
+<hr><br/>
+
+<nav aria-label="Page navigation">
+    <ul class="pagination">
+
+        {% if recipes.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1">&laquo First</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ recipes.previous_page_number }}">Previous</a>
+            </li>
+        {% endif %}
+
+            <li class="page-item disabled">
+                <a href='#' class="page-link">
+                    Page {{ recipes.number }} of {{ recipes.paginator.num_pages }}
+                </a>
+            </li>
+
+        {% if recipes.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ recipes.next_page_number }}">Next</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ recipes.paginator.num_pages }}">Last &raquo</a>
+            </li>
+        {% endif %}
+
+    </ul>
+</nav>
+
+<style>
+    .card {
+        margin: 10px;
+        padding: 10px;
+        border: 1px solid #25262a;
+        border-radius: 5px;
+    }
+
+    .card-body {
+        padding: 10px;
+    }
+</style>
 
 {% endblock %}

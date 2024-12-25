@@ -1,89 +1,105 @@
 <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #25262a;">
-  <div class="container-fluid">
-      <a class="navbar-brand" href="#">
-          {% load static %}
-          <img src="{% static 'voxpopulirecipes/logo.png' %}" alt="My image" width="60" height="60">
-      </a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-              {% if user.is_authenticated %}
-              <li class="nav-item">
-                  <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-              </li>
-              {% else %}
-              <li class="nav-item">
-                  <a class="nav-link" href="{% url 'login' %}">Login</a>
-              </li>
-              <li class="nav-item">
-                  <a class="nav-link" href="{% url 'register' %}">Register</a>
-              </li>
-              {% endif %}
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    Recipes
-                </a>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="{% url 'voxpopulirecipes:all_recipes' %}">All Recipes</a></li>
-                    <li><a class="dropdown-item" href="{% url 'voxpopulirecipes:search_recipe' %}">Search Recipes</a></li>
-                    <li><a class="dropdown-item" href="{% url 'voxpopulirecipes:random_recipe' %}">Random Recipe</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    {% if user.is_authenticated %}
-                    <li><a class="dropdown-item" href="{% url 'voxpopulirecipes:submit_recipe' %}">Submit a Recipe</a></li>
-                    {% endif %}
-                </ul>
-            </li>
-              <li class="nav-item">
-                  <a class="nav-link" href="{% url 'voxpopulirecipes:main' %}">Home</a>
-              </li>
-              <li class="nav-item">
-                  <a class="nav-link" href="{% url 'voxpopulirecipes:search_recipe' %}">Search Recipes</a>
-              </li>
-
-          </ul>
-      </div>
-  </div>
+	<div class="container-fluid">
+		<a class="navbar-brand" href="#">
+			{% load static %}
+			<img src="{% static 'voxpopulirecipes/logo.png' %}" alt="My image" width="60" height="60">
+		</a>
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarSupportedContent">
+		<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+			<li class="nav-item">
+				<a class="nav-link" href="{% url 'voxpopulirecipes:main' %}">Home</a>
+			</li>
+			<li class="nav-item dropdown">
+				<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+					Recipes
+				</a>
+				<ul class="dropdown-menu">
+					<li><a class="dropdown-item" href="{% url 'voxpopulirecipes:all_recipes' %}">All Recipes</a></li>
+					<li><a class="dropdown-item" href="{% url 'voxpopulirecipes:search_recipe' %}">Search Recipes</a></li>
+					<li><a class="dropdown-item" href="{% url 'voxpopulirecipes:random_recipe' %}">Random Recipe</a></li>
+					<li><hr class="dropdown-divider"></li>
+					{% if user.is_authenticated %}
+					<li><a class="dropdown-item" href="{% url 'voxpopulirecipes:submit_recipe' %}">Submit a Recipe</a></li>
+					<li><a class="dropdown-itme" href="{% url 'voxpopulirecipes:my_recipes' %}">My Recipes</a></li>
+					{% endif %}
+				</ul>
+			</li>
+			{% if user.is_authenticated %}
+			<li class="nav-item">
+				<a class="nav-link" href="{% url 'logout' %}">Logout</a>
+			</li>
+			{% else %}
+			<li class="nav-item">
+				<a class="nav-link" href="{% url 'login' %}">Login</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" href="{% url 'register' %}">Register</a>
+			</li>
+			{% endif %}
+			</ul>
+			<form class="d-flex ms-auto" method="POST" action="{% url 'voxpopulirecipes:search_recipe'%}">
+				{% csrf_token %}
+				<input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="search_text">
+				<button class="btn btn-outline-success" type="submit">Search</button>
+			</form>
+		</div>
+	</div>
 </nav>
 
 <style>
-  .navbar {
-      background-color: #25262a; /* Dark background matching the logo */
-  }
 
-  .nav-link {
-      color: #fcfde9;
-      transition: color 0.3s ease;
-  }
+.form-control {
+	max-width: 200px; /* Limit the width of the search input */
+}
+.btn-outline-success {
+	color: #fcfde9;
+	border-color: #e9574d;
+}
+.btn-outline-success:hover {
+	color: #25262a;
+	background-color: #e9574d;
+	border-color: #e9574d;
+}
 
-  .nav-link:hover {
-      color: #e9574d; /* Hover color */
-  }
+.navbar {
+	background-color: #25262a; /* Dark background matching the logo */
+}
 
-  .navbar-toggler {
-      border-color: #fcfde9;
-  }
+.nav-link {
+	color: #fcfde9;
+	transition: color 0.3s ease;
+}
 
-  .navbar-toggler-icon {
-      color: #fcfde9;
-  }
+.nav-link:hover {
+	color: #e9574d; /* Hover color */
+}
 
-  .dropdown-menu {
-      background-color: #25262a;
-      border-color: #e9574d;
-  }
+.navbar-toggler {
+	border-color: #fcfde9;
+}
 
-  .dropdown-item {
-      color: #fcfde9;
-  }
+.navbar-toggler-icon {
+	color: #fcfde9;
+}
 
-  .dropdown-item:hover {
-      color: #e9574d;
-      background-color: #333;
-  }
+.dropdown-menu {
+	background-color: #25262a;
+	border-color: #e9574d;
+}
 
-  .dropdown-divider {
-      border-color: #e9574d;
-  }
+.dropdown-item {
+	color: #fcfde9;
+}
+
+.dropdown-item:hover {
+	color: #e9574d;
+	background-color: #333;
+}
+
+.dropdown-divider {
+	border-color: #e9574d;
+}
 </style>

@@ -1,22 +1,66 @@
 {% extends 'voxpopulirecipes/base.html' %}
- {% block content %}
-{% if form.errors %}
-<div class="alert alert-{{ message.tags }}" role="alert">
-    There was an error with your form...
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-  </div>
 
-{% endif %}
-<div class='shadow p-4 mb-5 bg-body rounded'> 
-<h1>Create User</h1>
-<br>
-<form action= "{% url 'register' %}" method=POST>
-    {% csrf_token %}
-    
-    {{ form.as_p }}
-    <br>
-    <button type="submit" class="btn btn-primary">Register</button>
-    
-</form>
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <div class="card-header text-center bg-dark text-light">
+                    <h4>Create a New Account</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Display Form Errors -->
+                    {% if form.errors %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        There was an error with your form. Please fix the highlighted fields.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endif %}
+                      <form action= "{% url 'register' %}" method=POST>
+                          {% csrf_token %}
+                          
+                          {{ form.as_p }}
+                          <button type="submit" class="btn btn-primary">Register</button>
+                          
+                      </form>
+                    </br>
+                <div class="card-footer text-center">
+                    <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Custom Styles -->
+<style>
+    .card {
+        border-radius: 15px;
+    }
+
+    .card-header {
+        border-top-left-radius: 15px;
+        border-top-right-radius: 15px;
+    }
+
+    .form-control {
+        border-radius: 10px;
+    }
+
+    .invalid-feedback {
+        display: block;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border: none;
+        border-radius: 10px;
+        padding: 10px;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+    
+</style>
 {% endblock %}

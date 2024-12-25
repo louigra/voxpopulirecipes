@@ -1,21 +1,42 @@
 {% extends 'voxpopulirecipes/base.html' %}
  {% block content %}
-<div class='shadow p-4 mb-5 bg-body rounded'> 
-<h1>Login</h1>
-<br>
-<form action= "" method="post">
-    {% csrf_token %}
-    
-        <div class="mb-3">
-          <label for="username" class="form-label">Username</label>
-          <input type="text" class="form-control" id="username" name="username">
-        </div>
-        <div class="mb-3">
-          <label for="password" class="form-label">Password</label>
-          <input type="password" class="form-control" id="password" name="password">
-        </div>
-        <button type="submit" class="btn btn-primary">Login</button>
-    
-</form>
+
+ <div class="container mt-5">
+  <div class="row justify-content-center">
+      <div class="col-md-6">
+          <div class="card shadow-lg">
+              <div class="card-header text-center bg-dark text-light">
+                  <h4>Create a New Account</h4>
+              </div>
+              <div class="card-body">
+                  <!-- Display Form Errors -->
+                  {% if form.errors %}
+                  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                      There was an error with your form. Please fix the highlighted fields.
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                  {% endif %}
+                  <form action= "" method="post">
+                    {% csrf_token %}
+                    
+                        <div class="mb-3">
+                          <label for="username" class="form-label">Username</label>
+                          <input type="text" class="form-control" id="username" name="username">
+                        </div>
+                        <div class="mb-3">
+                          <label for="password" class="form-label">Password</label>
+                          <input type="password" class="form-control" id="password" name="password">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Login</button>
+                    
+                </form>
+                  </br>
+              <div class="card-footer text-center">
+                  <p>Don't have an account? <a href="{% url 'register' %}">Register here</a></p>
+              </div>
+          </div>
+      </div>
+  </div>
 </div>
+
 {% endblock %}
