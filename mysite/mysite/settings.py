@@ -29,8 +29,8 @@ SECRET_KEY = 'django-insecure-q^pp+9se2wzg&&8ou37i%b*kb^1=tr=gqu!ty=$k(vn!1+ku3v
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['voxpopulirecipesdjango-production.up.railway.app', 'https://voxpopulirecipesdjango-production.up.railway.app']
-CSRF_TRUSTED_ORIGINS =['voxpopulirecipesdjango-production.up.railway.app', 'https://voxpopulirecipesdjango-production.up.railway.app']
+ALLOWED_HOSTS = ['voxpopulirecipes-production.up.railway.app', 'https://voxpopulirecipes-production.up.railway.app']
+CSRF_TRUSTED_ORIGINS =['voxpopulirecipes-production.up.railway.app', 'https://voxpopulirecipes-production.up.railway.app']
 
 # Application definition
 
