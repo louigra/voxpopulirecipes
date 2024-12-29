@@ -4,12 +4,13 @@ from django.http import HttpResponse
 from django.template import loader
 from django.utils import timezone
 
+
 # import pagination stuff
 from django.core.paginator import Paginator
 
 
 # import the models i need
-from .models import Recipe, Ingredient, Instruction, User
+from .models import Recipe, Ingredient, Instruction, User, RecipeNote
 
 def main(request):
     lastest_recipe_list = Recipe.objects.filter(pub_date__lte=timezone.now()).order_by("-pub_date")[:5]
@@ -208,3 +209,4 @@ def my_recipes(request):
         "recipes": recipes
     }
     return HttpResponse(template.render(context, request))
+

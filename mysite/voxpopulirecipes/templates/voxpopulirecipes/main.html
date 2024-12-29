@@ -1,8 +1,11 @@
 {% extends 'voxpopulirecipes/base.html' %}
 
 {% block content %}
-<div class='shadow p-4 mb-5 bg-body rounded'> 
-    <div id="body">
+<div class='card'>
+    <div class='card-header'>
+        <h1>Welcome to Vox Populi Recipes</h1>
+    </div>
+    <div class='card-body' id="body">
     {% if latest_recipe_list %}
         <div>
         <h1>Check Out the 5 Latest recipes</h1>
@@ -11,10 +14,17 @@
             <li class="list-group-item"><a href="{% url 'voxpopulirecipes:detail' recipe.id %}">{{ recipe.title }}</a></li>
         {% endfor %}
         </ul>
-    <br>
+        <br>
+    </div>
 
     <h1>Or, click here to be taken to a random recipe</h1>
     <button class="btn btn-warning" id="random_recipe"> Random Recipe </button>
+
+    {% if user.is_authenticated%}
+    <h1>Submit a new recipe</h1>
+    <button class="btn btn-success" id="new_recipe" >Submit a new recipe</button>
+    {% endif %}
+
     </div>
         {% else %}
             <div>
@@ -22,15 +32,8 @@
             </div>
         {% endif %}
 
-        {% if user.is_authenticated%}
 
-        <h1>Submit a new recipe</h1>
-        <button class="btn btn-success" id="new_recipe" >Submit a new recipe</button>
-    </div>
-
-    {% endif %}
-
-
+        
     </div>
 </div>
 

@@ -45,11 +45,12 @@
             {% if user.is_authenticated %}
                 {% if user == recipe.creator %}
                     <button class='btn btn-warning'id="edit_button">Edit Recipe</button>
+                    <button class='btn btn-danger'id="delete_button">Delete Recipe</button>
                 {% endif %}
-            <button class='btn btn-danger'id="delete_button">Delete Recipe</button>
             {% endif %}
         </div>
     </div>
+
 </div>
 
 
@@ -65,7 +66,6 @@
     document.getElementById("delete_button").addEventListener("click", function() {
         window.location.href = "/voxpopulirecipes/{{ recipe.id }}/delete";
     });
-
     {% endif %}
 </script>
 

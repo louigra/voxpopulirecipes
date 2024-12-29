@@ -18,7 +18,7 @@
             <ul id="recipe-list" class="list-group">
                 {% for recipe in all_recipes %}
                     <li class="list-group-item recipe_option" data-ingredients="{{ recipe.ingredient_set.all|join:',' }}">
-                        <a href="#" class="text-decoration-none" data-id="{{ recipe.id }}">{{ recipe.title }}</a>
+                        <a href="{% url 'voxpopulirecipes:detail' recipe.id %}" class="text-decoration-none" data-id="{{ recipe.id }}">{{ recipe.title }}</a>
                     </li>
                 {% endfor %}
             </ul>
@@ -33,6 +33,12 @@
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
+
+        <h4>Applied Filters</h4>
+        <ul id="appliedFiltersList" class="list-group"></ul>
+
+        <br>
+
         <h4>Filter by Ingredient</h4>
         <input type="text" id="filter-ingredient" class="form-control mb-3" placeholder="Search Ingredient..." onkeyup="searchIngredientName()">
         <ul id="ingredient-list" class="list-group mb-3">
@@ -43,8 +49,7 @@
             {% endfor %}
         </ul>
 
-        <h4>Applied Filters</h4>
-        <ul id="appliedFiltersList" class="list-group"></ul>
+
     </div>
 </div>
 
