@@ -92,41 +92,69 @@
 
 
         {% else %}
-        <fieldset>
-            <fieldset id="recipe-name-section" class="create_section">
-                <legend><h1>Create a new recipe</h1></legend>
-                <label for="id_title">Recipe Name:</label>
-                <input autofocus type="text" name="title" id="id_title" required>
+
+        <div class="container mt-4">
+            <fieldset>
+                <!-- Recipe Title Section -->
+                <div class="card text-center shadow-sm mb-4">
+                    <fieldset id="recipe-name-section" class="create_section">
+                        <div class="card-header bg-dark text-white">
+                            <legend><h1>Create a new recipe</h1></legend>
+                            <label for="id_title">Recipe Name:</label>
+                            <input autofocus type="text" name="title" id="id_title" required>
+                        </div>
+                    </fieldset>
+                </div>
+
+            <div class="row">
+                <!-- Ingredients Section -->
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm">
+                        <fieldset id="ingredients-section" class="create_section">
+                            <div class="card-header bg-primary text-white">
+                                <h2>Ingredients</h2>
+                            </div>
+                            <div class="card-body">
+                                <div class="ingredient">
+                                    <input type="text" id="ingredient_amount_1" name="ingredient_amount_1" placeholder="Amount" class="create_ingredient_input">
+                                    <input type="text" id="ingredient_unit_1" name="ingredient_unit_1" placeholder="Unit" class="create_ingredient_input">
+                                    <input type="text" id="ingredient_text_1" name="ingredient_text_1" placeholder="Ingredient" class="create_ingredient_input" required >
+                                    <button type="button" class="btn btn-danger" onclick="deleteIngredient(this)">Delete</button>
+                                </div>
+                                <div id="ingredients-list">
+                                </div>
+                            </div>
+
+                                <button type="button" class="btn btn-secondary" id="add-ingredient">Add another ingredient</button>
+                            </fieldset>
+                        </div>
+                    </div>
+
+                            
+                <!-- Instructions Section -->
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm">
+                            <fieldset id="instructions-section" class="create_section">
+                                <div class="card-header bg-success text-white">
+                                    <h2>Instructions</h2>
+                                </div>
+                                <div class="card-body">
+                                    <div class="instruction">
+                                        <textarea name="instruction_text_1" placeholder="Instruction" class="create_instruction_input" required></textarea>
+                                        <button type="button" class="btn btn-danger" onclick="deleteInstruction(this)">Delete</button>
+                                    </div>
+                                    <div id="instructions-list">
+                                    </div>
+                                </div>
+                            <button type="button" class="btn btn-secondary" id="add-instruction">Add another instruction</button>
+                            </fieldset>
+                        </div>
+                    </div>
+            </div>
             </fieldset>
+            <input type="submit" class="btn btn-success" value="Publish">
+            </div>
 
-            <fieldset id="ingredients-section" class="create_section">
-                <legend><h1>Ingredients</h1></legend>
-                <div class="ingredient">
-                    <input type="text" id="ingredient_amount_1" name="ingredient_amount_1" placeholder="Amount" class="create_ingredient_input">
-                    <input type="text" id="ingredient_unit_1" name="ingredient_unit_1" placeholder="Unit" class="create_ingredient_input">
-                    <input type="text" id="ingredient_text_1" name="ingredient_text_1" placeholder="Ingredient" class="create_ingredient_input" required >
-                    <button type="button" class="btn btn-danger" onclick="deleteIngredient(this)">Delete</button>
-                </div>
-                <div id="ingredients-list">
-                </div>
-
-                <button type="button" class="btn btn-secondary" id="add-ingredient">Add another ingredient</button>
-            </fieldset>
-
-            
-
-            <fieldset id="instructions-section" class="create_section">
-                <legend><h1>Instructions</h1></legend>
-                <div class="instruction">
-                    <textarea name="instruction_text_1" placeholder="Instruction" class="create_instruction_input" required></textarea>
-                    <button type="button" class="btn btn-danger" onclick="deleteInstruction(this)">Delete</button>
-                </div>
-                <div id="instructions-list">
-                </div>
-            <button type="button" class="btn btn-secondary" id="add-instruction">Add another instruction</button>
-            </fieldset>
-        </fieldset>
-        <input type="submit" class="btn btn-success" value="Publish">
         {% endif %}
     </form>
     </div>
