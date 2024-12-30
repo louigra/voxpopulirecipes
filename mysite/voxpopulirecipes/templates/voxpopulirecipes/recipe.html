@@ -1,72 +1,79 @@
 {% extends 'voxpopulirecipes/base.html' %}
 
 {% block content %}
-
-<!-- template for showing the details of an already completed recipe -->
-<div class="card">
-    <div class="card-header">
-        <h1> {{ recipe.title }} </h1>
-        <div>
-            <p>Created by: {{ recipe.creator.username }}</p>
-            <p>Created on: {{ recipe.pub_date }}</p>
+<div class="container mt-4">
+    <!-- Recipe Title Section -->
+    <div class="card text-center shadow-sm mb-4">
+        <div class="card-header bg-dark text-white">
+            <h1 class="display-5">{{ recipe.title }}</h1>
         </div>
-    </div>
-    <div class="card-body">
-        <fieldset>
-            <h2> Ingredients </h2>
-            <ul>
-                {% for ingredient in recipe.ingredient_set.all %}
-                    {% if not ingredient.ingredient_amount %}
-                        <li>{{ ingredient.ingredient_text }}</li>
-                    {% else %}
-                        {% if not ingredient.ingredient_unit %}
-                            <li>{{ ingredient.ingredient_amount }} {{ ingredient.ingredient_text }}</li>
-                        {% else %}
-                            <li>{{ ingredient.ingredient_amount }} {{ ingredient.ingredient_unit }} of {{ ingredient.ingredient_text }}</li>
-                        {% endif %}
-                    {% endif %}
-                {% endfor %}
-            </ul>
-        </fieldset>
-        <br>
-        <fieldset>
-            <h2> Instructions </h2>
-            <ol>
-                {% for instruction in recipe.instruction_set.all %}
-                <li>{{ instruction.instruction_text }}</li>
-                {% endfor %}
-            </ol>
-        </fieldset>
-    </div>
-    <div class="card-footer">
-        <div class="btn-group" role="group">
-            <button class='btn btn-secondary'id="back_button">Back To Recipe List</button>
-
-            {% if user.is_authenticated %}
-                {% if user == recipe.creator %}
-                    <button class='btn btn-warning'id="edit_button">Edit Recipe</button>
-                    <button class='btn btn-danger'id="delete_button">Delete Recipe</button>
-                {% endif %}
-            {% endif %}
+        <div class="card-body">
+            <p class="mb-1"><strong>Created by:</strong> {{ recipe.creator.username }}</p>
+            <p class="mb-0"><strong>Created on:</strong> {{ recipe.pub_date }}</p>
         </div>
     </div>
 
+    <!-- Recipe Content Section -->
+    <div class="row">
+        <!-- Ingredients Section -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h2>Ingredients</h2>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% for ingredient in recipe.ingredient_set.all %}
+                            {% if not ingredient.ingredient_amount %}
+                                <li class="list-group-item">{{ ingredient.ingredient_text }}</li>
+                            {% else %}
+                                {% if not ingredient.ingredient_unit %}
+                                    <li class="list-group-item">{{ ingredient.ingredient_amount }} {{ ingredient.ingredient_text }}</li>
+                                {% else %}
+                                    <li class="list-group-item">{{ ingredient.ingredient_amount }} {{ ingredient.ingredient_unit }} of {{ ingredient.ingredient_text }}</li>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instructions Section -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h2>Instructions</h2>
+                </div>
+                <div class="card-body">
+                    <ol class="list-group list-group-numbered">
+                        {% for instruction in recipe.instruction_set.all %}
+                            <li class="list-group-item">{{ instruction.instruction_text }}</li>
+                        {% endfor %}
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Section -->
+<!-- Footer Section -->
+    <div class="d-flex justify-content-between mt-4">
+        <a href="{% url 'voxpopulirecipes:main' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back To Recipe List
+        </a>
+
+        {% if user.is_authenticated and user == recipe.creator %}
+            <div class="btn-group">
+                <a href="{% url 'voxpopulirecipes:edit_recipe' recipe.id %}" class="btn btn-warning">
+                    <i class="bi bi-pencil"></i> Edit Recipe
+                </a>
+                <a href="{% url 'voxpopulirecipes:delete_recipe' recipe.id %}" class="btn btn-danger">
+                    <i class="bi bi-trash"></i> Delete Recipe
+                </a>
+            </div>
+        {% endif %}
+    </div>
 </div>
-
-
-<script>
-    document.getElementById("back_button").addEventListener("click", function() {
-        window.location.href = "/voxpopulirecipes/";
-    });
-
-    {% if user.is_authenticated %}
-    document.getElementById("edit_button").addEventListener("click", function() {
-        window.location.href = "/voxpopulirecipes/{{ recipe.id }}/edit";
-    });
-    document.getElementById("delete_button").addEventListener("click", function() {
-        window.location.href = "/voxpopulirecipes/{{ recipe.id }}/delete";
-    });
-    {% endif %}
-</script>
 
 {% endblock %}

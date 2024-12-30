@@ -1,53 +1,120 @@
 {% extends 'voxpopulirecipes/base.html' %}
 
 {% block content %}
-<div class='card'>
-    <div class='card-header'>
-        <h1>Welcome to Vox Populi Recipes</h1>
-    </div>
-    <div class='card-body' id="body">
-    {% if latest_recipe_list %}
-        <div>
-        <h1>Check Out the 5 Latest recipes</h1>
-        <ul>
-        {% for recipe in latest_recipe_list %}
-            <li class="list-group-item"><a href="{% url 'voxpopulirecipes:detail' recipe.id %}">{{ recipe.title }}</a></li>
-        {% endfor %}
-        </ul>
-        <br>
-    </div>
+<div class="container mt-4">
+    <!-- Card Container -->
+    <div class="card shadow-lg">
+        <div class="card-header bg-dark text-white text-center">
+            <h1>Welcome to Vox Populi Recipes</h1>
+        </div>
+        <div class="card-body">
+            {% if latest_recipe_list %}
+                <!-- Latest Recipes Section -->
+                <div class="mb-4">
+                    <h2 class="text-primary text-center">Check Out the 5 Latest Recipes</h2>
+                    <div class="row row-cols-1 row-cols-md-3 g-4">
+                        {% for recipe in latest_recipe_list %}
+                            <div class="col">
+                                <a href="{% url 'voxpopulirecipes:detail' recipe.id %}" class="text-decoration-none">
+                                    <div class="card h-100 shadow-sm">
+                                        <img
+                                            {% load static %}
+                                            src="{% static 'voxpopulirecipes/logo.png' %}" 
+                                            class="card-img-top" 
+                                            alt="{{ recipe.title }}" 
+                                            style="object-fit: cover; height: 200px;"
+                                        >
+                                        <div class="card-body text-center">
+                                            <h5 class="card-title text-dark">
+                                                {{ recipe.title }}
+                                            </h5>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
 
-    <h1>Or, click here to be taken to a random recipe</h1>
-    <button class="btn btn-warning" id="random_recipe"> Random Recipe </button>
+                <!-- Random Recipe Section -->
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-warning text-white text-center">
+                            <h2>Or, click here to see a random recipe</h2>
+                        </div>
+                        <div class="card-body text-center">
+                            <a href="{% url 'voxpopulirecipes:random_recipe' %}" class="btn btn-warning btn-lg">
+                                <i class="bi bi-shuffle"></i> Random Recipe
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
 
-    {% if user.is_authenticated%}
-    <h1>Submit a new recipe</h1>
-    <button class="btn btn-success" id="new_recipe" >Submit a new recipe</button>
-    {% endif %}
+                <!-- Submit Recipe Section (Visible Only to Authenticated Users) -->
+                
+                {% if user.is_authenticated %}
 
-    </div>
-        {% else %}
-            <div>
-            <p>No recipes are available.</p>
-            </div>
-        {% endif %}
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm">
+
+                        <div class="card-header bg-success text-white text-center">
+                            <h2>Submit a New Recipe</h2>
+                        </div>
+                        <div class="card-body text-center">
+                            <a href="{% url 'voxpopulirecipes:submit_recipe' %}" class="btn btn-success btn-lg">
+                                <i class="bi bi-plus-circle"></i> Submit a New Recipe
+                            </a>
+                        </div>
+                    </div>
+                </div>
 
 
-        
+                {% endif %}
+            {% else %}
+                <!-- No Recipes Available -->
+                <div class="alert alert-warning text-center">
+                    <h2>No Recipes Are Available</h2>
+                    <p>Be the first to contribute a recipe by clicking the button below!</p>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'voxpopulirecipes:submit_recipe' %}" class="btn btn-success">
+                            Submit a New Recipe
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
     </div>
 </div>
 
+<!-- Custom Styles -->
+<style>
+    .card {
+        border-radius: 10px;
+        overflow: hidden;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
 
-<script>
-    
-    // Handle random recipe button click
-    document.getElementById("random_recipe").addEventListener("click", function() {
-        window.location.href = "{% url 'voxpopulirecipes:random_recipe' %}";
-    });
+    {% comment %} .card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    } {% endcomment %}
 
-    document.getElementById("new_recipe").addEventListener("click", function() {
-        window.location.href = "{% url 'voxpopulirecipes:submit_recipe' %}";
-    });
-</script>
+    .card img {
+        border-bottom: 1px solid #ddd;
+    }
 
+    .btn-lg {
+        padding: 10px 20px;
+        font-size: 1.25rem;
+    }
+
+    a.text-decoration-none {
+        text-decoration: none;
+    }
+
+    a.text-decoration-none:hover {
+        text-decoration: none;
+    }
+</style>
 {% endblock %}

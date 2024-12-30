@@ -22,5 +22,7 @@ urlpatterns = [
     
     path("all_recipes/", views.all_recipes, name="all_recipes"),
     
-    path("my_recipes", views.my_recipes, name="my_recipes")
+    path("my_recipes", views.my_recipes, name="my_recipes"),
+    
+    path("about/", views.about, name="about"),
 ]

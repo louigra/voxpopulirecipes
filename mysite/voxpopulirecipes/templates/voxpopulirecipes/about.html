@@ -1,0 +1,89 @@
+{% extends 'voxpopulirecipes/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <!-- Header Section -->
+        <div class="col-12 text-center">
+            <h1 class="display-4">About Vox Populi Recipes</h1>
+            <p class="lead mt-3">A recipe book for everyone, built with simplicity and collaboration in mind.</p>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <!-- Mission Section -->
+        <div class="col-md-6">
+            <h2>Our Mission</h2>
+            <p>
+                In a world cluttered with advertisements and infinite scrolling, Vox Populi Recipes stands out
+                as a serene space where you can focus on what truly matters: the joy of cooking and sharing recipes.
+            </p>
+            <p>
+                Whether you're an experienced chef or just starting your culinary journey, our platform is designed
+                to be your trusted recipe book, free from distractions.
+            </p>
+        </div>
+        <!-- Image Section -->
+        <div class="col-md-6 text-center">
+            <img src="https://via.placeholder.com/500x300" class="img-fluid rounded" alt="Cooking together">
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <!-- Features Section -->
+        <div class="col-12">
+            <h2>Why Choose Vox Populi Recipes?</h2>
+            <div class="accordion" id="featuresAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingOne">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            No Ads, No Distractions
+                        </button>
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#featuresAccordion">
+                        <div class="accordion-body">
+                            Our platform is completely ad-free. Say goodbye to pop-ups and annoying banners. Focus on finding and sharing the recipes you love.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingTwo">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            Collaborative Recipe Book
+                        </button>
+                    </h2>
+                    <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#featuresAccordion">
+                        <div class="accordion-body">
+                            This isn't just your recipe book—it's everyone's. Collaborate with friends, family, and fellow food enthusiasts to build a shared collection of cherished recipes.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingThree">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                            Simple and Intuitive
+                        </button>
+                    </h2>
+                    <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#featuresAccordion">
+                        <div class="accordion-body">
+                            With an easy-to-use interface, Vox Populi Recipes ensures you can quickly find, add, and share recipes without any hassle.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <!-- Call to Action Section -->
+        <div class="col-12 text-center">
+            <h2>Join the Vox Populi Community</h2>
+            <p>
+                Start building your personal and collaborative recipe book today. Share your culinary creations,
+                discover new recipes, and cook together with your loved ones.
+            </p>
+            <a href="{% url 'register' %}" class="btn btn-primary btn-lg mt-3">Get Started</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

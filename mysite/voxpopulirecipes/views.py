@@ -210,3 +210,5 @@ def my_recipes(request):
     }
     return HttpResponse(template.render(context, request))
 
+def about(request):
+    return render(request, "voxpopulirecipes/about.html")

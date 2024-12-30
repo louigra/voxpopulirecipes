@@ -13,47 +13,83 @@
         {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 <!-- below is what renders if a recipe is passed in, meaning we are editing a recipe rather than creating a new one -->
         {% if recipe %}
-
-        <fieldset>
-            <fieldset id="recipe-name-section" class="create_section">
-                <legend><h1>Edit this recipe</h1></legend>
-                <label for="id_title">Recipe Name:</label>
-                <input autofocus type="text" name="title" id="id_title" value="{{ recipe.title }}" required>
-            </fieldset>
-
-            <fieldset id="ingredients-section" class="create_section">
-                <legend><h1>Ingredients</h1></legend>
-                {% for ingredient in recipe.ingredient_set.all %}
-                <div class="ingredient">
-                    <input type="text" name="ingredient_amount_{{ ingredient.id }}" placeholder="Amount" class="create_ingredient_input" value="{{ ingredient.ingredient_amount }}">
-                    <input type="text" name="ingredient_unit_{{ ingredient.id }}" placeholder="Unit" class="create_ingredient_input" value="{{ ingredient.ingredient_unit }}">
-                    <input type="text" name="ingredient_text_{{ ingredient.id }}" placeholder="Ingredient" class="create_ingredient_input" value="{{ ingredient.ingredient_text }}"required >
-                    <button type="button" class="btn btn-danger" onclick="deleteIngredient(this, {{ ingredient.id }})">Delete</button>
+        <div class="container mt-4">
+            <fieldset>
+                <!-- Recipe Title Section -->
+                <div class="card text-center shadow-sm mb-4">
+                    <fieldset id="recipe-name-section" class="create_section">
+                        <div class="card-header bg-dark text-white">
+                            <h1 class="display-5">Edit this recipe</h1>
+                            <label for="id_title">Recipe Name:</label>
+                            <input autofocus type="text" name="title" id="id_title" value="{{ recipe.title }}" required>
+                        </div>
+                        <div class="card-body">
+                            <p class="mb-1"><strong>Created by:</strong> {{ recipe.creator.username }}</p>
+                            <p class="mb-0"><strong>Created on:</strong> {{ recipe.pub_date }}</p>
+                            
+                        </div>
+                    </fieldset>
                 </div>
-                {% endfor %}
-                <div id="ingredients-list">
-                </div>
+                <!-- Recipe Content Section -->
+                <div class="row">
+                    <!-- Ingredients Section -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card shadow-sm">
+                            <fieldset id="ingredients-section" class="create_section">
+                                <div class="card-header bg-primary text-white">
+                                    <h2>Ingredients</h2>
+                                </div>
+                                <div class="card-body">
+                                    {% for ingredient in recipe.ingredient_set.all %}
+                                    <div class="ingredient">
+                                        <input type="text" name="ingredient_amount_{{ ingredient.id }}" placeholder="Amount" class="create_ingredient_input" value="{{ ingredient.ingredient_amount }}">
+                                        <input type="text" name="ingredient_unit_{{ ingredient.id }}" placeholder="Unit" class="create_ingredient_input" value="{{ ingredient.ingredient_unit }}">
+                                        <input type="text" name="ingredient_text_{{ ingredient.id }}" placeholder="Ingredient" class="create_ingredient_input" value="{{ ingredient.ingredient_text }}"required >
+                                        <button type="button" class="btn btn-danger" onclick="deleteIngredient(this, {{ ingredient.id }})">Delete</button>
+                                    </div>
+                                    {% endfor %}
+                                    <div id="ingredients-list">
+                                    </div>
+                                </div>
+                                
 
-                <button type="button" class="btn btn-secondary" id="add-ingredient">Add another ingredient</button>
-            </fieldset>
+                                <button type="button" class="btn btn-secondary" id="add-ingredient">Add another ingredient</button>
+                            </fieldset>
+                        </div>
+                    </div>
 
-            <fieldset id="instructions-section" class="create_section">
-                <legend><h1>Instructions</h1></legend>
-                {% for instruction in recipe.instruction_set.all %}
-                <div class="instruction">
-                    <textarea name="instruction_text_{{ instruction.id }}" placeholder="Instruction" class="create_instruction_input" required>{{ instruction.instruction_text }}</textarea>
-                    <button type = "button" class="btn btn-danger" onclick="deleteInstruction(this, {{ instruction.id }})">Delete</button>
-                </div>
-                {% endfor %}
-                <div id="instructions-list">
-                </div>
-            <button type="button" class="btn btn-secondary" id="add-instruction">Add another instruction</button>
-            </fieldset>
-        </fieldset>
-        <input type="submit" class="btn btn-success" value="Publish">
-        <hr>
-        <p>Created by: {{ recipe.creator.username }}</p>
-        <p>Created on: {{ recipe.pub_date }}</p>
+
+                    <!-- Instructions Section -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card shadow-sm">
+                            <fieldset id="instructions-section" class="create_section">
+                                <div class="card-header bg-success text-white">
+                                    <h2>Instructions</h2>
+                                </div>
+                                <div class="card-body">
+                                    {% for instruction in recipe.instruction_set.all %}
+                                    <div class="instruction">
+                                        <textarea name="instruction_text_{{ instruction.id }}" placeholder="Instruction" class="create_instruction_input" required>{{ instruction.instruction_text }}</textarea>
+                                        <button type = "button" class="btn btn-danger" onclick="deleteInstruction(this, {{ instruction.id }})">Delete</button>
+                                    </div>
+                                    {% endfor %}
+                                    <div id="instructions-list">
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-secondary" id="add-instruction">Add another instruction</button>
+                            </fieldset>
+                        </fieldset>
+            <input type="submit" class="btn btn-success" value="Publish">
+            <hr>
+        </div>
+
+
+
+
+
+
+
+
 
         {% else %}
         <fieldset>
