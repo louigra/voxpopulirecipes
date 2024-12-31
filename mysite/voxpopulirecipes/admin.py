@@ -19,5 +19,7 @@ class RecipeAdmin(admin.ModelAdmin):
     search_fields = ["title"]
 
 admin.site.register(VPUser)
+admin.site.register(Recipe)
+
 
 

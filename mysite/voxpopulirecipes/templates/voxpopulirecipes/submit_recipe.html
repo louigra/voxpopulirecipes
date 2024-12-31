@@ -5,16 +5,21 @@
 {% if user.is_authenticated %}
 
     <div class='shadow p-4 mb-5 bg-body rounded'> 
-    <form action="{% if recipe %}{% url 'voxpopulirecipes:submit_recipe' recipe.id %}{% else %}{% url 'voxpopulirecipes:submit_recipe' %}{% endif %}" method="post">
+    <form action="{% if recipe %}{% url 'voxpopulirecipes:submit_recipe' recipe.id %}{% else %}{% url 'voxpopulirecipes:submit_recipe' %}{% endif %}" method="post" enctype="multipart/form-data">
+        
         {% csrf_token %}
         <input type="hidden" name="deleted_ingredients" id="deleted_ingredients">
         <input type="hidden" name="deleted_instructions" id="deleted_instructions">
+
 
         {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 <!-- below is what renders if a recipe is passed in, meaning we are editing a recipe rather than creating a new one -->
         {% if recipe %}
         <div class="container mt-4">
             <fieldset>
+
+
+
                 <!-- Recipe Title Section -->
                 <div class="card text-center shadow-sm mb-4">
                     <fieldset id="recipe-name-section" class="create_section">
@@ -79,6 +84,26 @@
                                 <button type="button" class="btn btn-secondary" id="add-instruction">Add another instruction</button>
                             </fieldset>
                         </fieldset>
+
+                        <div class="col-md-6 mb-4">
+                            <div class="card shadow-sm">
+                                <fieldset id="image-upload-section" class="create_section">
+                                    <div class="card-header bg-info text-white">
+                                        <h2>Upload an Image</h2>
+                                    </div>
+                                    <div class="card-body text-center">
+                                        <div class="mb-3">
+                                            <label for="id_image" class="form-label">Choose an image for your recipe:</label>
+                                            <input type="file" name="image" id="id_image" class="form-control file-input" accept="image/*">
+                                        </div>
+                                        {% if recipe and recipe.image %}
+                                            <p class="mt-3">Current Image:</p>
+                                            <img src="{{ recipe.image.url }}" alt="{{ recipe.title }}" class="img-thumbnail" style="max-width: 200px;">
+                                        {% endif %}
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
             <input type="submit" class="btn btn-success" value="Publish">
             <hr>
         </div>
@@ -205,6 +230,29 @@
 
     .create_instruction_input {
         width: 100%;
+    }
+
+    .file-input::file-selector-button {
+        background-color: #6c757d; /* Custom button background */
+        color: white;             /* Button text color */
+        border: none;             /* Remove border */
+        padding: 10px 20px;       /* Add padding for size */
+        border-radius: 5px;       /* Rounded corners */
+        cursor: pointer;          /* Pointer cursor */
+        font-size: 1rem;          /* Text size */
+        transition: background-color 0.3s ease; /* Smooth hover effect */
+        width: 100%;
+    }
+
+    /* Hover effect */
+    .file-input::file-selector-button:hover {
+        background-color: #5a6268;
+    }
+
+    /* Focus effect */
+    .file-input::file-selector-button:focus {
+        outline: none;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
     }
 </style>
 

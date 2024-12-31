@@ -14,24 +14,33 @@
                     <h2 class="text-primary text-center">Check Out the 5 Latest Recipes</h2>
                     <div class="row row-cols-1 row-cols-md-3 g-4">
                         {% for recipe in latest_recipe_list %}
-                            <div class="col">
-                                <a href="{% url 'voxpopulirecipes:detail' recipe.id %}" class="text-decoration-none">
-                                    <div class="card h-100 shadow-sm">
+                        <div class="col">
+                            <a href="{% url 'voxpopulirecipes:detail' recipe.id %}" class="text-decoration-none">
+                                <div class="card h-100 shadow-sm">
+                                    {% if recipe.image %}
                                         <img
-                                            {% load static %}
-                                            src="{% static 'voxpopulirecipes/logo.png' %}" 
+                                            src="{{ recipe.image.url }}" 
                                             class="card-img-top" 
                                             alt="{{ recipe.title }}" 
                                             style="object-fit: cover; height: 200px;"
                                         >
-                                        <div class="card-body text-center">
-                                            <h5 class="card-title text-dark">
-                                                {{ recipe.title }}
-                                            </h5>
-                                        </div>
+                                    {% else %}
+                                        <img
+                                            {% load static %}
+                                            src="{% static 'voxpopulirecipes/logo.png' %}" 
+                                            class="card-img-top" 
+                                            alt="Default Image" 
+                                            style="object-fit: cover; height: 200px;"
+                                        >
+                                    {% endif %}
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title text-dark">
+                                            {{ recipe.title }}
+                                        </h5>
                                     </div>
-                                </a>
-                            </div>
+                                </div>
+                            </a>
+                        </div>
                         {% endfor %}
                     </div>
                 </div>
