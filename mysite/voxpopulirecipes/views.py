@@ -177,7 +177,7 @@ def all_recipes(request):
     template = loader.get_template("voxpopulirecipes/all_recipes.html")
     
     # set up pagination
-    p = Paginator(Recipe.objects.all(), 5)
+    p = Paginator(Recipe.objects.all(), 20)
     page = request.GET.get('page')
     recipes = p.get_page(page)
     
