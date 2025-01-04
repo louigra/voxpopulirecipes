@@ -85,23 +85,30 @@
                             </fieldset>
                         </fieldset>
 
-                        <div class="col-md-6 mb-4">
-                            <div class="card shadow-sm">
-                                <fieldset id="image-upload-section" class="create_section">
-                                    <div class="card-header bg-info text-white">
-                                        <h2>Upload an Image</h2>
+                        <div class="row py-4">
+                            <div class="col-lg-6 mx-auto">
+                                <!-- Upload image input -->
+                                <div class="input-group mb-3 px-2 py-2 rounded-pill bg-white shadow-sm">
+                                    <input id="upload" type="file" name="image" onchange="readURL(this, 'imageResult');" class="form-control border-0">
+                                    <label id="upload-label" for="upload" class="font-weight-light text-muted">Choose file</label>
+                                    <div class="input-group-append">
+                                        <label for="upload" class="btn btn-light m-0 rounded-pill px-4">
+                                            <i class="fa fa-cloud-upload mr-2 text-muted"></i>
+                                            <small class="text-uppercase font-weight-bold text-muted">Choose file</small>
+                                        </label>
                                     </div>
-                                    <div class="card-body text-center">
-                                        <div class="mb-3">
-                                            <label for="id_image" class="form-label">Choose an image for your recipe:</label>
-                                            <input type="file" name="image" id="id_image" class="form-control file-input" accept="image/*">
-                                        </div>
-                                        {% if recipe and recipe.image %}
-                                            <p class="mt-3">Current Image:</p>
-                                            <img src="{{ recipe.image.url }}" alt="{{ recipe.title }}" class="img-thumbnail" style="max-width: 200px;">
-                                        {% endif %}
-                                    </div>
-                                </fieldset>
+                                </div>
+                        
+                                <!-- Uploaded image area -->
+                                <p class="font-italic text-white text-center">The image uploaded will be rendered inside the box below.</p>
+                                <div class="image-area mt-4">
+                                    <img 
+                                        id="imageResult" 
+                                        src="{% if recipe and recipe.image %}{{ recipe.image.url }}{% else %}#{% endif %}" 
+                                        alt="Uploaded image will appear here" 
+                                        class="img-fluid rounded shadow-sm mx-auto d-block"
+                                    >
+                                </div>
                             </div>
                         </div>
             <input type="submit" class="btn btn-success" value="Publish">
@@ -176,9 +183,39 @@
                         </div>
                     </div>
             </div>
+
+            <div class="row py-4">
+                <div class="col-lg-6 mx-auto">
+                    <!-- Upload image input -->
+                    <div class="input-group mb-3 px-2 py-2 rounded-pill bg-white shadow-sm">
+                        <input id="upload" type="file" name="image" onchange="readURL(this, 'imageResult');" class="form-control border-0">
+                        <label id="upload-label" for="upload" class="font-weight-light text-muted">Choose file</label>
+                        <div class="input-group-append">
+                            <label for="upload" class="btn btn-light m-0 rounded-pill px-4">
+                                <i class="fa fa-cloud-upload mr-2 text-muted"></i>
+                                <small class="text-uppercase font-weight-bold text-muted">Choose file</small>
+                            </label>
+                        </div>
+                    </div>
+            
+                    <!-- Uploaded image area -->
+                    <p class="font-italic text-white text-center">The image uploaded will be rendered inside the box below.</p>
+                    <div class="image-area mt-4">
+                        <img 
+                            id="imageResult" 
+                            src="{% if recipe and recipe.image %}{{ recipe.image.url }}{% else %}#{% endif %}" 
+                            alt="Uploaded image will appear here" 
+                            class="img-fluid rounded shadow-sm mx-auto d-block"
+                        >
+                    </div>
+                </div>
+            </div>
+
             </fieldset>
             <input type="submit" class="btn btn-success" value="Publish">
             </div>
+
+
 
         {% endif %}
     </form>
@@ -253,6 +290,48 @@
     .file-input::file-selector-button:focus {
         outline: none;
         box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
+
+    /*
+    *
+    * ==========================================
+    * CUSTOM UTIL CLASSES
+    * ==========================================
+    *
+    */
+    #upload {
+        opacity: 0;
+    }
+
+    #upload-label {
+        position: absolute;
+        top: 50%;
+        left: 1rem;
+        transform: translateY(-50%);
+    }
+
+    .image-area {
+        border: 2px dashed rgba(255, 255, 255, 0.7);
+        padding: 1rem;
+        position: relative;
+    }
+
+    .image-area::before {
+        content: 'Uploaded image result';
+        color: #fff;
+        font-weight: bold;
+        text-transform: uppercase;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 0.8rem;
+        z-index: 1;
+    }
+
+    .image-area img {
+        z-index: 2;
+        position: relative;
     }
 </style>
 
@@ -357,6 +436,28 @@
             document.getElementById("instructions-list").appendChild(instructionDiv);
         });
     });
+
+    // Function to show the uploaded image
+    function readURL(input, targetImageId) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                document.getElementById(targetImageId).src = e.target.result;
+            };
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // Function to display the uploaded file name
+    var input = document.getElementById('upload');
+    var infoArea = document.getElementById('upload-label');
+
+    input.addEventListener('change', function () {
+        var fileName = input.files[0].name;
+        infoArea.textContent = 'File name: ' + fileName;
+    });     
 </script>
 
 {% endblock %}

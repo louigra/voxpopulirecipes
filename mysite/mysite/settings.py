@@ -31,31 +31,31 @@ DEBUG = True
 
 # SETTINGS FOR DEVELOPMENT
 
-ALLOWED_HOSTS = []
-CSRF_TRUSTED_ORIGINS = []
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
-# SETTINGS FOR PRODUCTION
-
-# ALLOWED_HOSTS = ['https://voxpopulirecipes.com', 'voxpopulirecipes.com', 'voxpopulirecipes-production.up.railway.app', 'https://voxpopulirecipes-production.up.railway.app']
-# CSRF_TRUSTED_ORIGINS =['https://voxpopulirecipes.com', 'https://voxpopulirecipes-production.up.railway.app']
+# ALLOWED_HOSTS = []
+# CSRF_TRUSTED_ORIGINS = []
 
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'railway',
-#         'USER': 'postgres',
-#         'PASSWORD': os.environ.get('DB_PASSWORD_YO'),
-#         'HOST': 'junction.proxy.rlwy.net',
-#         'PORT': '50434',
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
+
+# SETTINGS FOR PRODUCTION
+
+ALLOWED_HOSTS = ['https://voxpopulirecipes.com', 'voxpopulirecipes.com', 'voxpopulirecipes-production.up.railway.app', 'https://voxpopulirecipes-production.up.railway.app']
+CSRF_TRUSTED_ORIGINS =['https://voxpopulirecipes.com', 'https://voxpopulirecipes-production.up.railway.app']
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'railway',
+        'USER': 'postgres',
+        'PASSWORD': os.environ.get('DB_PASSWORD_YO'),
+        'HOST': 'junction.proxy.rlwy.net',
+        'PORT': '50434',
+    }
+}
 
 
 # Application definition

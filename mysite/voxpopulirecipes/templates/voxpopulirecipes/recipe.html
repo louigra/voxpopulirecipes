@@ -47,7 +47,7 @@
                 </div>
                 <div class="card-body">
                     <ol class="list-group list-group-numbered">
-                        {% for instruction in recipe.instruction_set.all %}
+                        {% for instruction in recipe.instruction_set.all|dictsort:"instruction_order" %}
                             <li class="list-group-item">{{ instruction.instruction_text }}</li>
                         {% endfor %}
                     </ol>
