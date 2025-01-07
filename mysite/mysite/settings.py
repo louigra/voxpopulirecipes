@@ -147,14 +147,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 
-USE_S3 = True
+USE_S3 = False
 
 if USE_S3:
     # AWS S3 Static and Media settings
-    AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
-    AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
-    AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
-    AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME', 'us-east-2')
+    AWS_ACCESS_KEY_ID = 'AKIAQXUIXUEB7R2LIGNE'
+    AWS_SECRET_ACCESS_KEY = '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'
+    AWS_STORAGE_BUCKET_NAME = 'voxpopulirecipes'
+    AWS_S3_REGION_NAME = 'us-east-2'
     AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
     AWS_DEFAULT_ACL = None
     AWS_QUERYSTRING_AUTH = False
@@ -172,12 +172,12 @@ else:
     STATIC_URL = '/staticfiles/'
     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
     MEDIA_URL = '/mediafiles/'
-    MEDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles')
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 
-# MEDIA_URL = '/mediafiles/'
-# MEDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles')
+
 
 
 # Default primary key field type
@@ -185,12 +185,3 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
-# AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
-# AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
-# AWS_S3_SIGNATURE_NAME = 's3v4'
-# AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME')
-# AWS_S3_FILE_OVERWRITE = False
-# AWS_DEFAULT_ACL = None
-# AWS_S3_VERIFY = True
-# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
