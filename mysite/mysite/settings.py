@@ -152,7 +152,7 @@ USE_S3 = False
 if USE_S3:
     # AWS S3 Static and Media settings
     AWS_ACCESS_KEY_ID = 'AKIAQXUIXUEB7R2LIGNE'
-    AWS_SECRET_ACCESS_KEY = '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'
+    AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
     AWS_STORAGE_BUCKET_NAME = 'voxpopulirecipes'
     AWS_S3_REGION_NAME = 'us-east-2'
     AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
