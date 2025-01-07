@@ -154,8 +154,13 @@ AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 
 # basic storage configuration for AMAZON S3
 AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
-AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
 AWS_S3_FILE_OVERWRITE = False
+
+# print("AWS_STORAGE_BUCKET_NAME:", os.environ.get('AWS_STORAGE_BUCKET_NAME'))
+# print("AWS_ACCESS_KEY_ID:", os.environ.get('AWS_ACCESS_KEY_ID'))
+# print("AWS_SECRET_ACCESS_KEY:", os.environ.get('AWS_SECRET_ACCESS_KEY'))
+
 
 STORAGES = {
     'default': {
@@ -167,15 +172,15 @@ STORAGES = {
 }
 
 # Media settings
-MEDIA_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/media/'
-
+MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
+# print("MEDIA_URL:", MEDIA_URL)
 # Default location for media files in local development (not used with S3 in production)
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 # Static files settings
-STATIC_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/static/'
-
+STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/static/'
+# print("STATIC_URL:", STATIC_URL)
 
 
 # Default primary key field type
