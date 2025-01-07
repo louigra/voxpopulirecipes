@@ -146,7 +146,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-USE_S3 = os.environ.get('USE_S3') == 'TRUE'
+USE_S3 = True
 
 if USE_S3:
     # aws settings
