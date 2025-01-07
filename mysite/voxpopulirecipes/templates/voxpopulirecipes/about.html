@@ -6,67 +6,91 @@
         <!-- Header Section -->
         <div class="col-12 text-center">
             <h1 class="display-4">About Vox Populi Recipes</h1>
-            <p class="lead mt-3">A recipe book for everyone, built with simplicity and collaboration in mind.</p>
+            <p class="lead mt-3">A library of personal recipe books.</p>
         </div>
     </div>
 
     <div class="row mt-5">
         <!-- Mission Section -->
         <div class="col-md-6">
-            <h2>Our Mission</h2>
+            <h2>My Goal</h2>
             <p>
-                In a world cluttered with advertisements and infinite scrolling, Vox Populi Recipes stands out
-                as a serene space where you can focus on what truly matters: the joy of cooking and sharing recipes.
+                I was sick of ad filled, long scrolling recipe blogs that never get to the point.  
+                I couldn't find an online recipe site that felt like using my personal recipe notebook.
+                So I decided to create one.
             </p>
             <p>
-                Whether you're an experienced chef or just starting your culinary journey, our platform is designed
-                to be your trusted recipe book, free from distractions.
+                This is designed to be a place where you can build your personal recipe book.  
+                You can use it to store your recipes, create shopping lists,
+                and easily flip back and forth between recipes while cooking.  
             </p>
+            <p>
+                But it's not just for you.  You can also share your recipes with others.  
+                I want to create an experience similar to sitting at a table with your personal recipe book amongts
+                friends who have their personal recipe book open in front of them.
         </div>
         <!-- Image Section -->
         <div class="col-md-6 text-center">
-            <img src="https://via.placeholder.com/500x300" class="img-fluid rounded" alt="Cooking together">
+            {% load static %}
+            <img src="{% static 'voxpopulirecipes/recipe_book.webp' %}" class="img-fluid rounded" alt="Cooking together">
         </div>
     </div>
 
     <div class="row mt-5">
         <!-- Features Section -->
         <div class="col-12">
-            <h2>Why Choose Vox Populi Recipes?</h2>
+            <h2>Release Notes</h2>
             <div class="accordion" id="featuresAccordion">
+
+                <!-- Version 1.0 -->
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="headingOne">
-                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                            No Ads, No Distractions
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                            Version 1.0
                         </button>
                     </h2>
-                    <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#featuresAccordion">
+                    <div id="collapseOne" class="accordion-collapse collapse collapse" aria-labelledby="headingOne" data-bs-parent="#featuresAccordion">
                         <div class="accordion-body">
-                            Our platform is completely ad-free. Say goodbye to pop-ups and annoying banners. Focus on finding and sharing the recipes you love.
+                            <p>
+                            Finally FINALLY got this up and hosted live on the correct URL, so I am calling this officially verison 1.0.  
+                            We are starting very basically with the ability
+                            to add recipes, view recipes, and edit recipes.  
+                            This includes adding an image if you choose to a recipe, although there is a known issue with the hosting that
+                            I am planning on fixing with S3 hosting.  
+                            </p>
+                            <p>
+                            Coming in the next release: Adding Notes/Comments to recipes.
+                            </p>
+                            <p>
+                            1/6/2025
+                            --Grant
+                            </p>
                         </div>
                     </div>
                 </div>
+                <!-- Version 1.01 -->
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="headingTwo">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                            Collaborative Recipe Book
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+                            Version 1.01
                         </button>
                     </h2>
-                    <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#featuresAccordion">
+                    <div id="collapseTwo" class="accordion-collapse collapse show" aria-labelledby="headingTwo" data-bs-parent="#featuresAccordion">
                         <div class="accordion-body">
-                            This isn't just your recipe book—it's everyone's. Collaborate with friends, family, and fellow food enthusiasts to build a shared collection of cherished recipes.
-                        </div>
-                    </div>
-                </div>
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="headingThree">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                            Simple and Intuitive
-                        </button>
-                    </h2>
-                    <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#featuresAccordion">
-                        <div class="accordion-body">
-                            With an easy-to-use interface, Vox Populi Recipes ensures you can quickly find, add, and share recipes without any hassle.
+                            <p>
+                            Added the ability to leave notes on a recipe.  You must be logged in to leave a note, and the note tracks and displays who wrote it.  
+                            The recipe creator can delete any note where the note creator can only delete thier own notes.  
+                            The notes are shown in an accordion layout that defaults to collapsed for compactness.  
+                            This may change in the future to either show all expanded by default or only show the most recent note, or the first note, or the last note made
+                            by the recipe creator.
+                            </p>
+                            <p>
+                            Coming in the next release: Adding a shopping list feature so you can add ingredients from a recipe into your cart.
+                            </p>
+                            <p>
+                            1/7/2025
+                            --Grant
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -86,4 +110,28 @@
         </div>
     </div>
 </div>
+
+<style>
+    .accordion-header .accordion-button {
+        background-color: #e9ecef; /* Light gray background */
+        color: #333; /* Text color */
+        border: 1px solid #ddd; /* Border color */
+    }
+    
+    .accordion-header .accordion-button:hover {
+        background-color: #e9ecef; /* Slightly darker gray on hover */
+        color: #000; /* Text color on hover */
+    }
+    
+    .accordion-header .accordion-button:not(.collapsed) {
+        background-color: #e9ecef; /* Active state */
+        color: #000;
+        border-bottom: none; /* Avoid double borders when expanded */
+    }
+    
+    .accordion-body {
+        background-color: #fff; /* Keep the body white */
+        border-top: 1px solid #ddd; /* Border between header and body */
+    }
+</style>
 {% endblock %}

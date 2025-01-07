@@ -36,7 +36,7 @@ class Instruction(models.Model):
         return self.instruction_text
     
 class RecipeNote(models.Model):
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+    recipe = models.ForeignKey(Recipe, related_name="notes", on_delete=models.CASCADE)
     note_text = models.CharField(max_length=2000)
     note_order = models.IntegerField(default=0)
     note_date = models.DateTimeField("date created")

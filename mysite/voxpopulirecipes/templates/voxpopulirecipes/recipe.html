@@ -12,19 +12,21 @@
             <p class="mb-0"><strong>Created on:</strong> {{ recipe.pub_date }}</p>
         </div>
     </div>
-
-    <div class="row py-4">
-        <div class="col-lg-6 mx-auto">
-            <div class="image-area mt-4">
-                <img 
-                    id="imageResult" 
-                    src="{% if recipe and recipe.image %}{{ recipe.image.url }}{% else %}#{% endif %}" 
-                    alt="Uploaded image will appear here" 
-                    class="img-fluid rounded shadow-sm mx-auto d-block"
-                >
+        
+    {% if recipe.image %}
+        <div class="row py-4">
+            <div class="col-lg-6 mx-auto">
+                <div class="image-area mt-4">
+                    <img 
+                        id="imageResult" 
+                        src="{% if recipe and recipe.image %}{{ recipe.image.url }}{% else %}#{% endif %}" 
+                        alt="Uploaded image will appear here" 
+                        class="img-fluid rounded shadow-sm mx-auto d-block"
+                    >
+                </div>
             </div>
         </div>
-    </div>
+    {% endif %}
 
     <!-- Recipe Content Section -->
     <div class="row">
@@ -69,8 +71,68 @@
         </div>
     </div>
 
+    <!-- Notes Section -->
+    
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-info text-white">
+            <h2>Notes</h2>
+        </div>
+        {% if recipe.notes.all %}
+        <div class="card-body">
+            <div class="col-12">
+                <div class="accordion" id="notesAccordion">
+                    {% for note in recipe.notes.all|dictsort:"note_order" %}
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading{{ note.id }}">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#collapse{{ note.id }}" aria-expanded="false" aria-controls="collapse{{ note.id }}">
+                                {{ note.creator.username }} on {{ note.note_date }}
+                            </button>
+                        </h2>
+                        <div id="collapse{{ note.id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ note.id }}" 
+                             data-bs-parent="#notesAccordion">
+                            <div class="accordion-body">
+                                {{ note.note_text }}
+                            </div>
+                            {% if user.is_authenticated and user == note.creator %}
+                            <div class="d-flex justify-content-end">
+                                <a href="{% url 'voxpopulirecipes:delete_note' note.id %}" class="btn btn-danger">
+                                    <i class="bi bi-trash"></i> Delete Note
+                                </a>
+                            </div>
+                            {% elif user.is_authenticated and user == recipe.creator %}
+                                <div class="d-flex justify-content-end">
+                                    <a href="{% url 'voxpopulirecipes:delete_note' note.id %}" class="btn btn-danger">
+                                        <i class="bi bi-trash"></i> Delete Note
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+
+            <div class="card-body">
+                <p class="text-center">No notes available.</p>
+            </div>
+
+        {% endif %}
+        {% if user.is_authenticated %}
+        <div class="card-footer">
+            <div id="addNoteSection">
+                <a href="#" class="btn btn-primary d-block mx-auto" id="addNoteButton">Add a Note</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+
     <!-- Footer Section -->
-<!-- Footer Section -->
+
     <div class="d-flex justify-content-between mt-4">
         <a href="{% url 'voxpopulirecipes:main' %}" class="btn btn-secondary">
             <i class="bi bi-arrow-left"></i> Back To Recipe List
@@ -88,5 +150,92 @@
         {% endif %}
     </div>
 </div>
+
+<style>
+    .accordion-header .accordion-button {
+        background-color: #e9ecef; /* Light gray background */
+        color: #333; /* Text color */
+        border: 1px solid #ddd; /* Border color */
+    }
+    
+    .accordion-header .accordion-button:hover {
+        background-color: #e9ecef; /* Slightly darker gray on hover */
+        color: #000; /* Text color on hover */
+    }
+    
+    .accordion-header .accordion-button:not(.collapsed) {
+        background-color: #e9ecef; /* Active state */
+        color: #000;
+        border-bottom: none; /* Avoid double borders when expanded */
+    }
+    
+    .accordion-body {
+        background-color: #fff; /* Keep the body white */
+        border-top: 1px solid #ddd; /* Border between header and body */
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const addNoteButton = document.getElementById("addNoteButton");
+        const addNoteSection = document.getElementById("addNoteSection");
+
+        addNoteButton.addEventListener("click", function(event) {
+            event.preventDefault();
+            addNoteButton.style.display = "none";
+
+            const noteForm = document.createElement("form");
+            noteForm.setAttribute("method", "post");
+            noteForm.setAttribute("id", "noteForm");
+
+            const csrfToken = '{{ csrf_token }}'; // Include CSRF token for security
+            noteForm.innerHTML = `
+                <textarea class="form-control mb-3" id="noteText" name="noteText" rows="4" placeholder="Write your note here..." required></textarea>
+                <button type="submit" class="btn btn-success">Submit</button>
+                <button type="button" class="btn btn-secondary" id="cancelNote">Cancel</button>
+                <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
+            `;
+
+            addNoteSection.appendChild(noteForm);
+
+            const cancelNoteButton = document.getElementById("cancelNote");
+            cancelNoteButton.addEventListener("click", function() {
+                addNoteSection.removeChild(noteForm);
+                addNoteButton.style.display = "block";
+            });
+
+            noteForm.addEventListener("submit", function(e) {
+                e.preventDefault();
+                const noteText = document.getElementById("noteText").value;
+                const noteOrder = noteForm.parentElement.querySelectorAll(".accordion").length + 1;
+                console.log(noteOrder);
+                console.log(noteText);
+                fetch("{% url 'voxpopulirecipes:add_note' recipe.id %}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": csrfToken,
+                    },
+                    body: JSON.stringify({ noteText: noteText, noteOrder: noteOrder }),
+                })
+                    .then(response => {
+                        console.log("Response status:", response.status);
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log("Response data:", data);
+                        if (data.success) {
+                            console.log("Note added successfully.");
+                            location.reload();
+                        } else {
+                            console.error("Error:", data.error);
+                            alert(data.error || "Failed to add the note.");
+                        }
+                    })
+                    .catch(error => console.error("Error:", error));
+            });
+        });
+    });
+</script>
 
 {% endblock %}

@@ -1,8 +1,13 @@
 #import the packages i need
+import json
 from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponse
 from django.template import loader
 from django.utils import timezone
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+
 
 
 # import pagination stuff
@@ -196,3 +201,50 @@ def my_recipes(request):
 
 def about(request):
     return render(request, "voxpopulirecipes/about.html")
+
+@login_required
+@csrf_exempt
+def add_note(request, recipe_id):
+    if request.method == "POST":
+        try:
+            recipe = Recipe.objects.get(id=recipe_id)
+            note_data = json.loads(request.body)
+            note_text = note_data.get("noteText", "").strip()
+            note_order = note_data.get("noteOrder", 1)
+
+            if not note_text:
+                return JsonResponse(
+                    {"success": False, "error": "Note text cannot be empty."}, status=400
+                )
+
+            # Create the note
+            RecipeNote.objects.create(
+                recipe=recipe,
+                creator=request.user,  # Assumes request.user is available
+                note_text=note_text,
+                note_order=note_order,
+                note_date=timezone.now(),
+            )
+            return JsonResponse({"success": True})
+
+        except Recipe.DoesNotExist:
+            return JsonResponse(
+                {"success": False, "error": "Recipe not found."}, status=404
+            )
+        except json.JSONDecodeError:
+            return JsonResponse(
+                {"success": False, "error": "Invalid JSON format."}, status=400
+            )
+        except Exception as e:
+            return JsonResponse(
+                {"success": False, "error": f"An unexpected error occurred: {str(e)}"},
+                status=500,
+            )
+
+    return JsonResponse({"success": False, "error": "Invalid request method."}, status=405)
+
+def delete_note(request, note_id):
+    note = get_object_or_404(RecipeNote, pk=note_id)
+    recipe_id = note.recipe.id
+    note.delete()
+    return redirect('voxpopulirecipes:detail', recipe_id=recipe_id)
