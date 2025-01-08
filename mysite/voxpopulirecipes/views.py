@@ -7,15 +7,14 @@ from django.utils import timezone
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
-
-
+from django.db.models import Avg
 
 # import pagination stuff
 from django.core.paginator import Paginator
 
 
 # import the models i need
-from .models import Recipe, Ingredient, Instruction, User, RecipeNote
+from .models import Recipe, Ingredient, Instruction, User, RecipeNote, Rating, CookedInstance
 
 def main(request):
     lastest_recipe_list = Recipe.objects.filter(pub_date__lte=timezone.now()).order_by("-pub_date")[:5]
@@ -31,7 +30,17 @@ def main(request):
 
 def detail(request, recipe_id):
     recipe = get_object_or_404(Recipe, pk=recipe_id)
-    return render(request, "voxpopulirecipes/recipe.html", {"recipe": recipe})
+        # Calculate the mean rating
+    mean_rating = Rating.objects.filter(recipe=recipe).aggregate(Avg('rating'))['rating__avg'] or 0
+
+    # Calculate the average cook time
+    average_cook_time = CookedInstance.objects.filter(recipe=recipe).aggregate(Avg('cook_time'))['cook_time__avg'] or 0
+    
+    return render(request, "voxpopulirecipes/recipe.html", {
+        "recipe": recipe,
+        "mean_rating": mean_rating,
+        "average_cook_time": average_cook_time
+        })
 
 def submit_recipe(request, recipe_id=None):
     # If editing, fetch the recipe object
@@ -248,3 +257,37 @@ def delete_note(request, note_id):
     recipe_id = note.recipe.id
     note.delete()
     return redirect('voxpopulirecipes:detail', recipe_id=recipe_id)
+
+
+
+def check_review_status(request, recipe_id):
+    recipe = get_object_or_404(Recipe, pk=recipe_id)
+    has_reviewed = Rating.objects.filter(recipe=recipe, rater=request.user).exists()
+    return JsonResponse({"has_reviewed": has_reviewed})
+
+def submit_review(request, recipe_id):
+    if request.method == "POST":
+        recipe = get_object_or_404(Recipe, pk=recipe_id)
+        user = request.user
+        cook_time = request.POST.get('cook_time', 0)
+        rating = request.POST.get('rating', None)
+
+        # Record cook time
+        CookedInstance.objects.create(
+            recipe=recipe, 
+            creator=user, 
+            date_cooked=timezone.now(), 
+            cook_time=cook_time)
+
+        # Record rating (if provided)
+        if rating:
+            Rating.objects.update_or_create(
+                recipe=recipe,
+                rater=user,
+                defaults={
+                    'rating': int(rating),
+                    'rating_date': timezone.now()
+                }
+            )
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False}, status=400)

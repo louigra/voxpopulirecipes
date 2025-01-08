@@ -15,8 +15,13 @@ class Recipe(models.Model):
     pub_date = models.DateTimeField("date published")
     created_by = models.CharField(max_length=200, blank=True, null=True)
     creator = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
-    mealType = models.ForeignKey("MealType", on_delete=models.CASCADE, blank=True, null=True)
+    mealType = models.ForeignKey("MealType", on_delete=models.SET_NULL, blank=True, null=True)
+    cuisine = models.ForeignKey("Cuisine", on_delete=models.SET_NULL, blank=True, null=True)
     image = models.ImageField(upload_to='uploads/recipe/', blank=True, null=True)
+    avg_rating = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True)
+    number_of_ratings = models.IntegerField(default=0)
+    number_of_uses = models.IntegerField(default=0)
+    baking = models.BooleanField(default=False)
     def __str__(self):
         return self.title
 
@@ -41,14 +46,38 @@ class RecipeNote(models.Model):
     note_order = models.IntegerField(default=0)
     note_date = models.DateTimeField("date created")
     creator = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
+    def __str__(self):
+        return self.note_text
     
 class MealType(models.Model):
     name = models.CharField(max_length=200)
+    baking = models.BooleanField(default=False)
     def __str__(self):
         return self.name
+
+class Cuisine(models.Model):
+    name = models.CharField(max_length=200)
+    def __str__(self):
+        return self.name
+
+class Rating(models.Model):
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+    rating = models.IntegerField(default=0)
+    rater = models.ForeignKey(User, on_delete=models.CASCADE)
+    rating_date = models.DateTimeField("date rated", null=True, blank=True)
+    def __str__(self):
+        return f"{self.rater} rated {self.recipe} {self.rating}"
     
+class CookedInstance(models.Model):
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+    creator = models.ForeignKey(User, on_delete=models.CASCADE)
+    date_cooked = models.DateTimeField("date cooked")
+    cook_time = models.IntegerField(default=0)  # Optional: Track how long it took to cook the recipe
+    def __str__(self):
+        return f"{self.user} cooked {self.recipe} on {self.date_cooked}"
+ 
 class CookingPlan(models.Model):
-    user = models.ForeignKey(VPUser, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     recipes = models.ManyToManyField(Recipe, related_name="cooking_plans")
     title = models.CharField(max_length=200, default="My Cooking Plan", blank=True, null=True)  # Optional: Add a title for the plan
     created_at = models.DateTimeField(auto_now_add=True)  # Optional: Track when the plan was created

@@ -16,4 +16,6 @@ urlpatterns = [
     path("about/", views.about, name="about"),
     path('add-note/<int:recipe_id>/', views.add_note, name='add_note'),
     path('delete-note/<int:note_id>/', views.delete_note, name='delete_note'),
+    path("check_review_status/<int:recipe_id>/", views.check_review_status, name="check_review_status"),
+    path("submit_review/<int:recipe_id>/", views.submit_review, name="submit_review"),
 ]
