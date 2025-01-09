@@ -18,9 +18,6 @@ class Recipe(models.Model):
     mealType = models.ForeignKey("MealType", on_delete=models.SET_NULL, blank=True, null=True)
     cuisine = models.ForeignKey("Cuisine", on_delete=models.SET_NULL, blank=True, null=True)
     image = models.ImageField(upload_to='uploads/recipe/', blank=True, null=True)
-    avg_rating = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True)
-    number_of_ratings = models.IntegerField(default=0)
-    number_of_uses = models.IntegerField(default=0)
     baking = models.BooleanField(default=False)
     def __str__(self):
         return self.title

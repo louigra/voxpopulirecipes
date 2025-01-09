@@ -202,23 +202,30 @@ def all_recipes(request):
     return HttpResponse(template.render(context, request))
 
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 @login_required
 def my_recipes(request):
-    recipes = Recipe.objects.filter(creator=request.user).order_by("pub_date")  # Recipes are already sorted by pub_date
+    recipes = Recipe.objects.filter(creator=request.user).order_by("pub_date")
+    logger.info(f"User: {request.user}, Recipes Count: {recipes.count()}")
+
     mealtype_cuisine_map = defaultdict(lambda: defaultdict(list))
 
     for recipe in recipes:
         if recipe.mealType and recipe.cuisine:
             mealtype_cuisine_map[recipe.mealType][recipe.cuisine].append(recipe)
 
-    # Convert defaultdict to a regular dictionary and sort the keys
     mealtype_cuisine_map = {
         mealtype: {
-            cuisine: sorted(recipe_list, key=lambda r: r.pub_date)  # Sort recipes by pub_date
-            for cuisine, recipe_list in sorted(cuisines.items(), key=lambda c: c[0].name)  # Sort cuisines by name
+            cuisine: sorted(recipe_list, key=lambda r: r.pub_date)
+            for cuisine, recipe_list in sorted(cuisines.items(), key=lambda c: c[0].name)
         }
-        for mealtype, cuisines in sorted(mealtype_cuisine_map.items(), key=lambda mt: mt[0].name)  # Sort mealtypes by name
+        for mealtype, cuisines in sorted(mealtype_cuisine_map.items(), key=lambda mt: mt[0].name)
     }
+
+    logger.info(f"Mealtype-Cuisine Map: {mealtype_cuisine_map}")
 
     context = {
         "recipes": recipes,
