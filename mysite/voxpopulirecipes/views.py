@@ -202,15 +202,11 @@ def all_recipes(request):
     return HttpResponse(template.render(context, request))
 
 
-import logging
 
-logger = logging.getLogger(__name__)
 
 @login_required
 def my_recipes(request):
-    recipes = Recipe.objects.all().order_by("pub_date")
-    logger.info(f"User: {request.user}, Recipes Count: {recipes.count()}")
-
+    recipes = Recipe.objects.filter(creator=request.user).order_by("pub_date")
     mealtype_cuisine_map = defaultdict(lambda: defaultdict(list))
 
     for recipe in recipes:
@@ -224,8 +220,6 @@ def my_recipes(request):
         }
         for mealtype, cuisines in sorted(mealtype_cuisine_map.items(), key=lambda mt: mt[0].name)
     }
-
-    logger.info(f"Mealtype-Cuisine Map: {mealtype_cuisine_map}")
 
     context = {
         "recipes": recipes,

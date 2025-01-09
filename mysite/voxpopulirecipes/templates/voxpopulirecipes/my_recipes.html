@@ -12,6 +12,10 @@
             <h1>{{ user }}'s Recipe Book</h1>
         </div>
         <div class="card-body">
+            <pre>{{ user }}</pre>
+            <pre>{{ user.recipes.all }}</pre>
+            <pre>{{ user.recipes.all|length }}</pre>
+            <pre>{{ mealtype_cuisine_map }}</pre>
             <div class="col-12">
                 <div class="accordion" id="Meal_type_Accordion">
                     {% for mealtype, cuisines in mealtype_cuisine_map.items %}
