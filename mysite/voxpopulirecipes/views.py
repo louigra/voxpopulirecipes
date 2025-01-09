@@ -208,7 +208,7 @@ logger = logging.getLogger(__name__)
 
 @login_required
 def my_recipes(request):
-    recipes = Recipe.objects.all.order_by("pub_date")
+    recipes = Recipe.objects.all().order_by("pub_date")
     logger.info(f"User: {request.user}, Recipes Count: {recipes.count()}")
 
     mealtype_cuisine_map = defaultdict(lambda: defaultdict(list))
