@@ -8,13 +8,14 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.db.models import Avg
+from collections import defaultdict
 
 # import pagination stuff
 from django.core.paginator import Paginator
 
 
 # import the models i need
-from .models import Recipe, Ingredient, Instruction, User, RecipeNote, Rating, CookedInstance
+from .models import Recipe, Ingredient, Instruction, User, RecipeNote, Rating, CookedInstance, MealType, Cuisine
 
 def main(request):
     lastest_recipe_list = Recipe.objects.filter(pub_date__lte=timezone.now()).order_by("-pub_date")[:5]
@@ -200,13 +201,30 @@ def all_recipes(request):
     }
     return HttpResponse(template.render(context, request))
 
+
+@login_required
 def my_recipes(request):
-    template = loader.get_template("voxpopulirecipes/my_recipes.html")
-    recipes = Recipe.objects.all()
-    context = {
-        "recipes": recipes
+    recipes = Recipe.objects.filter(creator=request.user).order_by("pub_date")  # Recipes are already sorted by pub_date
+    mealtype_cuisine_map = defaultdict(lambda: defaultdict(list))
+
+    for recipe in recipes:
+        if recipe.mealType and recipe.cuisine:
+            mealtype_cuisine_map[recipe.mealType][recipe.cuisine].append(recipe)
+
+    # Convert defaultdict to a regular dictionary and sort the keys
+    mealtype_cuisine_map = {
+        mealtype: {
+            cuisine: sorted(recipe_list, key=lambda r: r.pub_date)  # Sort recipes by pub_date
+            for cuisine, recipe_list in sorted(cuisines.items(), key=lambda c: c[0].name)  # Sort cuisines by name
+        }
+        for mealtype, cuisines in sorted(mealtype_cuisine_map.items(), key=lambda mt: mt[0].name)  # Sort mealtypes by name
     }
-    return HttpResponse(template.render(context, request))
+
+    context = {
+        "recipes": recipes,
+        "mealtype_cuisine_map": mealtype_cuisine_map,
+    }
+    return render(request, "voxpopulirecipes/my_recipes.html", context)
 
 def about(request):
     return render(request, "voxpopulirecipes/about.html")

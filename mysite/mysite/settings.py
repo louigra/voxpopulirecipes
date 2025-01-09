@@ -29,6 +29,38 @@ SECRET_KEY = 'django-insecure-q^pp+9se2wzg&&8ou37i%b*kb^1=tr=gqu!ty=$k(vn!1+ku3v
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+
+prod = True
+
+if prod:
+    DEBUG = False
+    
+    ALLOWED_HOSTS = ['https://voxpopulirecipes.com', 'voxpopulirecipes.com', 'voxpopulirecipes-production.up.railway.app', 'https://voxpopulirecipes-production.up.railway.app']
+    CSRF_TRUSTED_ORIGINS =['https://voxpopulirecipes.com', 'https://voxpopulirecipes-production.up.railway.app']
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'railway',
+            'USER': 'postgres',
+            'PASSWORD': os.environ.get('DB_PASSWORD_YO'),
+            'HOST': 'junction.proxy.rlwy.net',
+            'PORT': '50434',
+        }
+    }
+else:
+    DEBUG = True
+
+    ALLOWED_HOSTS = []
+    CSRF_TRUSTED_ORIGINS = []
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+
 # SETTINGS FOR DEVELOPMENT
 
 # ALLOWED_HOSTS = []
@@ -43,19 +75,19 @@ DEBUG = True
 
 # SETTINGS FOR PRODUCTION
 
-ALLOWED_HOSTS = ['https://voxpopulirecipes.com', 'voxpopulirecipes.com', 'voxpopulirecipes-production.up.railway.app', 'https://voxpopulirecipes-production.up.railway.app']
-CSRF_TRUSTED_ORIGINS =['https://voxpopulirecipes.com', 'https://voxpopulirecipes-production.up.railway.app']
+# ALLOWED_HOSTS = ['https://voxpopulirecipes.com', 'voxpopulirecipes.com', 'voxpopulirecipes-production.up.railway.app', 'https://voxpopulirecipes-production.up.railway.app']
+# CSRF_TRUSTED_ORIGINS =['https://voxpopulirecipes.com', 'https://voxpopulirecipes-production.up.railway.app']
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'railway',
-        'USER': 'postgres',
-        'PASSWORD': os.environ.get('DB_PASSWORD_YO'),
-        'HOST': 'junction.proxy.rlwy.net',
-        'PORT': '50434',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'railway',
+#         'USER': 'postgres',
+#         'PASSWORD': os.environ.get('DB_PASSWORD_YO'),
+#         'HOST': 'junction.proxy.rlwy.net',
+#         'PORT': '50434',
+#     }
+# }
 
 
 # Application definition

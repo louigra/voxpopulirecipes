@@ -5,45 +5,90 @@
 {% if user.is_authenticated %}
 
 
+<div class="container mt-4">
+    <!-- Card Container -->
+    <div class="card shadow-lg">
+        <div class="card-header bg-dark text-white text-center">
+            <h1>{{ user }}'s Recipe Book</h1>
+        </div>
+        <div class="card-body">
+            <div class="col-12">
+                <div class="accordion" id="Meal_type_Accordion">
+                    {% for mealtype, cuisines in mealtype_cuisine_map.items %}
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading{{ mealtype.id }}">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#collapse{{ mealtype.id }}" aria-expanded="false" aria-controls="collapse{{ mealtype.id }}">
+                                {{ mealtype.name }}
+                            </button>
 
+                        </h2>
+                        <div id="collapse{{ mealtype.id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ mealtype.id }}" 
+                            data-bs-parent="#Meal_type_Accordion">
+                            <div class="accordion-body">
+                                <div class="accordion" id="Cuisine_Accordion_{{ mealtype.id }}">
+                                    {% for cuisine, recipes in cuisines.items %}
+                                    <div class="accordion-item">
+                                        <h3 class="accordion-header" id="headingCuisine{{ cuisine.id }}">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                                    data-bs-target="#collapseCuisine{{ cuisine.id }}" aria-expanded="false" aria-controls="collapseCuisine{{ cuisine.id }}">
+                                                {{ cuisine.name }}
+                                            </button>
 
-<div class="card-body">
-        
-    <!-- Latest Recipes Section -->
-    <div class="mb-4">
-        
-        <div class="row row-cols-1 row-cols-md-3 g-4">
-            {% for recipe in recipes %}
-                {% if user == recipe.creator %}
-                    <div class="col">
-                        <a href="{% url 'voxpopulirecipes:detail' recipe.id %}" class="text-decoration-none">
-                            <div class="card h-100 shadow-sm">
-                                {% if recipe.image %}
-                                    <img
-                                        src="{{ recipe.image.url }}" 
-                                        class="card-img-top" 
-                                        alt="{{ recipe.title }}" 
-                                        style="object-fit: cover; height: 200px;"
-                                    >
-                                {% else %}
-                                    <img
-                                        {% load static %}
-                                        src="{% static 'voxpopulirecipes/logo.png' %}" 
-                                        class="card-img-top" 
-                                        alt="Default Image" 
-                                        style="object-fit: cover; height: 200px;"
-                                    >
-                                {% endif %}
-                                <div class="card-body text-center">
-                                    <h5 class="card-title text-dark">
-                                        {{ recipe.title }}
-                                    </h5>
+                                        </h3>
+                                        <div id="collapseCuisine{{ cuisine.id }}" class="accordion-collapse collapse" aria-labelledby="headingCuisine{{ cuisine.id }}" 
+                                            data-bs-parent="#Cuisine_Accordion_{{ mealtype.id }}">
+                                            <div class="accordion-body">
+                                                
+                                                    {% for recipe in recipes %}
+                                                    <div class="row row-cols-1 row-cols-md-3 g-4">
+                                                        <div class="col">
+                                                            <a href="{% url 'voxpopulirecipes:detail' recipe.id %}" class="text-decoration-none">
+                                                                <div class="card h-100 shadow-sm">
+                                                                    {% if recipe.image %}
+                                                                        <img
+                                                                            src="{{ recipe.image.url }}" 
+                                                                            class="card-img-top" 
+                                                                            alt="{{ recipe.title }}" 
+                                                                            style="object-fit: cover; height: 200px;"
+                                                                        >
+                                                                    {% else %}
+                                                                        <img
+                                                                            {% load static %}
+                                                                            src="{% static 'voxpopulirecipes/logo.png' %}" 
+                                                                            class="card-img-top" 
+                                                                            alt="Default Image" 
+                                                                            style="object-fit: cover; height: 200px;"
+                                                                        >
+                                                                    {% endif %}
+                                                                    <div class="card-body text-center">
+                                                                        <h5 class="card-title text-dark">
+                                                                            {{ recipe.title }}
+                                                                        </h5>
+                                                                    </div>
+                                                                </div>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+
+                                                    {% endfor %}
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
                                 </div>
                             </div>
-                        </a>
+                        </div>
                     </div>
-                {% endif %}
-            {% endfor %}
+                    {% endfor %}
+                </div>
+            </div>
+
+
+
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -60,5 +105,30 @@
 </div>
 
 {% endif %}
+
+<style>
+    .accordion-header .accordion-button {
+        background-color: #e9ecef; /* Light gray background */
+        color: #333; /* Text color */
+        border: 1px solid #ddd; /* Border color */
+    }
+    
+    .accordion-header .accordion-button:hover {
+        background-color: #e9ecef; /* Slightly darker gray on hover */
+        color: #000; /* Text color on hover */
+    }
+    
+    .accordion-header .accordion-button:not(.collapsed) {
+        background-color: #e9ecef; /* Active state */
+        color: #000;
+        border-bottom: none; /* Avoid double borders when expanded */
+    }
+    
+    .accordion-body {
+        background-color: #fff; /* Keep the body white */
+        border-top: 1px solid #ddd; /* Border between header and body */
+    }
+
+</style>
 
 {% endblock %}
