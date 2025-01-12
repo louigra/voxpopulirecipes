@@ -17,9 +17,6 @@
         {% if recipe %}
         <div class="container mt-4">
             <fieldset>
-
-
-
                 <!-- Recipe Title Section -->
                 <div class="card text-center shadow-sm mb-4">
                     <fieldset id="recipe-name-section" class="create_section">
@@ -83,34 +80,77 @@
                                 </div>
                                 <button type="button" class="btn btn-secondary" id="add-instruction">Add another instruction</button>
                             </fieldset>
-                        </fieldset>
+                        </div>
+                    </div>
+                </div>
 
-                        <div class="row py-4">
-                            <div class="col-lg-6 mx-auto">
-                                <!-- Upload image input -->
-                                <div class="input-group mb-3 px-2 py-2 rounded-pill bg-white shadow-sm">
-                                    <input id="upload" type="file" name="image" onchange="readURL(this, 'imageResult');" class="form-control border-0">
-                                    <label id="upload-label" for="upload" class="font-weight-light text-muted">Choose file</label>
-                                    <div class="input-group-append">
-                                        <label for="upload" class="btn btn-light m-0 rounded-pill px-4">
-                                            <i class="fa fa-cloud-upload mr-2 text-muted"></i>
-                                            <small class="text-uppercase font-weight-bold text-muted">Choose file</small>
-                                        </label>
+
+                <div class="row">
+                    <!-- Image Upload Section -->
+                    <div class="col-md-7">
+                        <div class="card shadow-sm">
+                            <div class="card-header text-center bg-dark text-white">
+                                <h2>Upload an Image</h2>
+                            </div>
+                            <div class="card-footer bg-dark text-white">
+                                <div class="row py-4">
+                                    <div class="col-lg-6 mx-auto">
+                                        <!-- Upload image input -->
+                                        <div class="input-group mb-3 px-2 py-2 rounded-pill bg-white shadow-sm">
+                                            <input id="upload" type="file" name="image" onchange="readURL(this, 'imageResult');" class="form-control border-0">
+                                            <label id="upload-label" for="upload" class="font-weight-light text-muted"></label>
+                                            <div class="input-group-append">
+                                                <label for="upload" class="btn btn-light m-0 rounded-pill px-4">
+                                                    <i class="fa fa-cloud-upload mr-2 text-muted"></i>
+                                                    <small class="text-uppercase font-weight-bold text-muted">Choose file</small>
+                                                </label>
+                                            </div>
+                                        </div>
+                                
+                                        <!-- Uploaded image area -->
+                                        <div class="image-area mt-4">
+                                            <img 
+                                                id="imageResult" 
+                                                src="{% if recipe and recipe.image %}{{ recipe.image.url }}{% else %}#{% endif %}" 
+                                                class="img-fluid rounded shadow-sm mx-auto d-block"
+                                            >
+                                        </div>
                                     </div>
-                                </div>
-                        
-                                <!-- Uploaded image area -->
-                                <p class="font-italic text-white text-center">The image uploaded will be rendered inside the box below.</p>
-                                <div class="image-area mt-4">
-                                    <img 
-                                        id="imageResult" 
-                                        src="{% if recipe and recipe.image %}{{ recipe.image.url }}{% else %}#{% endif %}" 
-                                        alt="Uploaded image will appear here" 
-                                        class="img-fluid rounded shadow-sm mx-auto d-block"
-                                    >
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Categorize Section -->
+                    <div class="col-md-5">
+                        <div class="card shadow-sm">
+                            <div class="card-header text-center bg-dark text-white">
+                                <h2>Categorize</h2>
+                            </div>
+                            <div class="card-body">
+                                <label for="mealtype">Meal Type:</label>
+                                <select id="mealtype" name="mealtype" class="form-control mb-3" data-live-search="true">
+                                    <option value="" disabled {% if not recipe or not recipe.mealType %}selected{% endif %}>-- Select --</option>
+                                    {% for mealtype in mealtypes %}
+                                    <option value="{{ mealtype.id }}" {% if recipe and recipe.mealType.id == mealtype.id %}selected{% endif %}>
+                                        {{ mealtype.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                    
+                                <label for="cuisine">Cuisine:</label>
+                                <select id="cuisine" name="cuisine" class="form-control mb-3" data-live-search="true">
+                                    <option value="" disabled {% if not recipe or not recipe.cuisine %}selected{% endif %}>-- Select --</option>
+                                    {% for cuisine in cuisines %}
+                                    <option value="{{ cuisine.id }}" {% if recipe and recipe.cuisine.id == cuisine.id %}selected{% endif %}>
+                                        {{ cuisine.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             <input type="submit" class="btn btn-success" value="Publish">
             <hr>
         </div>
@@ -184,38 +224,77 @@
                     </div>
             </div>
 
-            <div class="row py-4">
-                <div class="col-lg-6 mx-auto">
-                    <!-- Upload image input -->
-                    <div class="input-group mb-3 px-2 py-2 rounded-pill bg-white shadow-sm">
-                        <input id="upload" type="file" name="image" onchange="readURL(this, 'imageResult');" class="form-control border-0">
-                        <label id="upload-label" for="upload" class="font-weight-light text-muted">Choose file</label>
-                        <div class="input-group-append">
-                            <label for="upload" class="btn btn-light m-0 rounded-pill px-4">
-                                <i class="fa fa-cloud-upload mr-2 text-muted"></i>
-                                <small class="text-uppercase font-weight-bold text-muted">Choose file</small>
-                            </label>
+            <div class="row">
+                <!-- Image Upload Section -->
+                <div class="col-md-7">
+                    <div class="card shadow-sm">
+                        <div class="card-header text-center bg-dark text-white">
+                            <h2>Upload an Image</h2>
+                        </div>
+                        <div class="card-footer bg-dark text-white">
+                            <div class="row py-4">
+                                <div class="col-lg-6 mx-auto">
+                                    <!-- Upload image input -->
+                                    <div class="input-group mb-3 px-2 py-2 rounded-pill bg-white shadow-sm">
+                                        <input id="upload" type="file" name="image" onchange="readURL(this, 'imageResult');" class="form-control border-0">
+                                        <label id="upload-label" for="upload" class="font-weight-light text-muted">Choose file</label>
+                                        <div class="input-group-append">
+                                            <label for="upload" class="btn btn-light m-0 rounded-pill px-4">
+                                                <i class="fa fa-cloud-upload mr-2 text-muted"></i>
+                                                <small class="text-uppercase font-weight-bold text-muted">Choose file</small>
+                                            </label>
+                                        </div>
+                                    </div>
+                            
+                                    <!-- Uploaded image area -->
+                                    <div class="image-area mt-4">
+                                        <img 
+                                            id="imageResult" 
+                                            src="{% if recipe and recipe.image %}{{ recipe.image.url }}{% else %}#{% endif %}" 
+                                            class="img-fluid rounded shadow-sm mx-auto d-block"
+                                        >
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-            
-                    <!-- Uploaded image area -->
-                    <p class="font-italic text-white text-center">The image uploaded will be rendered inside the box below.</p>
-                    <div class="image-area mt-4">
-                        <img 
-                            id="imageResult" 
-                            src="{% if recipe and recipe.image %}{{ recipe.image.url }}{% else %}#{% endif %}" 
-                            alt="Uploaded image will appear here" 
-                            class="img-fluid rounded shadow-sm mx-auto d-block"
-                        >
+                </div>
+
+                <!-- Categorize Section -->
+                <div class="col-md-5">
+                    <div class="card shadow-sm">
+                        <div class="card-header text-center bg-dark text-white">
+                            <h2>Categorize</h2>
+                        </div>
+                        <div class="card-body">
+                        {% for mealtype in mealtypes %}
+                        {{ mealtype.name }}
+                        {% endfor %}
+                            <label for="mealtype">Meal Type:</label>
+                            <select id="mealtype" name="mealtype" class="form-control mb-3">
+                                {% for mealtype in mealtypes %}
+                                <option value="{{ mealtype.id }}">
+                                    {{ mealtype.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            
+                            <label for="cuisine">Cuisine:</label>
+                            <select id="cuisine" name="cuisine" class="form-control mb-3">
+                                {% for cuisine in cuisines %}
+                                <option value="{{ cuisine.id }}">
+                                    {{ cuisine.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
-
-            </fieldset>
-            <input type="submit" class="btn btn-success" value="Publish">
-            </div>
-
-
+        </div>
+        <input type="submit" class="btn btn-success" value="Publish">
+        <hr>
+    </div>
 
         {% endif %}
     </form>

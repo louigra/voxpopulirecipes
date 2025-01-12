@@ -44,6 +44,8 @@ def detail(request, recipe_id):
         })
 
 def submit_recipe(request, recipe_id=None):
+    mealtypes = MealType.objects.all()
+    cuisines = Cuisine.objects.all()
     # If editing, fetch the recipe object
     if recipe_id:
         recipe = get_object_or_404(Recipe, id=recipe_id)
@@ -53,6 +55,8 @@ def submit_recipe(request, recipe_id=None):
     if request.method == 'POST':
         recipe_title = request.POST.get('title')
         recipe_image = request.FILES.get('image')  # Get the uploaded image file
+        recipe_mealtype = request.POST.get('mealtype')
+        recipe_cuisine = request.POST.get('cuisine')
 
         # Check if the title is provided
         if recipe_title:
@@ -61,6 +65,10 @@ def submit_recipe(request, recipe_id=None):
                 recipe.title = recipe_title
                 if recipe_image:
                     recipe.image = recipe_image  # Update the image if a new one is uploaded
+                if recipe_mealtype:
+                    recipe.mealType = MealType.objects.get(id=recipe_mealtype)
+                if recipe_cuisine:
+                    recipe.cuisine = Cuisine.objects.get(id=recipe_cuisine)
                 recipe.save()
 
                 # Handle deleted ingredients and instructions
@@ -79,7 +87,9 @@ def submit_recipe(request, recipe_id=None):
                     title=recipe_title,
                     image=recipe_image,  # Set the uploaded image
                     pub_date=timezone.now(),
-                    creator=request.user
+                    creator=request.user,
+                    mealType=MealType.objects.get(id=recipe_mealtype),
+                    cuisine=Cuisine.objects.get(id=recipe_cuisine)
                 )
 
             # Handle ingredients and instructions (same as your original logic)
@@ -87,7 +97,9 @@ def submit_recipe(request, recipe_id=None):
             if not posted_ingredient_ids:
                 return render(request, 'voxpopulirecipes/submit_recipe.html', {
                     'error_message': 'Recipe must have at least one ingredient.',
-                    'recipe': recipe
+                    'recipe': recipe,
+                    'mealtypes': mealtypes,
+                    'cuisines': cuisines
                 })
 
             for ingredient_id in posted_ingredient_ids:
@@ -122,7 +134,9 @@ def submit_recipe(request, recipe_id=None):
             if not posted_instruction_ids:
                 return render(request, 'voxpopulirecipes/submit_recipe.html', {
                     'error_message': 'Recipe must have at least one instruction.',
-                    'recipe': recipe
+                    'recipe': recipe,
+                    'mealtypes': mealtypes,
+                    'cuisines': cuisines
                 })
 
             for instruction_id in posted_instruction_ids:
@@ -152,11 +166,18 @@ def submit_recipe(request, recipe_id=None):
         else:
             return render(request, 'voxpopulirecipes/submit_recipe.html', {
                 'error_message': 'Recipe name is required.',
-                'recipe': recipe
+                'recipe': recipe,
+                'mealtypes': mealtypes,
+                'cuisines': cuisines
             })
 
     # If it's a GET request, render the form
-    return render(request, 'voxpopulirecipes/submit_recipe.html', {'recipe': recipe})
+
+    return render(request, 'voxpopulirecipes/submit_recipe.html', {
+        'recipe': recipe,
+        'mealtypes': mealtypes,
+        'cuisines': cuisines
+        })
 
 def random_recipe(request):
     random_recipe = Recipe.objects.order_by("?").first()
@@ -167,7 +188,13 @@ def random_recipe(request):
     
 def edit_recipe(request, recipe_id):
     recipe = get_object_or_404(Recipe, pk=recipe_id)
-    return render(request, 'voxpopulirecipes/submit_recipe.html', {'recipe': recipe})
+    mealtypes = MealType.objects.all()
+    cuisines = Cuisine.objects.all()
+    return render(request, 'voxpopulirecipes/submit_recipe.html', {
+        'recipe': recipe,
+        'mealtypes': mealtypes,
+        'cuisines': cuisines
+        })
 
 def delete_recipe(request, recipe_id):
     recipe = get_object_or_404(Recipe, pk=recipe_id)
