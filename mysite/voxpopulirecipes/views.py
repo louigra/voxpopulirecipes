@@ -12,13 +12,13 @@ from collections import defaultdict
 
 # import pagination stuff
 from django.core.paginator import Paginator
-
+from django.db.models import F
 
 # import the models i need
-from .models import Recipe, Ingredient, Instruction, User, RecipeNote, Rating, CookedInstance, MealType, Cuisine
+from .models import Recipe, Ingredient, Instruction, User, RecipeNote, Rating, CookedInstance, MealType, Cuisine, SavedRecipe, StarredRecipe
 
 def main(request):
-    lastest_recipe_list = Recipe.objects.filter(pub_date__lte=timezone.now()).order_by("-pub_date")[:5]
+    lastest_recipe_list = Recipe.objects.filter(pub_date__lte=timezone.now()).order_by("-pub_date")[:4]
     all_recipes = Recipe.objects.all().order_by("id")
     all_unique_ingredients = Ingredient.objects.values_list("ingredient_text", flat=True).distinct().order_by("ingredient_text")
     template = loader.get_template("voxpopulirecipes/main.html")
@@ -37,10 +37,22 @@ def detail(request, recipe_id):
     # Calculate the average cook time
     average_cook_time = CookedInstance.objects.filter(recipe=recipe).aggregate(Avg('cook_time'))['cook_time__avg'] or 0
     
+    # Check if the user has saved the recipe
+    saved = False
+    if request.user.is_authenticated:
+        saved = SavedRecipe.objects.filter(user=request.user, recipe=recipe).exists()
+        
+    # Check if the user has starred the recipe
+    starred = False
+    if request.user.is_authenticated:
+        starred = StarredRecipe.objects.filter(user=request.user, recipe=recipe).exists()
+    
     return render(request, "voxpopulirecipes/recipe.html", {
         "recipe": recipe,
         "mean_rating": mean_rating,
-        "average_cook_time": average_cook_time
+        "average_cook_time": average_cook_time,
+        "saved": saved,
+        "starred": starred
         })
 
 def submit_recipe(request, recipe_id=None):
@@ -234,6 +246,23 @@ def all_recipes(request):
 @login_required
 def my_recipes(request):
     recipes = Recipe.objects.filter(creator=request.user).order_by("pub_date")
+    saved_recipe_ids = SavedRecipe.objects.filter(user=request.user).values_list("recipe", flat=True)
+    saved_recipes = Recipe.objects.filter(id__in=saved_recipe_ids).order_by("pub_date")
+
+
+    starred_recipes = list(
+        Recipe.objects.filter(
+            id__in=StarredRecipe.objects.filter(user=request.user).values_list("recipe", flat=True)
+        )
+    )
+    starred_recipe_ids = list(
+        StarredRecipe.objects.filter(user=request.user).order_by("-date_starred").values_list("recipe_id", flat=True)
+    )
+
+    # Sort the recipes in Python based on the reversed order of IDs
+    starred_recipes.sort(key=lambda recipe: starred_recipe_ids.index(recipe.id))
+        
+    
     mealtype_cuisine_map = defaultdict(lambda: defaultdict(list))
 
     for recipe in recipes:
@@ -247,10 +276,28 @@ def my_recipes(request):
         }
         for mealtype, cuisines in sorted(mealtype_cuisine_map.items(), key=lambda mt: mt[0].name)
     }
+    
+    saved_mealtype_cuisine_map = defaultdict(lambda: defaultdict(list))
+    
+    for recipe in saved_recipes:
+        if recipe.mealType and recipe.cuisine:
+            saved_mealtype_cuisine_map[recipe.mealType][recipe.cuisine].append(recipe)
+            
+    saved_mealtype_cuisine_map = {
+        mealtype: {
+            cuisine: sorted(recipe_list, key=lambda r: r.pub_date)
+            for cuisine, recipe_list in sorted(cuisines.items(), key=lambda c: c[0].name)
+        }
+        for mealtype, cuisines in sorted(saved_mealtype_cuisine_map.items(), key=lambda mt: mt[0].name)
+    }
+    
+    
 
     context = {
         "recipes": recipes,
         "mealtype_cuisine_map": mealtype_cuisine_map,
+        "saved_mealtype_cuisine_map": saved_mealtype_cuisine_map,
+        "starred_recipes": starred_recipes
     }
     return render(request, "voxpopulirecipes/my_recipes.html", context)
 
@@ -337,3 +384,26 @@ def submit_review(request, recipe_id):
             )
         return JsonResponse({'success': True})
     return JsonResponse({'success': False}, status=400)
+
+def save_recipe(request, recipe_id):
+    recipe = get_object_or_404(Recipe, pk=recipe_id)
+    user = request.user
+    exists = SavedRecipe.objects.filter(user=user, recipe=recipe).exists()
+    if not exists:
+        SavedRecipe.objects.create(user=user, recipe=recipe, date_saved=timezone.now())
+        return JsonResponse({'success': True})
+    else:
+        SavedRecipe.objects.filter(user=user, recipe=recipe).delete()
+        return JsonResponse({'success': True})
+    
+def star_recipe(request, recipe_id):
+    recipe = get_object_or_404(Recipe, pk=recipe_id)
+    user = request.user
+    exists = StarredRecipe.objects.filter(user=user, recipe=recipe).exists()
+    if not exists:
+        StarredRecipe.objects.create(user=user, recipe=recipe, date_starred=timezone.now())
+        return JsonResponse({'success': True})
+    else:
+        StarredRecipe.objects.filter(user=user, recipe=recipe).delete()
+        return JsonResponse({'success': True})
+    

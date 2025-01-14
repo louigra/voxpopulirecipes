@@ -8,11 +8,42 @@
             <h1>Welcome to Vox Populi Recipes</h1>
         </div>
         <div class="card-body">
+
+            <div class="row mt-5">
+                <!-- Mission Section -->
+                <div class="col-md-6">
+                    <h2>Welcome to Your Online Cooking Notebook!</h2>
+                    <p>
+                        Tired of using ad-filled recipe websites that make you scroll through a novel before you get to the recipe?
+                    </p>
+                    <p>
+                        Looking for an upgrade from your paper recipe book?
+                    </p>
+                    <p>
+                        Look no further, for salvation is at hand!
+                    </p>
+                    <p>
+                        Vox Populi Recipes is designed to replicate all that is good about your personal notebook of recipes, but with the added benefits of being online.
+                        Here you can write your own recipes, edit them, and add notes to them just like you would in a notebook.
+                        Unlike your notebook, you can view and save other people's recipes, search your recipe book, have an organized table of contents for your recipes and more!
+                    </p>
+                    <p>
+                        So, what are you waiting for? Jump in below!
+                    </p>
+                </div>
+                <!-- Image Section -->
+                <div class="col-md-6 text-center">
+                    {% load static %}
+                    <img src="{% static 'voxpopulirecipes/recipe_book.webp' %}" class="img-fluid rounded" alt="Cooking together">
+                </div>
+            </div>
+            <br>
+            <hr>
             {% if latest_recipe_list %}
                 <!-- Latest Recipes Section -->
                 <div class="mb-4">
-                    <h2 class="text-primary text-center">Check Out the 5 Latest Recipes</h2>
-                    <div class="row row-cols-1 row-cols-md-3 g-4">
+                    <h2 class="text-center">Check Out the 4 Latest Recipes</h2>
+                    <div class="row row-cols-1 row-cols-md-2 g-4">
                         {% for recipe in latest_recipe_list %}
                         <div class="col">
                             <a href="{% url 'voxpopulirecipes:detail' recipe.id %}" class="text-decoration-none">
@@ -44,41 +75,55 @@
                         {% endfor %}
                     </div>
                 </div>
+                <br>
+                <hr>
 
-                <!-- Random Recipe Section -->
-                <div class="col-md-6 mb-4">
-                    <div class="card shadow-sm">
-                        <div class="card-header bg-warning text-white text-center">
-                            <h2>Or, click here to see a random recipe</h2>
-                        </div>
-                        <div class="card-body text-center">
-                            <a href="{% url 'voxpopulirecipes:random_recipe' %}" class="btn btn-warning btn-lg">
-                                <i class="bi bi-shuffle"></i> Random Recipe
-                            </a>
+                <div class="d-flex justify-content-center">
+                    <div class="col-md-6 col-lg-6 mb-4" style="max-width: 60%;">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-warning text-white text-center">
+                                <h2>Or, click here to see a random recipe</h2>
+                            </div>
+                            <div class="card-body text-center">
+                                <a href="{% url 'voxpopulirecipes:random_recipe' %}" class="btn btn-warning btn-lg">
+                                    <i class="bi bi-shuffle"></i> Random Recipe
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
                 
-
-                <!-- Submit Recipe Section (Visible Only to Authenticated Users) -->
-                
+                <!-- Login to Submit Recipe Section -->
                 {% if user.is_authenticated %}
-
-                <div class="col-md-6 mb-4">
-                    <div class="card shadow-sm">
-
-                        <div class="card-header bg-success text-white text-center">
-                            <h2>Submit a New Recipe</h2>
-                        </div>
-                        <div class="card-body text-center">
-                            <a href="{% url 'voxpopulirecipes:submit_recipe' %}" class="btn btn-success btn-lg">
-                                <i class="bi bi-plus-circle"></i> Submit a New Recipe
-                            </a>
+                <div class="d-flex justify-content-center">
+                    <div class="col-md-6 col-lg-6 mb-4" style="max-width: 60%;">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-success text-white text-center">
+                                <h2>Submit a New Recipe</h2>
+                            </div>
+                            <div class="card-body text-center">
+                                <a href="{% url 'voxpopulirecipes:submit_recipe' %}" class="btn btn-success btn-lg">
+                                    <i class="bi bi-plus-circle"></i> Submit a New Recipe
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
-
-
+                {% else %}
+                <div class="d-flex justify-content-center">
+                    <div class="col-md-6 col-lg-6 mb-4" style="max-width: 60%;">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-dark text-white text-center">
+                                <h2>Login to Submit a Recipe</h2>
+                            </div>
+                            <div class="card-body text-center">
+                                <a href="{% url 'login' %}" class="btn btn-success btn-lg">
+                                    <i class="bi bi-box-arrow-in-right"></i> Login
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 {% endif %}
             {% else %}
                 <!-- No Recipes Available -->

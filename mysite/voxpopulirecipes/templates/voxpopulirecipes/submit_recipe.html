@@ -267,22 +267,21 @@
                             <h2>Categorize</h2>
                         </div>
                         <div class="card-body">
-                        {% for mealtype in mealtypes %}
-                        {{ mealtype.name }}
-                        {% endfor %}
                             <label for="mealtype">Meal Type:</label>
-                            <select id="mealtype" name="mealtype" class="form-control mb-3">
+                            <select id="mealtype" name="mealtype" class="form-control mb-3" data-live-search="true">
+                                <option value="" disabled {% if not recipe or not recipe.mealType %}selected{% endif %}>-- Select --</option>
                                 {% for mealtype in mealtypes %}
-                                <option value="{{ mealtype.id }}">
+                                <option value="{{ mealtype.id }}" {% if recipe and recipe.mealType.id == mealtype.id %}selected{% endif %}>
                                     {{ mealtype.name }}
                                 </option>
                                 {% endfor %}
                             </select>
-                            
+                
                             <label for="cuisine">Cuisine:</label>
-                            <select id="cuisine" name="cuisine" class="form-control mb-3">
+                            <select id="cuisine" name="cuisine" class="form-control mb-3" data-live-search="true">
+                                <option value="" disabled {% if not recipe or not recipe.cuisine %}selected{% endif %}>-- Select --</option>
                                 {% for cuisine in cuisines %}
-                                <option value="{{ cuisine.id }}">
+                                <option value="{{ cuisine.id }}" {% if recipe and recipe.cuisine.id == cuisine.id %}selected{% endif %}>
                                     {{ cuisine.name }}
                                 </option>
                                 {% endfor %}

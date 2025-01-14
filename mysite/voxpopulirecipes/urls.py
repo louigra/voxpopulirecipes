@@ -18,4 +18,6 @@ urlpatterns = [
     path('delete-note/<int:note_id>/', views.delete_note, name='delete_note'),
     path("check_review_status/<int:recipe_id>/", views.check_review_status, name="check_review_status"),
     path("submit_review/<int:recipe_id>/", views.submit_review, name="submit_review"),
+    path("save_recipe/<int:recipe_id>/", views.save_recipe, name="save_recipe"),
+    path("star_recipe/<int:recipe_id>/", views.star_recipe, name="star_recipe"),
 ]

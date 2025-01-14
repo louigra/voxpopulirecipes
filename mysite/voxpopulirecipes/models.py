@@ -80,3 +80,17 @@ class CookingPlan(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)  # Optional: Track when the plan was created
     def __str__(self):
         return f"{self.user}'s Cooking Plan: {self.title}"
+    
+class StarredRecipe(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+    date_starred = models.DateTimeField("date starred")
+    def __str__(self):
+        return f"{self.user} starred {self.recipe} on {self.date_starred}"
+    
+class SavedRecipe(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+    date_saved = models.DateTimeField("date saved")
+    def __str__(self):
+        return f"{self.user} saved {self.recipe} on {self.date_saved}"
