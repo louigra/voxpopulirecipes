@@ -8,6 +8,8 @@
             <h1 class="display-5">{{ recipe.title }}</h1>
     
             <!-- Star and Save Buttons -->
+            {% if user.is_authenticated %}
+
             <div class="position-absolute top-0 end-0 p-3">
                 <!-- Star Button -->
                 <button 
@@ -19,7 +21,7 @@
                 </button>
             
                 <!-- Save Button -->
-                {% if user.is_authenticated and user != recipe.creator %}
+                {% if user != recipe.creator %}
                 <button 
                     id="save_recipe_button" 
                     class="btn btn-outline-info btn-lg rounded-circle" 
@@ -29,6 +31,7 @@
                 </button>
                 {% endif %}
             </div>
+            {% endif %}
         </div>
         <div class="card-body">
             <p class="mb-1"><strong>Created by:</strong> {{ recipe.creator.username }}</p>
