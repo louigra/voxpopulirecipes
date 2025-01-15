@@ -13,7 +13,7 @@
         </div>
 
         <!-- Tabs Navigation -->
-        <ul class="nav nav-tabs" id="recipeBookTabs" role="tablist">
+        <ul class="nav nav-tabs nav-fill" id="recipeBookTabs" role="tablist">
             <!-- Table of Contents Tab -->
             <li class="nav-item" role="presentation">
                 <button 
@@ -25,7 +25,7 @@
                     role="tab" 
                     aria-controls="table-of-contents" 
                     aria-selected="true">
-                    Table of Contents
+                    <strong>Table of Contents</strong>
                 </button>
             </li>
 
@@ -40,7 +40,7 @@
                     role="tab" 
                     aria-controls="all-recipes" 
                     aria-selected="false">
-                    All Recipes
+                    <strong>All Recipes</strong>
                 </button>
             </li>
 
@@ -55,7 +55,7 @@
                     role="tab" 
                     aria-controls="starred-recipes" 
                     aria-selected="false">
-                    Starred Recipes
+                    <strong>Starred Recipes</strong>
                 </button>
             </li>
         </ul>
@@ -472,8 +472,8 @@
 
     .nav-tabs .nav-link.active {
         color: white; /* White text for the active tab */
-        background-color: #007bff; /* Bootstrap primary color for the active tab */
-        border-color: #007bff #007bff #fff; /* Ensure border matches active tab */
+        background-color: #e9574d; /* Bootstrap primary color for the active tab */
+        border-color: #e9574d; /* Ensure border matches active tab */
     }
 
     /* Card Body Adjustment */
