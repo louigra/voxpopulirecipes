@@ -34,7 +34,9 @@
             {% endif %}
         </div>
         <div class="card-body">
-            <p class="mb-1"><strong>Created by:</strong> {{ recipe.creator.username }}</p>
+            <a href="{% url 'voxpopulirecipes:view_user_book' recipe.creator.id %}">
+                <p class="mb-1"><strong>Created by:</strong> {{ recipe.creator.username }}</p>
+            </a>
             <p class="mb-0"><strong>Created on:</strong> {{ recipe.pub_date }}</p>
             <p class="mb-0"><strong>Meal Type:</strong> {{ recipe.mealType }}</p>
             <p class="mb-0"><strong>Cuisine:</strong> {{ recipe.cuisine }}</p>
@@ -282,6 +284,20 @@
         border: 3px solid #ff8fab; /* Highlight color */
         border-radius: 5px; /* Optional: Smooth corners */
         box-shadow: 0 0 5px rgba(255, 143, 171, 0.75); /* Optional: Glow effect */
+    }
+
+    a {
+        color: #e9574d;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+    
+    a:hover {
+        color: #cc4e45;
+    }
+
+    a:active {
+        color: #e9574d;
     }
 </style>
 

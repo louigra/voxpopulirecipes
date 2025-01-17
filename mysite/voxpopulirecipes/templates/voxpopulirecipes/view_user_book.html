@@ -2,8 +2,6 @@
 
 {% block content %}
 
-{% if user.is_authenticated %}
-
 
 <div class="container mt-4">
     <!-- Card Container -->
@@ -12,55 +10,42 @@
             <h1 class="display-3">{{ user.first_name }}'s Recipe Book</h1>
         </div>
 
-        <!-- Tabs Navigation -->
-        <ul class="nav nav-tabs nav-fill" id="recipeBookTabs" role="tablist">
-            <!-- Table of Contents Tab -->
-            <li class="nav-item" role="presentation">
-                <button 
-                    class="nav-link active" 
-                    id="table-of-contents-tab" 
-                    data-bs-toggle="tab" 
-                    data-bs-target="#table-of-contents" 
-                    type="button" 
-                    role="tab" 
-                    aria-controls="table-of-contents" 
-                    aria-selected="true">
-                    <strong>Table of Contents</strong>
-                </button>
-            </li>
-
-            <!-- All Recipes Tab -->
-            <li class="nav-item" role="presentation">
-                <button 
-                    class="nav-link" 
-                    id="all-recipes-tab" 
-                    data-bs-toggle="tab" 
-                    data-bs-target="#all-recipes" 
-                    type="button" 
-                    role="tab" 
-                    aria-controls="all-recipes" 
-                    aria-selected="false">
-                    <strong>All Recipes</strong>
-                </button>
-            </li>
-
-            <!-- Starred Recipes Tab -->
-            <li class="nav-item" role="presentation">
-                <button 
-                    class="nav-link" 
-                    id="starred-recipes-tab" 
-                    data-bs-toggle="tab" 
-                    data-bs-target="#starred-recipes" 
-                    type="button" 
-                    role="tab" 
-                    aria-controls="starred-recipes" 
-                    aria-selected="false">
-                    <strong>Starred Recipes</strong>
-                </button>
-            </li>
-        </ul>
-
         <div class="card-body">
+            <!-- Tabs Navigation -->
+            <div class="row">
+                <div class="col-12">
+                    <ul class="nav nav-tabs nav-fill" id="recipeBookTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button 
+                                class="nav-link active" 
+                                id="table-of-contents-tab" 
+                                data-bs-toggle="tab" 
+                                data-bs-target="#table-of-contents" 
+                                type="button" 
+                                role="tab" 
+                                aria-controls="table-of-contents" 
+                                aria-selected="true">
+                                <strong>Table of Contents</strong>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button 
+                                class="nav-link" 
+                                id="all-recipes-tab" 
+                                data-bs-toggle="tab" 
+                                data-bs-target="#all-recipes" 
+                                type="button" 
+                                role="tab" 
+                                aria-controls="all-recipes" 
+                                aria-selected="false">
+                                <strong>All Recipes</strong>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        
             <!-- Tab Content -->
             <div class="tab-content" id="recipeBookTabContent">
                 <!-- Table of Contents Tab Pane -->
@@ -69,7 +54,7 @@
                     id="table-of-contents" 
                     role="tabpanel" 
                     aria-labelledby="table-of-contents-tab">
-                    <h1 class="text-center">Your Recipes</h1>
+                    
                     <div class="col-12">
                         <div class="accordion" id="Meal_type_Accordion">
                             {% for mealtype, cuisines in mealtype_cuisine_map.items %}
@@ -137,77 +122,6 @@
                             {% endfor %}
                         </div>
                     </div>
-                    <br>
-                    <hr>
-                    <h1 class="text-center">Saved Recipes</h1>
-
-                    <div class="col-12">
-                        <div class="accordion" id="Saved_Meal_type_Accordion">
-                            {% for mealtype, cuisines in saved_mealtype_cuisine_map.items %}
-                            <div class="accordion-item">
-                                <h2 class="accordion-header" id="savedHeading{{ mealtype.id }}">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
-                                            data-bs-target="#savedCollapse{{ mealtype.id }}" aria-expanded="false" aria-controls="savedCollapse{{ mealtype.id }}">
-                                        <strong>{{ mealtype.name }}</strong>
-                                    </button>
-                                </h2>
-                                <div id="savedCollapse{{ mealtype.id }}" class="accordion-collapse collapse" aria-labelledby="savedHeading{{ mealtype.id }}" 
-                                    data-bs-parent="#Saved_Meal_type_Accordion">
-                                    <div class="accordion-body">
-                                        <div class="accordion" id="Saved_Cuisine_Accordion_{{ mealtype.id }}">
-                                            {% for cuisine, recipes in cuisines.items %}
-                                            <div class="accordion-item">
-                                                <h3 class="accordion-header" id="savedHeadingCuisine{{ cuisine.id }}">
-                                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
-                                                            data-bs-target="#savedCollapseCuisine{{ cuisine.id }}" aria-expanded="false" aria-controls="savedCollapseCuisine{{ cuisine.id }}">
-                                                        <strong>{{ cuisine.name }}</strong>
-                                                    </button>
-                                                </h3>
-                                                <div id="savedCollapseCuisine{{ cuisine.id }}" class="accordion-collapse collapse" aria-labelledby="savedHeadingCuisine{{ cuisine.id }}" 
-                                                    data-bs-parent="#Saved_Cuisine_Accordion_{{ mealtype.id }}">
-                                                    <div class="accordion-body">
-                                                        {% for recipe in recipes %}
-                                                        <div class="row row-cols-1 row-cols-md-3 g-4">
-                                                            <div class="col">
-                                                                <a href="{% url 'voxpopulirecipes:detail' recipe.id %}" class="text-decoration-none">
-                                                                    <div class="card h-100 shadow-sm">
-                                                                        {% if recipe.image %}
-                                                                            <img
-                                                                                src="{{ recipe.image.url }}" 
-                                                                                class="card-img-top" 
-                                                                                alt="{{ recipe.title }}" 
-                                                                                style="object-fit: cover; height: 200px;"
-                                                                            >
-                                                                        {% else %}
-                                                                            <img
-                                                                                {% load static %}
-                                                                                src="{% static 'voxpopulirecipes/logo.png' %}" 
-                                                                                class="card-img-top" 
-                                                                                alt="Default Image" 
-                                                                                style="object-fit: cover; height: 200px;"
-                                                                            >
-                                                                        {% endif %}
-                                                                        <div class="card-body text-center">
-                                                                            <h5 class="card-title text-dark">
-                                                                                {{ recipe.title }}
-                                                                            </h5>
-                                                                        </div>
-                                                                    </div>
-                                                                </a>
-                                                            </div>
-                                                        </div>
-                                                        {% endfor %}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            {% endfor %}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
                 </div>
 
                 <!-- All Recipes Tab Pane -->
@@ -230,6 +144,7 @@
                                         </a>
                                 
                                         <!-- Star and Save Buttons -->
+                                        {% if user.isauthenticated %}
                                         <div class="position-absolute top-0 end-0 p-3">
                                             <!-- Star Button -->
                                             <button 
@@ -241,11 +156,10 @@
                                             </button>
                                             
                                         </div>
+                                        {% endif %}
                                     </div>
                                     <div class="card-body">
-
                                         <p class="mb-1"><strong>Created by:</strong> {{ recipe.creator.username }}</p>
-
                                         <p class="mb-0"><strong>Created on:</strong> {{ recipe.pub_date }}</p>
                                         <p class="mb-0"><strong>Meal Type:</strong> {{ recipe.mealType }}</p>
                                         <p class="mb-0"><strong>Cuisine:</strong> {{ recipe.cuisine }}</p>
@@ -318,131 +232,14 @@
                 </div>
 
                 
-                <!-- Starred Recipes Tab Pane -->
-                <div 
-                    class="tab-pane fade" 
-                    id="starred-recipes" 
-                    role="tabpanel" 
-                    aria-labelledby="starred-recipes-tab">
-    
-                    <!-- Content for Starred Recipes -->
-                    <div class="container-mt4">
-                        {% for recipe in starred_recipes%}
-                            <!-- Recipe Title Section -->
-                            <div class="recipe-card starred-recipe-card">
-                                <div class="card text-center shadow-sm mb-4">
-                                    <div class="card-header bg-dark text-white position-relative">
-                                        <a href="{% url 'voxpopulirecipes:detail' recipe.id %}" class="text-decoration-none">
-                                        <h1 class="display-5">{{ recipe.title }}</h1>
-                                        </a>
-                                        <!-- Star and Save Buttons -->
-                                        <div class="position-absolute top-0 end-0 p-3">
-                                            <!-- Star Button -->
-                                            <button 
-                                                data-recipe-id="{{ recipe.id }}" 
-                                                class="btn btn-outline-warning btn-lg rounded-circle me-2 star-recipe-button" 
-                                                title="Star this recipe"
-                                            >
-                                                <i class="bi {% if recipe in starred_recipes %}bi-star-fill{% else %}bi-star{% endif %}"></i>
-                                            </button>
-                                            
-                                        </div>
-                                    </div>
-                                    <div class="card-body">
-                                        {% if user.id != recipe.creator.id%}
-                                        <a href="{% url 'voxpopulirecipes:view_user_book' recipe.creator.id %}" class="text-decoration-none">
-                                            <p class="mb-1"><strong>Created by:</strong> {{ recipe.creator.username }}</p>
-                                        </a>
-                                        {% else %}
-                                        <p class="mb-1"><strong>Created by:</strong> {{ recipe.creator.username }}</p>
-                                        {% endif %}
-                                        <p class="mb-0"><strong>Created on:</strong> {{ recipe.pub_date }}</p>
-                                        <p class="mb-0"><strong>Meal Type:</strong> {{ recipe.mealType }}</p>
-                                        <p class="mb-0"><strong>Cuisine:</strong> {{ recipe.cuisine }}</p>
-                                    </div>
-                                </div>
-                            
-                                <!-- Recipe Image Section -->   
-                                    
-                                {% if recipe.image %}
-                                    <div class="row py-4">
-                                        <div class="col-lg-6 mx-auto">
-                                            <div class="image-area mt-4">
-                                                <img 
-                                                    id="imageResult" 
-                                                    src="{% if recipe and recipe.image %}{{ recipe.image.url }}{% else %}#{% endif %}" 
-                                                    alt="Uploaded image will appear here" 
-                                                    class="img-fluid rounded shadow-sm mx-auto d-block"
-                                                >
-                                            </div>
-                                        </div>
-                                    </div>
-                                {% endif %}
-                            
-                                <!-- Recipe Content Section -->
-                                <div class="row">
-                                    <!-- Ingredients Section -->
-                                    <div class="col-md-5 mb-4">
-                                        <div class="card shadow-sm">
-                                            <div class="card-header text-center bg-primary text-white">
-                                                <h2>Ingredients</h2>
-                                            </div>
-                                            <div class="card-body">
-                                                <ul class="list-group">
-                                                    {% for ingredient in recipe.ingredient_set.all %}
-                                                        {% if not ingredient.ingredient_amount %}
-                                                            <li class="list-group-item">{{ ingredient.ingredient_text }}</li>
-                                                        {% else %}
-                                                            {% if not ingredient.ingredient_unit %}
-                                                                <li class="list-group-item">{{ ingredient.ingredient_amount }} {{ ingredient.ingredient_text }}</li>
-                                                            {% else %}
-                                                                <li class="list-group-item">{{ ingredient.ingredient_amount }} {{ ingredient.ingredient_unit }} of {{ ingredient.ingredient_text }}</li>
-                                                            {% endif %}
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                            
-                                    <!-- Instructions Section -->
-                                    <div class="col-md-7 mb-4">
-                                        <div class="card shadow-sm">
-                                            <div class="card-header text-center bg-success text-white">
-                                                <h2>Instructions</h2>
-                                            </div>
-                                            <div class="card-body">
-                                                <ol class="list-group list-group-numbered">
-                                                    {% for instruction in recipe.instruction_set.all|dictsort:"instruction_order" %}
-                                                        <li class="list-group-item">{{ instruction.instruction_text }}</li>
-                                                    {% endfor %}
-                                                </ol>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <hr>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
+                
             </div>
         </div>
     </div>
 </div>
 
-{% else %}
-<div class='shadow p-4 mb-5 bg-body rounded'>
-    <h1>You must be logged in to view your recipes</h1>
 
-    <br>
-    <br>
 
-    
-    <a href="{% url 'login' %}">Login Here</a>
-</div>
-
-{% endif %}
 
 <style>
     .accordion-header .accordion-button {

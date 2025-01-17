@@ -407,3 +407,45 @@ def star_recipe(request, recipe_id):
         StarredRecipe.objects.filter(user=user, recipe=recipe).delete()
         return JsonResponse({'success': True})
     
+def view_user_book(request, user_id):
+    if user_id == request.user.id:
+        return redirect("voxpopulirecipes:my_recipes")
+    user_to_view = get_object_or_404(User, pk=user_id)
+    
+    recipes = Recipe.objects.filter(creator=user_to_view).order_by("pub_date")
+
+
+    starred_recipes = list(
+        Recipe.objects.filter(
+            id__in=StarredRecipe.objects.filter(user=user_to_view).values_list("recipe", flat=True)
+        )
+    )
+    starred_recipe_ids = list(
+        StarredRecipe.objects.filter(user=user_to_view).order_by("-date_starred").values_list("recipe_id", flat=True)
+    )
+
+    # Sort the recipes in Python based on the reversed order of IDs
+    starred_recipes.sort(key=lambda recipe: starred_recipe_ids.index(recipe.id))
+    
+    mealtype_cuisine_map = defaultdict(lambda: defaultdict(list))
+
+    for recipe in recipes:
+        if recipe.mealType and recipe.cuisine:
+            mealtype_cuisine_map[recipe.mealType][recipe.cuisine].append(recipe)
+
+    mealtype_cuisine_map = {
+        mealtype: {
+            cuisine: sorted(recipe_list, key=lambda r: r.pub_date)
+            for cuisine, recipe_list in sorted(cuisines.items(), key=lambda c: c[0].name)
+        }
+        for mealtype, cuisines in sorted(mealtype_cuisine_map.items(), key=lambda mt: mt[0].name)
+    }
+    
+    
+    context = {
+        "recipes": recipes,
+        "mealtype_cuisine_map": mealtype_cuisine_map,
+        "user_to_view": user_to_view,
+    }
+    
+    return render(request, "voxpopulirecipes/view_user_book.html", context)

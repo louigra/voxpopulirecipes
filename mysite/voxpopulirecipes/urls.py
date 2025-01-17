@@ -20,4 +20,5 @@ urlpatterns = [
     path("submit_review/<int:recipe_id>/", views.submit_review, name="submit_review"),
     path("save_recipe/<int:recipe_id>/", views.save_recipe, name="save_recipe"),
     path("star_recipe/<int:recipe_id>/", views.star_recipe, name="star_recipe"),
+    path("view-user-book/<int:user_id>/", views.view_user_book, name="view_user_book"),
 ]

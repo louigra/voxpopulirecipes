@@ -94,3 +94,5 @@ class SavedRecipe(models.Model):
     date_saved = models.DateTimeField("date saved")
     def __str__(self):
         return f"{self.user} saved {self.recipe} on {self.date_saved}"
+    
+
