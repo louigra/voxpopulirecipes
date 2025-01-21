@@ -417,15 +417,18 @@ def view_user_book(request, user_id):
 
     starred_recipes = list(
         Recipe.objects.filter(
-            id__in=StarredRecipe.objects.filter(user=user_to_view).values_list("recipe", flat=True)
+            id__in=StarredRecipe.objects.filter(user=request.user).values_list("recipe", flat=True)
         )
     )
     starred_recipe_ids = list(
-        StarredRecipe.objects.filter(user=user_to_view).order_by("-date_starred").values_list("recipe_id", flat=True)
+        StarredRecipe.objects.filter(user=request.user).order_by("-date_starred").values_list("recipe_id", flat=True)
     )
 
     # Sort the recipes in Python based on the reversed order of IDs
     starred_recipes.sort(key=lambda recipe: starred_recipe_ids.index(recipe.id))
+    
+    saved_recipes = Recipe.objects.filter(id__in=SavedRecipe.objects.filter(user=request.user).values_list("recipe", flat=True)).order_by("pub_date")
+    saved_recipe_ids = list(SavedRecipe.objects.filter(user=request.user).order_by("-date_saved").values_list("recipe_id", flat=True))
     
     mealtype_cuisine_map = defaultdict(lambda: defaultdict(list))
 
@@ -446,6 +449,8 @@ def view_user_book(request, user_id):
         "recipes": recipes,
         "mealtype_cuisine_map": mealtype_cuisine_map,
         "user_to_view": user_to_view,
+        "saved_recipe_ids": saved_recipe_ids,
+        "starred_recipe_ids": starred_recipe_ids,
     }
     
     return render(request, "voxpopulirecipes/view_user_book.html", context)

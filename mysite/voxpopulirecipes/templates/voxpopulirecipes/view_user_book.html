@@ -7,7 +7,7 @@
     <!-- Card Container -->
     <div class="card shadow-lg">
         <div class="card-header bg-dark text-white text-center">
-            <h1 class="display-3">{{ user.first_name }}'s Recipe Book</h1>
+            <h1 class="display-3">{{ user_to_view.first_name }}'s Recipe Book</h1>
         </div>
 
         <div class="card-body">
@@ -144,17 +144,28 @@
                                         </a>
                                 
                                         <!-- Star and Save Buttons -->
-                                        {% if user.isauthenticated %}
-                                        <div class="position-absolute top-0 end-0 p-3">
+                                        {% if user.is_authenticated %}
+                                        <div class="position-absolute top-0 end-0 p-3 d-flex">
                                             <!-- Star Button -->
                                             <button 
-                                                data-recipe-id="{{ recipe.id }}" 
-                                                class="btn btn-outline-warning btn-lg rounded-circle me-2 star-recipe-button" 
+                                                id="star_recipe_button" 
+                                                class="btn btn-outline-warning btn-sm square me-2 star-recipe-button" 
                                                 title="Star this recipe"
+                                                data-recipe-id="{{ recipe.id }}"
                                             >
-                                                <i class="bi {% if recipe in starred_recipes %}bi-star-fill{% else %}bi-star{% endif %}"></i>
+                                            <i class="bi {% if recipe.id in starred_recipe_ids %}bi-star-fill{% else %}bi-star{% endif %}"></i>
                                             </button>
-                                            
+                                
+                                            <!-- Save Button -->
+                                            {% if user != recipe.creator %}
+                                            <button 
+                                                id="save_recipe_button" 
+                                                class="btn btn-outline-info btn-sm square save-recipe-button" 
+                                                title="Save this recipe"
+                                            >
+                                                <i class="bi {% if recipe.id in saved_recipe_ids %}bi-bookmark-fill{% else %}bi-bookmark{% endif %}"></i>
+                                            </button>
+                                            {% endif %}
                                         </div>
                                         {% endif %}
                                     </div>
@@ -313,6 +324,23 @@
 
     a:active {
         color: #e9574d;
+    }
+
+    .card-header {
+        position: relative;
+        padding-top: 3rem; /* Add some space for the buttons */
+    }
+    
+    .card-header h1 {
+        margin-bottom: 0;
+        white-space: normal; /* Allow the title to wrap to multiple lines */
+        word-break: break-word; /* Break long words if necessary */
+        text-align: center; /* Center align the title */
+    }
+    
+    .position-absolute.top-0.end-0 {
+        display: flex;
+        gap: 0.5rem; /* Add space between buttons */
     }
 </style>
 

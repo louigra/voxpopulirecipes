@@ -234,7 +234,7 @@
                                             <!-- Star Button -->
                                             <button 
                                                 data-recipe-id="{{ recipe.id }}" 
-                                                class="btn btn-outline-warning btn-lg rounded-circle me-2 star-recipe-button" 
+                                                class="btn btn-outline-warning btn-sm square me-2 star-recipe-button" 
                                                 title="Star this recipe"
                                             >
                                                 <i class="bi {% if recipe in starred_recipes %}bi-star-fill{% else %}bi-star{% endif %}"></i>
@@ -340,7 +340,7 @@
                                             <!-- Star Button -->
                                             <button 
                                                 data-recipe-id="{{ recipe.id }}" 
-                                                class="btn btn-outline-warning btn-lg rounded-circle me-2 star-recipe-button" 
+                                                class="btn btn-outline-warning btn-sm square me-2 star-recipe-button" 
                                                 title="Star this recipe"
                                             >
                                                 <i class="bi {% if recipe in starred_recipes %}bi-star-fill{% else %}bi-star{% endif %}"></i>
@@ -516,6 +516,23 @@
 
     a:active {
         color: #e9574d;
+    }
+
+    .card-header {
+        position: relative;
+        padding-top: 3rem; /* Add some space for the buttons */
+    }
+    
+    .card-header h1 {
+        margin-bottom: 0;
+        white-space: normal; /* Allow the title to wrap to multiple lines */
+        word-break: break-word; /* Break long words if necessary */
+        text-align: center; /* Center align the title */
+    }
+    
+    .position-absolute.top-0.end-0 {
+        display: flex;
+        gap: 0.5rem; /* Add space between buttons */
     }
 </style>
 

@@ -5,26 +5,26 @@
     <!-- Recipe Title Section -->
     <div class="card text-center shadow-sm mb-4">
         <div class="card-header bg-dark text-white position-relative">
-            <h1 class="display-5">{{ recipe.title }}</h1>
+            <!-- Recipe Title -->
+            <h1 class="display-5 text-break mb-0">{{ recipe.title }}</h1>
     
             <!-- Star and Save Buttons -->
             {% if user.is_authenticated %}
-
-            <div class="position-absolute top-0 end-0 p-3">
+            <div class="position-absolute top-0 end-0 p-3 d-flex">
                 <!-- Star Button -->
                 <button 
                     id="star_recipe_button" 
-                    class="btn btn-outline-warning btn-lg rounded-circle me-2" 
+                    class="btn btn-outline-warning btn-sm square me-2" 
                     title="Star this recipe"
                 >
                     <i class="bi {% if starred %}bi-star-fill{% else %}bi-star{% endif %}"></i>
                 </button>
-            
+    
                 <!-- Save Button -->
                 {% if user != recipe.creator %}
                 <button 
                     id="save_recipe_button" 
-                    class="btn btn-outline-info btn-lg rounded-circle" 
+                    class="btn btn-outline-info btn-sm square" 
                     title="Save this recipe"
                 >
                     <i class="bi {% if saved %}bi-bookmark-fill{% else %}bi-bookmark{% endif %}"></i>
@@ -299,6 +299,24 @@
     a:active {
         color: #e9574d;
     }
+
+    .card-header {
+        position: relative;
+        padding-top: 3rem; /* Add some space for the buttons */
+    }
+    
+    .card-header h1 {
+        margin-bottom: 0;
+        white-space: normal; /* Allow the title to wrap to multiple lines */
+        word-break: break-word; /* Break long words if necessary */
+        text-align: center; /* Center align the title */
+    }
+    
+    .position-absolute.top-0.end-0 {
+        display: flex;
+        gap: 0.5rem; /* Add space between buttons */
+    }
+
 </style>
 
 <script>
