@@ -101,7 +101,7 @@
                                 <h2>Submit a New Recipe</h2>
                             </div>
                             <div class="card-body text-center">
-                                <a href="{% url 'voxpopulirecipes:submit_recipe' %}" class="btn btn-success btn-lg">
+                                <a href="{% url 'voxpopulirecipes:submit_recipe_selector' %}" class="btn btn-success btn-lg">
                                     <i class="bi bi-plus-circle"></i> Submit a New Recipe
                                 </a>
                             </div>
@@ -130,7 +130,7 @@
                     <h2>No Recipes Are Available</h2>
                     <p>Be the first to contribute a recipe by clicking the button below!</p>
                     {% if user.is_authenticated %}
-                        <a href="{% url 'voxpopulirecipes:submit_recipe' %}" class="btn btn-success">
+                        <a href="{% url 'voxpopulirecipes:submit_recipe_selector' %}" class="btn btn-success">
                             Submit a New Recipe
                         </a>
                     {% endif %}

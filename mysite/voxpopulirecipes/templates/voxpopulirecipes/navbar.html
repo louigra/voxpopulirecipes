@@ -22,7 +22,7 @@
 					<li><a class="dropdown-item" href="{% url 'voxpopulirecipes:random_recipe' %}">Random Recipe</a></li>
 					{% if user.is_authenticated %}
 					<li><hr class="dropdown-divider"></li>
-					<li><a class="dropdown-item" href="{% url 'voxpopulirecipes:submit_recipe' %}">Submit a Recipe</a></li>
+					<li><a class="dropdown-item" href="{% url 'voxpopulirecipes:submit_recipe_selector' %}">Submit a Recipe</a></li>
 					<li><a class="dropdown-item" href="{% url 'voxpopulirecipes:my_recipes' %}">My Recipes</a></li>
 					{% endif %}
 				</ul>

@@ -1,4 +1,10 @@
 #import the packages i need
+
+from openai import OpenAI
+
+client = OpenAI()
+
+import openai
 import json
 from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponse
@@ -36,17 +42,17 @@ def detail(request, recipe_id):
 
     # Calculate the average cook time
     average_cook_time = CookedInstance.objects.filter(recipe=recipe).aggregate(Avg('cook_time'))['cook_time__avg'] or 0
-    
+
     # Check if the user has saved the recipe
     saved = False
     if request.user.is_authenticated:
         saved = SavedRecipe.objects.filter(user=request.user, recipe=recipe).exists()
-        
+
     # Check if the user has starred the recipe
     starred = False
     if request.user.is_authenticated:
         starred = StarredRecipe.objects.filter(user=request.user, recipe=recipe).exists()
-    
+
     return render(request, "voxpopulirecipes/recipe.html", {
         "recipe": recipe,
         "mean_rating": mean_rating,
@@ -197,7 +203,7 @@ def random_recipe(request):
         return redirect('voxpopulirecipes:detail', recipe_id=random_recipe.id)
     else:
         return redirect('voxpopulirecipes:main')
-    
+
 def edit_recipe(request, recipe_id):
     recipe = get_object_or_404(Recipe, pk=recipe_id)
     mealtypes = MealType.objects.all()
@@ -229,12 +235,12 @@ def search_recipe(request):
 
 def all_recipes(request):
     template = loader.get_template("voxpopulirecipes/all_recipes.html")
-    
+
     # set up pagination
     p = Paginator(Recipe.objects.all(), 20)
     page = request.GET.get('page')
     recipes = p.get_page(page)
-    
+
     context = {
         "recipes": recipes
     }
@@ -261,8 +267,8 @@ def my_recipes(request):
 
     # Sort the recipes in Python based on the reversed order of IDs
     starred_recipes.sort(key=lambda recipe: starred_recipe_ids.index(recipe.id))
-        
-    
+
+
     mealtype_cuisine_map = defaultdict(lambda: defaultdict(list))
 
     for recipe in recipes:
@@ -276,13 +282,13 @@ def my_recipes(request):
         }
         for mealtype, cuisines in sorted(mealtype_cuisine_map.items(), key=lambda mt: mt[0].name)
     }
-    
+
     saved_mealtype_cuisine_map = defaultdict(lambda: defaultdict(list))
-    
+
     for recipe in saved_recipes:
         if recipe.mealType and recipe.cuisine:
             saved_mealtype_cuisine_map[recipe.mealType][recipe.cuisine].append(recipe)
-            
+
     saved_mealtype_cuisine_map = {
         mealtype: {
             cuisine: sorted(recipe_list, key=lambda r: r.pub_date)
@@ -290,8 +296,8 @@ def my_recipes(request):
         }
         for mealtype, cuisines in sorted(saved_mealtype_cuisine_map.items(), key=lambda mt: mt[0].name)
     }
-    
-    
+
+
 
     context = {
         "recipes": recipes,
@@ -395,7 +401,7 @@ def save_recipe(request, recipe_id):
     else:
         SavedRecipe.objects.filter(user=user, recipe=recipe).delete()
         return JsonResponse({'success': True})
-    
+
 def star_recipe(request, recipe_id):
     recipe = get_object_or_404(Recipe, pk=recipe_id)
     user = request.user
@@ -406,12 +412,12 @@ def star_recipe(request, recipe_id):
     else:
         StarredRecipe.objects.filter(user=user, recipe=recipe).delete()
         return JsonResponse({'success': True})
-    
+
 def view_user_book(request, user_id):
     if user_id == request.user.id:
         return redirect("voxpopulirecipes:my_recipes")
     user_to_view = get_object_or_404(User, pk=user_id)
-    
+
     recipes = Recipe.objects.filter(creator=user_to_view).order_by("pub_date")
 
 
@@ -426,10 +432,10 @@ def view_user_book(request, user_id):
 
     # Sort the recipes in Python based on the reversed order of IDs
     starred_recipes.sort(key=lambda recipe: starred_recipe_ids.index(recipe.id))
-    
+
     saved_recipes = Recipe.objects.filter(id__in=SavedRecipe.objects.filter(user=request.user).values_list("recipe", flat=True)).order_by("pub_date")
     saved_recipe_ids = list(SavedRecipe.objects.filter(user=request.user).order_by("-date_saved").values_list("recipe_id", flat=True))
-    
+
     mealtype_cuisine_map = defaultdict(lambda: defaultdict(list))
 
     for recipe in recipes:
@@ -443,8 +449,8 @@ def view_user_book(request, user_id):
         }
         for mealtype, cuisines in sorted(mealtype_cuisine_map.items(), key=lambda mt: mt[0].name)
     }
-    
-    
+
+
     context = {
         "recipes": recipes,
         "mealtype_cuisine_map": mealtype_cuisine_map,
@@ -452,5 +458,72 @@ def view_user_book(request, user_id):
         "saved_recipe_ids": saved_recipe_ids,
         "starred_recipe_ids": starred_recipe_ids,
     }
-    
+
     return render(request, "voxpopulirecipes/view_user_book.html", context)
+
+def submit_recipe_selector(request):
+    return render(request, "voxpopulirecipes/submit_recipe_selector.html")
+
+def submit_recipe_from_text(request):
+    return render(request , "voxpopulirecipes/submit_recipe_from_text.html")
+
+from openai import OpenAI
+
+client = OpenAI()
+from django.shortcuts import render, redirect
+from .models import Recipe, Ingredient
+
+def parse_recipe(request):
+    openai.api_key = "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"
+    if request.method == 'POST':
+        recipe_text = request.POST.get('recipe_text', '')
+        if recipe_text:
+            try:
+                # Call OpenAI API
+                response = client.chat.completions.create(model="gpt-4",
+                messages=[
+                    {"role": "system", "content": "You are a recipe parser."},
+                    {
+                        "role": "user",
+                        "content": (
+                            "Extract the following recipe details and format them as JSON "
+                            "with title, ingredients (name, amount, unit), and instructions (text, order):\n\n"
+                            + recipe_text
+                        )
+                    }
+                ])
+                recipe_data = response.choices[0].message.content
+
+                # Parse the API response
+                data = json.loads(recipe_data)
+
+                # Create the Recipe object
+                recipe = Recipe.objects.create(
+                    title=data['title'],
+                    pub_date=timezone.now(),  # Use the current time as the publication date
+                    created_by=request.user.username if request.user.is_authenticated else None,
+                    creator=request.user if request.user.is_authenticated else None
+                )
+
+                # Create Ingredient objects
+                for ingredient in data.get('ingredients', []):
+                    Ingredient.objects.create(
+                        recipe=recipe,
+                        ingredient_text=ingredient['name'],
+                        ingredient_amount=ingredient.get('amount'),
+                        ingredient_unit=ingredient.get('unit')
+                    )
+
+                # Create Instruction objects
+                for instruction in sorted(data.get('instructions', []), key=lambda x: x['order']):
+                    Instruction.objects.create(
+                        recipe=recipe,
+                        instruction_text=instruction['text'],
+                        instruction_order=instruction['order']
+                    )
+
+                # Redirect to the edit_recipe view with the new recipe ID
+                return redirect('voxpopulirecipes:edit_recipe', recipe_id=recipe.id)
+            except Exception as e:
+                return render(request, 'voxpopulirecipes/error.html', {'error': str(e)})
+    return render(request, 'voxpopulirecipes/paste_recipe.html')

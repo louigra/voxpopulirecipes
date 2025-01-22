@@ -1,0 +1,68 @@
+{% extends 'voxpopulirecipes/base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+    <!-- Card Container -->
+    <div class="card shadow-lg">
+        <div class="card-header bg-dark text-white text-center">
+            <h1>Welcome to Vox Populi Recipes</h1>
+        </div>
+        <div class="card-body">
+            <!-- AI Recipe Submit Buttons -->
+            <div class="row mt-5">
+                <!-- Text Submit Section -->
+
+                    <div class="d-flex justify-content-center">
+                        <form method="POST" action="{% url 'voxpopulirecipes:parse_recipe' %}">
+                            {% csrf_token %}
+                            <textarea name="recipe_text" rows="10" cols="50" placeholder="Paste your recipe here"></textarea>
+                            <button type="submit">Submit</button>
+                          </form>
+                    </div>
+                
+
+            </div>
+            <br>
+            <hr>
+
+            <div class="col-md-6">
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Custom Styles -->
+<style>
+    .card {
+        border-radius: 10px;
+        overflow: hidden;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    {% comment %} .card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    } {% endcomment %}
+
+    .card img {
+        border-bottom: 1px solid #ddd;
+    }
+
+    .btn-lg {
+        padding: 10px 20px;
+        font-size: 1.25rem;
+    }
+
+    a.text-decoration-none {
+        text-decoration: none;
+    }
+
+    a.text-decoration-none:hover {
+        text-decoration: none;
+    }
+</style>
+
+{% endblock %}
