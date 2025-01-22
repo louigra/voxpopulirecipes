@@ -474,7 +474,7 @@ from django.shortcuts import render, redirect
 from .models import Recipe, Ingredient
 
 def parse_recipe(request):
-    openai.api_key = "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"
+    
     if request.method == 'POST':
         recipe_text = request.POST.get('recipe_text', '')
         if recipe_text:
