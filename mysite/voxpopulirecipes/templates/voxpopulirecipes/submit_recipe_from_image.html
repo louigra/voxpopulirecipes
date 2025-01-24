@@ -1,0 +1,107 @@
+{% extends 'voxpopulirecipes/base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+    <!-- Card Container -->
+    <div class="card shadow-lg">
+        <div class="card-header bg-dark text-white text-center">
+            <h1>Welcome to Vox Populi Recipes</h1>
+        </div>
+        <div class="card-body">
+            <!-- Recipe Submit Section -->
+            <div class="row mt-5">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header text-center bg-dark text-white">
+                            <h2>Upload an Image</h2>
+                        </div>
+                        <div class="card-footer bg-dark text-white">
+                            <div class="row py-4">
+                                <div class="col-lg-6 mx-auto">
+                                    <form method="POST" action="{% url 'voxpopulirecipes:parse_recipe' %}" class="mt-4" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <!-- Upload image input -->
+                                    <div class="input-group mb-3 px-2 py-2 rounded-pill bg-white shadow-sm">
+                                        <label for="upload" class="btn btn-light m-0 rounded-pill px-4 w-100 d-flex align-items-center justify-content-center">
+                                            <i class="fa fa-cloud-upload mr-2 text-muted"></i>
+                                            <small class="text-uppercase font-weight-bold text-muted">Choose file</small>
+                                        </label>
+                                        <input id="upload" type="file" name="image" onchange="readURL(this, 'imageResult');" class="d-none">
+                                    </div>
+                                
+                                        <!-- Uploaded image area -->
+                                        <div class="image-area mt-4">
+                                            <img 
+                                                id="imageResult" 
+                                                src="{% if recipe and recipe.image %}{{ recipe.image.url }}{% else %}#{% endif %}" 
+                                                class="img-fluid rounded shadow-sm mx-auto d-block"
+                                            >
+                                        </div>
+                                        <button type="submit" class="btn btn-success btn-lg w-100 mt-3">
+                                            Submit Image 
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Styles -->
+<style>
+    .card {
+        border-radius: 10px;
+        overflow: hidden;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    {% comment %} .card:hover {
+        transform: scale(1.02);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    } {% endcomment %}
+
+    .form-control {
+        width: 80%; /* Set textarea to fill 80% of the card width */
+    }
+
+    .btn-lg {
+        padding: 12px 20px;
+        font-size: 1.25rem;
+    }
+
+    .form-control,
+    .btn-lg {
+        max-width: 100%;
+    }
+</style>
+
+<script>
+        // Function to show the uploaded image
+        function readURL(input, targetImageId) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+    
+                reader.onload = function (e) {
+                    document.getElementById(targetImageId).src = e.target.result;
+                };
+    
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    
+        // Function to display the uploaded file name
+        var input = document.getElementById('upload');
+        var infoArea = document.getElementById('upload-label');
+    
+        input.addEventListener('change', function () {
+            var fileName = input.files[0].name;
+            infoArea.textContent = 'File name: ' + fileName;
+        });     
+    </script>
+
+{% endblock %}

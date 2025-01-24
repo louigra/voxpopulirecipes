@@ -95,4 +95,15 @@ class SavedRecipe(models.Model):
     def __str__(self):
         return f"{self.user} saved {self.recipe} on {self.date_saved}"
     
-
+class MealTypeMap(models.Model):
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+    mealType = models.ForeignKey(MealType, on_delete=models.CASCADE)
+    def __str__(self):
+        return f"{self.recipe} is a {self.mealType}"
+    
+class CuisineMap(models.Model):
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+    cuisine = models.ForeignKey(Cuisine, on_delete=models.CASCADE)
+    def __str__(self):
+        return f"{self.recipe} is {self.cuisine}"
+    

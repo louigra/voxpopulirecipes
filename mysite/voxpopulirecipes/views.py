@@ -21,7 +21,7 @@ from django.core.paginator import Paginator
 from django.db.models import F
 
 # import the models i need
-from .models import Recipe, Ingredient, Instruction, User, RecipeNote, Rating, CookedInstance, MealType, Cuisine, SavedRecipe, StarredRecipe
+from .models import Recipe, Ingredient, Instruction, User, RecipeNote, Rating, CookedInstance, MealType, Cuisine, SavedRecipe, StarredRecipe, MealTypeMap, CuisineMap
 
 def main(request):
     lastest_recipe_list = Recipe.objects.filter(pub_date__lte=timezone.now()).order_by("-pub_date")[:4]
@@ -52,18 +52,25 @@ def detail(request, recipe_id):
     starred = False
     if request.user.is_authenticated:
         starred = StarredRecipe.objects.filter(user=request.user, recipe=recipe).exists()
+        
+    mealTypes = MealTypeMap.objects.filter(recipe = recipe)
+    cuisines = CuisineMap.objects.filter(recipe = recipe)
 
     return render(request, "voxpopulirecipes/recipe.html", {
         "recipe": recipe,
         "mean_rating": mean_rating,
         "average_cook_time": average_cook_time,
         "saved": saved,
-        "starred": starred
+        "starred": starred,
+        "mealTypes": mealTypes,
+        "cuisines": cuisines
         })
 
 def submit_recipe(request, recipe_id=None):
-    mealtypes = MealType.objects.all()
-    cuisines = Cuisine.objects.all()
+    mealtypes = MealType.objects.all().order_by('name')
+    cuisines = Cuisine.objects.all().order_by('name')
+    
+
     # If editing, fetch the recipe object
     if recipe_id:
         recipe = get_object_or_404(Recipe, id=recipe_id)
@@ -73,20 +80,24 @@ def submit_recipe(request, recipe_id=None):
     if request.method == 'POST':
         recipe_title = request.POST.get('title')
         recipe_image = request.FILES.get('image')  # Get the uploaded image file
-        recipe_mealtype = request.POST.get('mealtype')
-        recipe_cuisine = request.POST.get('cuisine')
+        # Get the selected meal types and cuisines (can be multiple)
+        selected_mealtypes = request.POST.getlist('mealtypes')  # Get a list of selected meal type IDs
+        selected_cuisines = request.POST.getlist('cuisines')    # Get a list of selected cuisine IDs
 
         # Check if the title is provided
         if recipe_title:
             if recipe:
+                # Update existing mappings
+                MealTypeMap.objects.filter(recipe=recipe).delete()
+                CuisineMap.objects.filter(recipe=recipe).delete()
                 # If editing, update the existing recipe
                 recipe.title = recipe_title
                 if recipe_image:
                     recipe.image = recipe_image  # Update the image if a new one is uploaded
-                if recipe_mealtype:
-                    recipe.mealType = MealType.objects.get(id=recipe_mealtype)
-                if recipe_cuisine:
-                    recipe.cuisine = Cuisine.objects.get(id=recipe_cuisine)
+                for mealtype_id in selected_mealtypes:
+                    MealTypeMap.objects.create(recipe=recipe, mealType_id=mealtype_id)
+                for cuisine_id in selected_cuisines:
+                    CuisineMap.objects.create(recipe=recipe, cuisine_id=cuisine_id)
                 recipe.save()
 
                 # Handle deleted ingredients and instructions
@@ -106,9 +117,12 @@ def submit_recipe(request, recipe_id=None):
                     image=recipe_image,  # Set the uploaded image
                     pub_date=timezone.now(),
                     creator=request.user,
-                    mealType=MealType.objects.get(id=recipe_mealtype),
-                    cuisine=Cuisine.objects.get(id=recipe_cuisine)
                 )
+                for mealtype_id in selected_mealtypes:
+                    MealTypeMap.objects.create(recipe=recipe, mealType_id=mealtype_id)
+                for cuisine_id in selected_cuisines:
+                    CuisineMap.objects.create(recipe=recipe, cuisine_id=cuisine_id)
+                
 
             # Handle ingredients and instructions (same as your original logic)
             posted_ingredient_ids = [key.split('_')[-1] for key in request.POST if key.startswith('ingredient_text_')]
@@ -206,13 +220,20 @@ def random_recipe(request):
 
 def edit_recipe(request, recipe_id):
     recipe = get_object_or_404(Recipe, pk=recipe_id)
-    mealtypes = MealType.objects.all()
-    cuisines = Cuisine.objects.all()
+    mealtypes = MealType.objects.all().order_by('name')
+    cuisines = Cuisine.objects.all().order_by('name')
+
+    # Get the IDs of meal types and cuisines mapped to the recipe
+    mapped_mealtypes = MealTypeMap.objects.filter(recipe=recipe).values_list('mealType_id', flat=True)
+    mapped_cuisines = CuisineMap.objects.filter(recipe=recipe).values_list('cuisine_id', flat=True)
+
     return render(request, 'voxpopulirecipes/submit_recipe.html', {
         'recipe': recipe,
         'mealtypes': mealtypes,
-        'cuisines': cuisines
-        })
+        'cuisines': cuisines,
+        'mapped_mealtypes': mapped_mealtypes,
+        'mapped_cuisines': mapped_cuisines,
+    })
 
 def delete_recipe(request, recipe_id):
     recipe = get_object_or_404(Recipe, pk=recipe_id)
@@ -249,13 +270,19 @@ def all_recipes(request):
 
 
 
-@login_required
+from collections import defaultdict
+
+from itertools import chain
+
 def my_recipes(request):
+    # Get the recipes created by the user
     recipes = Recipe.objects.filter(creator=request.user).order_by("pub_date")
+    
+    # Get saved recipes for the user
     saved_recipe_ids = SavedRecipe.objects.filter(user=request.user).values_list("recipe", flat=True)
     saved_recipes = Recipe.objects.filter(id__in=saved_recipe_ids).order_by("pub_date")
 
-
+    # Get starred recipes for the user
     starred_recipes = list(
         Recipe.objects.filter(
             id__in=StarredRecipe.objects.filter(user=request.user).values_list("recipe", flat=True)
@@ -265,15 +292,32 @@ def my_recipes(request):
         StarredRecipe.objects.filter(user=request.user).order_by("-date_starred").values_list("recipe_id", flat=True)
     )
 
-    # Sort the recipes in Python based on the reversed order of IDs
+    # Sort starred recipes by the order of `starred_recipe_ids`
     starred_recipes.sort(key=lambda recipe: starred_recipe_ids.index(recipe.id))
 
+    # Combine all recipes (user's recipes and starred recipes)
+    all_recipes = list(set(chain(recipes, starred_recipes)))
 
+    # MealType and Cuisine mapping for user's and starred recipes
+    flattened_mealtypes = [
+        {"recipe_id": recipe.id, "mealtypes": MealTypeMap.objects.filter(recipe=recipe).select_related("mealType")}
+        for recipe in all_recipes
+    ]
+    
+    flattened_cuisines = [
+        {"recipe_id": recipe.id, "cuisines": CuisineMap.objects.filter(recipe=recipe).select_related("cuisine")}
+        for recipe in all_recipes
+    ]
+    
+    # MealType and Cuisine mapping for user's recipes only
     mealtype_cuisine_map = defaultdict(lambda: defaultdict(list))
-
     for recipe in recipes:
-        if recipe.mealType and recipe.cuisine:
-            mealtype_cuisine_map[recipe.mealType][recipe.cuisine].append(recipe)
+        mealtypes = MealType.objects.filter(id__in=MealTypeMap.objects.filter(recipe=recipe).values_list("mealType_id", flat=True))
+        cuisines = Cuisine.objects.filter(id__in=CuisineMap.objects.filter(recipe=recipe).values_list("cuisine_id", flat=True))
+        
+        for mealtype in mealtypes:
+            for cuisine in cuisines:
+                mealtype_cuisine_map[mealtype][cuisine].append(recipe)
 
     mealtype_cuisine_map = {
         mealtype: {
@@ -283,11 +327,15 @@ def my_recipes(request):
         for mealtype, cuisines in sorted(mealtype_cuisine_map.items(), key=lambda mt: mt[0].name)
     }
 
+    # MealType and Cuisine mapping for saved recipes
     saved_mealtype_cuisine_map = defaultdict(lambda: defaultdict(list))
-
     for recipe in saved_recipes:
-        if recipe.mealType and recipe.cuisine:
-            saved_mealtype_cuisine_map[recipe.mealType][recipe.cuisine].append(recipe)
+        mealtypes = MealType.objects.filter(id__in=MealTypeMap.objects.filter(recipe=recipe).values_list("mealType_id", flat=True))
+        cuisines = Cuisine.objects.filter(id__in=CuisineMap.objects.filter(recipe=recipe).values_list("cuisine_id", flat=True))
+        
+        for mealtype in mealtypes:
+            for cuisine in cuisines:
+                saved_mealtype_cuisine_map[mealtype][cuisine].append(recipe)
 
     saved_mealtype_cuisine_map = {
         mealtype: {
@@ -297,13 +345,13 @@ def my_recipes(request):
         for mealtype, cuisines in sorted(saved_mealtype_cuisine_map.items(), key=lambda mt: mt[0].name)
     }
 
-
-
     context = {
         "recipes": recipes,
         "mealtype_cuisine_map": mealtype_cuisine_map,
         "saved_mealtype_cuisine_map": saved_mealtype_cuisine_map,
-        "starred_recipes": starred_recipes
+        "starred_recipes": starred_recipes,
+        "recipe_mealtypes": flattened_mealtypes,
+        "recipe_cuisines": flattened_cuisines,
     }
     return render(request, "voxpopulirecipes/my_recipes.html", context)
 
@@ -433,14 +481,33 @@ def view_user_book(request, user_id):
     # Sort the recipes in Python based on the reversed order of IDs
     starred_recipes.sort(key=lambda recipe: starred_recipe_ids.index(recipe.id))
 
+    all_recipes = list(set(chain(recipes, starred_recipes)))
+    
+    
+    
     saved_recipes = Recipe.objects.filter(id__in=SavedRecipe.objects.filter(user=request.user).values_list("recipe", flat=True)).order_by("pub_date")
     saved_recipe_ids = list(SavedRecipe.objects.filter(user=request.user).order_by("-date_saved").values_list("recipe_id", flat=True))
 
+    
+    
+    flattened_mealtypes = [
+        {"recipe_id": recipe.id, "mealtypes": MealTypeMap.objects.filter(recipe=recipe).select_related("mealType")}
+        for recipe in all_recipes
+    ]
+    
+    flattened_cuisines = [
+        {"recipe_id": recipe.id, "cuisines": CuisineMap.objects.filter(recipe=recipe).select_related("cuisine")}
+        for recipe in all_recipes
+    ]
+    # MealType and Cuisine mapping for user's recipes only
     mealtype_cuisine_map = defaultdict(lambda: defaultdict(list))
-
     for recipe in recipes:
-        if recipe.mealType and recipe.cuisine:
-            mealtype_cuisine_map[recipe.mealType][recipe.cuisine].append(recipe)
+        mealtypes = MealType.objects.filter(id__in=MealTypeMap.objects.filter(recipe=recipe).values_list("mealType_id", flat=True))
+        cuisines = Cuisine.objects.filter(id__in=CuisineMap.objects.filter(recipe=recipe).values_list("cuisine_id", flat=True))
+        
+        for mealtype in mealtypes:
+            for cuisine in cuisines:
+                mealtype_cuisine_map[mealtype][cuisine].append(recipe)
 
     mealtype_cuisine_map = {
         mealtype: {
@@ -457,6 +524,8 @@ def view_user_book(request, user_id):
         "user_to_view": user_to_view,
         "saved_recipe_ids": saved_recipe_ids,
         "starred_recipe_ids": starred_recipe_ids,
+        "recipe_mealtypes": flattened_mealtypes,
+        "recipe_cuisines": flattened_cuisines,
     }
 
     return render(request, "voxpopulirecipes/view_user_book.html", context)
@@ -466,6 +535,9 @@ def submit_recipe_selector(request):
 
 def submit_recipe_from_text(request):
     return render(request , "voxpopulirecipes/submit_recipe_from_text.html")
+
+def submit_recipe_from_image(request):
+    return render(request, "voxpopulirecipes/submit_recipe_from_image.html")
 
 from openai import OpenAI
 

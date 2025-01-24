@@ -97,24 +97,21 @@
                                     <div class="col-lg-6 mx-auto">
                                         <!-- Upload image input -->
                                         <div class="input-group mb-3 px-2 py-2 rounded-pill bg-white shadow-sm">
-                                            <input id="upload" type="file" name="image" onchange="readURL(this, 'imageResult');" class="form-control border-0">
-                                            <label id="upload-label" for="upload" class="font-weight-light text-muted"></label>
-                                            <div class="input-group-append">
-                                                <label for="upload" class="btn btn-light m-0 rounded-pill px-4">
-                                                    <i class="fa fa-cloud-upload mr-2 text-muted"></i>
-                                                    <small class="text-uppercase font-weight-bold text-muted">Choose file</small>
-                                                </label>
+                                            <label for="upload" class="btn btn-light m-0 rounded-pill px-4 w-100 d-flex align-items-center justify-content-center">
+                                                <i class="fa fa-cloud-upload mr-2 text-muted"></i>
+                                                <small class="text-uppercase font-weight-bold text-muted">Choose file</small>
+                                            </label>
+                                            <input id="upload" type="file" name="image" onchange="readURL(this, 'imageResult');" class="d-none">
+                                        </div>
+                                    
+                                            <!-- Uploaded image area -->
+                                            <div class="image-area mt-4">
+                                                <img 
+                                                    id="imageResult" 
+                                                    src="{% if recipe and recipe.image %}{{ recipe.image.url }}{% else %}#{% endif %}" 
+                                                    class="img-fluid rounded shadow-sm mx-auto d-block"
+                                                >
                                             </div>
-                                        </div>
-                                
-                                        <!-- Uploaded image area -->
-                                        <div class="image-area mt-4">
-                                            <img 
-                                                id="imageResult" 
-                                                src="{% if recipe and recipe.image %}{{ recipe.image.url }}{% else %}#{% endif %}" 
-                                                class="img-fluid rounded shadow-sm mx-auto d-block"
-                                            >
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -128,26 +125,51 @@
                                 <h2>Categorize</h2>
                             </div>
                             <div class="card-body">
-                                <label for="mealtype">Meal Type:</label>
-                                <select id="mealtype" name="mealtype" class="form-control mb-3" data-live-search="true">
-                                    <option value="" disabled {% if not recipe or not recipe.mealType %}selected{% endif %}>-- Select --</option>
+                                <label for="mealtypes">Meal Types:</label>
+                                <div id="mealtypes" class="mb-3 d-flex flex-wrap gap-2">
                                     {% for mealtype in mealtypes %}
-                                    <option value="{{ mealtype.id }}" {% if recipe and recipe.mealType.id == mealtype.id %}selected{% endif %}>
+                                    <button 
+                                        type="button" 
+                                        class="btn toggle-button {% if mealtype.id in mapped_mealtypes %}active{% endif %}" 
+                                        data-id="{{ mealtype.id }}" 
+                                        data-type="mealtype"
+                                    >
                                         {{ mealtype.name }}
-                                    </option>
+                                    </button>
                                     {% endfor %}
-                                </select>
+                                </div>
                     
-                                <label for="cuisine">Cuisine:</label>
-                                <select id="cuisine" name="cuisine" class="form-control mb-3" data-live-search="true">
-                                    <option value="" disabled {% if not recipe or not recipe.cuisine %}selected{% endif %}>-- Select --</option>
+                                <label for="cuisines">Cuisines:</label>
+                                <div id="cuisines" class="mb-3 d-flex flex-wrap gap-2">
                                     {% for cuisine in cuisines %}
-                                    <option value="{{ cuisine.id }}" {% if recipe and recipe.cuisine.id == cuisine.id %}selected{% endif %}>
+                                    <button 
+                                        type="button" 
+                                        class="btn toggle-button {% if cuisine.id in mapped_cuisines %}active{% endif %}" 
+                                        data-id="{{ cuisine.id }}" 
+                                        data-type="cuisine"
+                                    >
                                         {{ cuisine.name }}
-                                    </option>
+                                    </button>
                                     {% endfor %}
-                                </select>
+                                </div>
                             </div>
+                                <!-- Hidden inputs for mealtypes -->
+                                <div id="mealtype-inputs">
+                                    {% for mealtype in mealtypes %}
+                                    {% if mealtype.id in mapped_mealtypes %}
+                                    <input type="hidden" name="mealtypes" value="{{ mealtype.id }}" id="mealtype-hidden-{{ mealtype.id }}">
+                                    {% endif %}
+                                    {% endfor %}
+                                </div>
+    
+                                <!-- Hidden inputs for cuisines -->
+                                <div id="cuisine-inputs">
+                                    {% for cuisine in cuisines %}
+                                    {% if cuisine.id in mapped_cuisines %}
+                                    <input type="hidden" name="cuisines" value="{{ cuisine.id }}" id="cuisine-hidden-{{ cuisine.id }}">
+                                    {% endif %}
+                                    {% endfor %}
+                                </div> 
                         </div>
                     </div>
                 </div>
@@ -236,59 +258,81 @@
                                 <div class="col-lg-6 mx-auto">
                                     <!-- Upload image input -->
                                     <div class="input-group mb-3 px-2 py-2 rounded-pill bg-white shadow-sm">
-                                        <input id="upload" type="file" name="image" onchange="readURL(this, 'imageResult');" class="form-control border-0">
-                                        <label id="upload-label" for="upload" class="font-weight-light text-muted">Choose file</label>
-                                        <div class="input-group-append">
-                                            <label for="upload" class="btn btn-light m-0 rounded-pill px-4">
-                                                <i class="fa fa-cloud-upload mr-2 text-muted"></i>
-                                                <small class="text-uppercase font-weight-bold text-muted">Choose file</small>
-                                            </label>
+                                        <label for="upload" class="btn btn-light m-0 rounded-pill px-4 w-100 d-flex align-items-center justify-content-center">
+                                            <i class="fa fa-cloud-upload mr-2 text-muted"></i>
+                                            <small class="text-uppercase font-weight-bold text-muted">Choose file</small>
+                                        </label>
+                                        <input id="upload" type="file" name="image" onchange="readURL(this, 'imageResult');" class="d-none">
+                                    </div>
+                                
+                                        <!-- Uploaded image area -->
+                                        <div class="image-area mt-4">
+                                            <img 
+                                                id="imageResult" 
+                                                src="{% if recipe and recipe.image %}{{ recipe.image.url }}{% else %}#{% endif %}" 
+                                                class="img-fluid rounded shadow-sm mx-auto d-block"
+                                            >
                                         </div>
-                                    </div>
-                            
-                                    <!-- Uploaded image area -->
-                                    <div class="image-area mt-4">
-                                        <img 
-                                            id="imageResult" 
-                                            src="{% if recipe and recipe.image %}{{ recipe.image.url }}{% else %}#{% endif %}" 
-                                            class="img-fluid rounded shadow-sm mx-auto d-block"
-                                        >
-                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Categorize Section -->
-                <div class="col-md-5">
-                    <div class="card shadow-sm">
-                        <div class="card-header text-center bg-dark text-white">
-                            <h2>Categorize</h2>
+                    <!-- Categorize Section -->
+                    <div class="col-md-5">
+                        <div class="card shadow-sm">
+                            <div class="card-header text-center bg-dark text-white">
+                                <h2>Categorize</h2>
+                            </div>
+                            <div class="card-body">
+                                <label for="mealtypes">Meal Types:</label>
+                                <div id="mealtypes" class="mb-3 d-flex flex-wrap gap-2">
+                                    {% for mealtype in mealtypes %}
+                                    <button 
+                                        type="button" 
+                                        class="btn toggle-button {% if mealtype.id in mapped_mealtypes %}active{% endif %}" 
+                                        data-id="{{ mealtype.id }}" 
+                                        data-type="mealtype"
+                                    >
+                                        {{ mealtype.name }}
+                                    </button>
+                                    {% endfor %}
+                                </div>
+                    
+                                <label for="cuisines">Cuisines:</label>
+                                <div id="cuisines" class="mb-3 d-flex flex-wrap gap-2">
+                                    {% for cuisine in cuisines %}
+                                    <button 
+                                        type="button" 
+                                        class="btn toggle-button {% if cuisine.id in mapped_cuisines %}active{% endif %}" 
+                                        data-id="{{ cuisine.id }}" 
+                                        data-type="cuisine"
+                                    >
+                                        {{ cuisine.name }}
+                                    </button>
+                                    {% endfor %}
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <label for="mealtype">Meal Type:</label>
-                            <select id="mealtype" name="mealtype" class="form-control mb-3" data-live-search="true">
-                                <option value="" disabled {% if not recipe or not recipe.mealType %}selected{% endif %}>-- Select --</option>
+                        <!-- Hidden inputs for mealtypes -->
+                            <div id="mealtype-inputs">
                                 {% for mealtype in mealtypes %}
-                                <option value="{{ mealtype.id }}" {% if recipe and recipe.mealType.id == mealtype.id %}selected{% endif %}>
-                                    {{ mealtype.name }}
-                                </option>
+                                {% if mealtype.id in mapped_mealtypes %}
+                                <input type="hidden" name="mealtypes" value="{{ mealtype.id }}" id="mealtype-hidden-{{ mealtype.id }}">
+                                {% endif %}
                                 {% endfor %}
-                            </select>
-                
-                            <label for="cuisine">Cuisine:</label>
-                            <select id="cuisine" name="cuisine" class="form-control mb-3" data-live-search="true">
-                                <option value="" disabled {% if not recipe or not recipe.cuisine %}selected{% endif %}>-- Select --</option>
+                            </div>
+
+                            <!-- Hidden inputs for cuisines -->
+                            <div id="cuisine-inputs">
                                 {% for cuisine in cuisines %}
-                                <option value="{{ cuisine.id }}" {% if recipe and recipe.cuisine.id == cuisine.id %}selected{% endif %}>
-                                    {{ cuisine.name }}
-                                </option>
+                                {% if cuisine.id in mapped_cuisines %}
+                                <input type="hidden" name="cuisines" value="{{ cuisine.id }}" id="cuisine-hidden-{{ cuisine.id }}">
+                                {% endif %}
                                 {% endfor %}
-                            </select>
-                        </div>
+                            </div>  
                     </div>
-                </div>
             </div>
         </div>
         <input type="submit" class="btn btn-success" value="Publish">
@@ -411,6 +455,27 @@
         z-index: 2;
         position: relative;
     }
+
+    .toggle-button {
+        border: 1px solid #ccc;
+        background-color: #f8f9fa;
+        color: #212529;
+        padding: 0.5rem 1rem;
+        border-radius: 0.25rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .toggle-button.active {
+        background-color: #007bff;
+        color: white;
+        border-color: #007bff;
+    }
+    
+    .toggle-button:hover {
+        background-color: #e9ecef;
+        border-color: #adb5bd;
+    }
 </style>
 
 
@@ -453,7 +518,7 @@
     
         // checks if there was a recipe passed in therefore it is an edit instead of a fresh recipe
         const editing = {% if recipe %}true{% else %}false{% endif %};
-        console.log(editing);
+       
     
         if (editing) {
             {% if recipe.ingredient_set.all %}
@@ -474,14 +539,14 @@
             {% endif %}
             
             instructionCount = {{ recipe.instruction_set.all|length }};
-            console.log("Highest Instruction ID: ", instructionCount);
+            
         }
 
         // add a listener for the add ingredient button
         document.getElementById("add-ingredient").addEventListener("click", function() {
-            console.log(ingredientCount);
+            
             ingredientCount++;
-            console.log(ingredientCount);
+            
 
             // onclick of add ingredient button, make a new div and set the class
             const ingredientDiv = document.createElement("div");
@@ -536,6 +601,52 @@
         var fileName = input.files[0].name;
         infoArea.textContent = 'File name: ' + fileName;
     });     
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const mealtypeContainer = document.getElementById("mealtypes");
+        const cuisineContainer = document.getElementById("cuisines");
+        const mealtypeInputs = document.getElementById("mealtype-inputs");
+        const cuisineInputs = document.getElementById("cuisine-inputs");
+    
+        function handleToggle(event) {
+            const button = event.target;
+            const id = button.getAttribute("data-id");
+            const type = button.getAttribute("data-type");
+    
+            button.classList.toggle("active");
+    
+            // Add or remove the hidden input
+            const inputId = `${type}-hidden-${id}`;
+            const existingInput = document.getElementById(inputId);
+    
+            if (button.classList.contains("active")) {
+                if (!existingInput) {
+                    const hiddenInput = document.createElement("input");
+                    hiddenInput.type = "hidden";
+                    hiddenInput.name = type === "mealtype" ? "mealtypes" : "cuisines";
+                    hiddenInput.value = id;
+                    hiddenInput.id = inputId;
+    
+                    if (type === "mealtype") {
+                        mealtypeInputs.appendChild(hiddenInput);
+                    } else {
+                        cuisineInputs.appendChild(hiddenInput);
+                    }
+                }
+            } else {
+                if (existingInput) {
+                    existingInput.remove();
+                }
+            }
+        }
+    
+        // Add event listeners to all toggle buttons
+        const buttons = document.querySelectorAll(".toggle-button");
+        buttons.forEach(button => {
+            button.addEventListener("click", handleToggle);
+        });
+    });
+
 </script>
 
 {% endblock %}

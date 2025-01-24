@@ -247,8 +247,31 @@
                                         <p class="mb-1"><strong>Created by:</strong> {{ recipe.creator.username }}</p>
 
                                         <p class="mb-0"><strong>Created on:</strong> {{ recipe.pub_date }}</p>
-                                        <p class="mb-0"><strong>Meal Type:</strong> {{ recipe.mealType }}</p>
-                                        <p class="mb-0"><strong>Cuisine:</strong> {{ recipe.cuisine }}</p>
+                                        <!-- Meal Types -->
+                                        <p class="mb-0"><strong>Meal Types:</strong>
+                                            {% for item in recipe_mealtypes %}
+                                                {% if item.recipe_id == recipe.id %}
+                                                    {% for mealtype_map in item.mealtypes %}
+                                                        {{ mealtype_map.mealType.name }}{% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                {% endif %}
+                                            {% empty %}
+                                                No meal types available.
+                                            {% endfor %}
+                                        </p>
+
+                                        <!-- Cuisines -->
+                                        <p class="mb-0"><strong>Cuisines:</strong> 
+                                            {% for item in recipe_cuisines %}
+                                                {% if item.recipe_id == recipe.id %}
+                                                    {% for cuisine_map in item.cuisines %}
+                                                        {{ cuisine_map.cuisine.name }}{% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                {% endif %}
+                                            {% empty %}
+                                                No Cuisines available.
+                                            {% endfor %}
+                                        </p>
                                     </div>
                                 </div>
                             
@@ -357,8 +380,30 @@
                                         <p class="mb-1"><strong>Created by:</strong> {{ recipe.creator.username }}</p>
                                         {% endif %}
                                         <p class="mb-0"><strong>Created on:</strong> {{ recipe.pub_date }}</p>
-                                        <p class="mb-0"><strong>Meal Type:</strong> {{ recipe.mealType }}</p>
-                                        <p class="mb-0"><strong>Cuisine:</strong> {{ recipe.cuisine }}</p>
+                                        <p class="mb-0"><strong>Meal Types:</strong>
+                                            {% for item in recipe_mealtypes %}
+                                                {% if item.recipe_id == recipe.id %}
+                                                    {% for mealtype_map in item.mealtypes %}
+                                                        {{ mealtype_map.mealType.name }}{% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                {% endif %}
+                                            {% empty %}
+                                                No meal types available.
+                                            {% endfor %}
+                                        </p>
+
+                                        <!-- Cuisines -->
+                                        <p class="mb-0"><strong>Cuisines:</strong> 
+                                            {% for item in recipe_cuisines %}
+                                                {% if item.recipe_id == recipe.id %}
+                                                    {% for cuisine_map in item.cuisines %}
+                                                        {{ cuisine_map.cuisine.name }}{% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                {% endif %}
+                                            {% empty %}
+                                                No Cuisines available.
+                                            {% endfor %}
+                                        </p>
                                     </div>
                                 </div>
                             

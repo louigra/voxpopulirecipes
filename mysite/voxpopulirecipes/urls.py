@@ -24,4 +24,5 @@ urlpatterns = [
     path("submit_recipe_selector/", views.submit_recipe_selector, name="submit_recipe_selector"),
     path("parse_recipe/", views.parse_recipe, name="parse_recipe"),
     path("submit_recipe_from_text/", views.submit_recipe_from_text, name="submit_recipe_from_text"),
+    path("submit_recipe_from_image/", views.submit_recipe_from_image, name="submit_recipe_from_image"),
 ]

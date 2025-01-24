@@ -38,8 +38,27 @@
                 <p class="mb-1"><strong>Created by:</strong> {{ recipe.creator.username }}</p>
             </a>
             <p class="mb-0"><strong>Created on:</strong> {{ recipe.pub_date }}</p>
-            <p class="mb-0"><strong>Meal Type:</strong> {{ recipe.mealType }}</p>
-            <p class="mb-0"><strong>Cuisine:</strong> {{ recipe.cuisine }}</p>
+            
+            <p class="mb-0"><strong>Meal Type:</strong> 
+                {% if mealTypes|length == 1 %}
+                    {{ mealTypes.0.mealType }}
+                {% else %}
+                    {% for mealType in mealTypes %}
+                        {{ mealType.mealType }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </p>
+            
+            <p class="mb-0"><strong>Cuisine:</strong>
+                {% if cuisines|length == 1 %}
+                    {{ cuisines.0.cuisine }}
+                {% else %}
+                    {% for cuisine in cuisines %}
+                        {{ cuisine.cuisine }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </p>
+            
         </div>
     </div>
 
@@ -317,6 +336,9 @@
         gap: 0.5rem; /* Add space between buttons */
     }
 
+
+
+
 </style>
 
 <script>
@@ -334,12 +356,13 @@
 
             const csrfToken = '{{ csrf_token }}'; // Include CSRF token for security
             noteForm.innerHTML = `
-                <textarea class="form-control mb-3" id="noteText" name="noteText" rows="4" placeholder="Write your note here..." required></textarea>
+                <br>
+                <textarea class="form-control mb-3" id="noteText" name="noteText" rows="6" placeholder="Write your note here..." required 
+                    style="width: 90%; margin: 0 auto; display: block;"></textarea>
                 <button type="submit" class="btn btn-success">Submit</button>
                 <button type="button" class="btn btn-secondary" id="cancelNote">Cancel</button>
                 <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
             `;
-
             addNoteSection.appendChild(noteForm);
 
             const cancelNoteButton = document.getElementById("cancelNote");
