@@ -4,19 +4,23 @@
 			{% load static %}
 			<img src="{% static 'voxpopulirecipes/logo.png' %}" alt="My image" width="60" height="60">
 		</a>
+		<!-- Cooking Mode Toggle -->
+		<div class="cooking-mode-box ms-3">
+			<div class="form-check form-switch">
+				<input class="form-check-input" type="checkbox" id="cookingModeToggle">
+				<label class="form-check-label" for="cookingModeToggle">Cooking Mode</label>
+			</div>
+		</div>
 		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 			<span class="navbar-toggler-icon"></span>
 		</button>
 		<div class="collapse navbar-collapse" id="navbarSupportedContent">
 		<ul class="navbar-nav me-auto mb-2 mb-lg-0">
-			<li class="nav-item">
-				<a class="nav-link" href="{% url 'voxpopulirecipes:main' %}">Home</a>
-			</li>
 			<li><a class="nav-link" href="{% url 'voxpopulirecipes:my_recipes' %}">My Recipes</a></li>
 			<li><a class="nav-link" href="{% url 'voxpopulirecipes:submit_recipe_selector' %}">Submit a Recipe</a></li>
 			<li class="nav-item dropdown">
 				<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-					Recipes
+					More
 				</a>
 				<ul class="dropdown-menu">
 					<li><a class="dropdown-item" href="{% url 'voxpopulirecipes:all_recipes' %}">All Recipes</a></li>
@@ -104,4 +108,72 @@
 .dropdown-divider {
 	border-color: #e9574d;
 }
+
+.form-check-label {
+	margin-left: 8px;
+	cursor: pointer;
+}
+
+.form-check-input {
+	cursor: pointer;
+}
+
+/* Box styling for the toggle switch */
+.cooking-mode-box {
+	background-color: #2f3136; /* Slightly lighter gray than the navbar */
+	padding: 10px 15px;
+	border-radius: 8px;
+	display: flex;
+	align-items: center;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Soft shadow */
+	border: 1px solid #3a3b3f; /* Subtle border for separation */
+}
+
+/* Text styling */
+.cooking-mode-box .form-check-label {
+	color: #fcfde9; /* Match the light text color in the navbar */
+	margin-left: 8px;
+	font-size: 0.9rem;
+	font-weight: 500;
+}
+
+/* Toggle switch styling */
+.form-check-input {
+	cursor: pointer;
+}
+
+/* Box hover effect */
+.cooking-mode-box:hover {
+	background-color: #37393e; /* Slightly darker gray on hover */
+	transition: background-color 0.3s ease;
+}
 </style>
+
+<script>
+    let wakeLock = null;
+
+    async function toggleCookingMode(enable) {
+        if ('wakeLock' in navigator) {
+            try {
+                if (enable) {
+                    // Request the Wake Lock
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    console.log('Cooking Mode enabled: Wake Lock active.');
+                } else if (wakeLock) {
+                    // Release the Wake Lock
+                    await wakeLock.release();
+                    wakeLock = null;
+                    console.log('Cooking Mode disabled: Wake Lock released.');
+                }
+            } catch (err) {
+                console.error(`Failed to toggle Cooking Mode: ${err.name}, ${err.message}`);
+            }
+        } else {
+            alert('Wake Lock API is not supported in your browser.');
+        }
+    }
+
+    document.getElementById('cookingModeToggle').addEventListener('change', function () {
+        toggleCookingMode(this.checked);
+    });
+</script>
