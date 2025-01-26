@@ -4,8 +4,9 @@ from openai import OpenAI
 
 client = OpenAI()
 
-import openai
+
 import json
+import time
 from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponse
 from django.template import loader
@@ -545,57 +546,71 @@ client = OpenAI()
 from django.shortcuts import render, redirect
 from .models import Recipe, Ingredient
 
+import time  # For adding a delay between retries
+import json
+from django.shortcuts import render, redirect
+from django.utils import timezone
+from .models import Recipe, Ingredient, Instruction
+
 def parse_recipe(request):
-    
     if request.method == 'POST':
         recipe_text = request.POST.get('recipe_text', '')
         if recipe_text:
-            try:
-                # Call OpenAI API
-                response = client.chat.completions.create(model="gpt-4",
-                messages=[
-                    {"role": "system", "content": "You are a recipe parser."},
-                    {
-                        "role": "user",
-                        "content": (
-                            "Extract the following recipe details and format them as JSON "
-                            "with title, ingredients (name, amount, unit), and instructions (text, order):\n\n"
-                            + recipe_text
+            max_retries = 2  # Number of retries
+            for attempt in range(max_retries):
+                print(attempt)
+                try:
+                    # Call OpenAI API
+                    response = client.chat.completions.create(
+                        model="gpt-4",
+                        messages=[
+                            {"role": "system", "content": "You are a recipe parser."},
+                            {
+                                "role": "user",
+                                "content": (
+                                    "Extract the following recipe details and format them as JSON "
+                                    "with title, ingredients (name, amount, unit), and instructions (text, order):\n\n"
+                                    + recipe_text
+                                )
+                            }
+                        ]
+                    )
+                    recipe_data = response.choices[0].message.content
+
+                    # Parse the API response
+                    data = json.loads(recipe_data)
+
+                    # Create the Recipe object
+                    recipe = Recipe.objects.create(
+                        title=data['title'],
+                        pub_date=timezone.now(),
+                        created_by=request.user.username if request.user.is_authenticated else None,
+                        creator=request.user if request.user.is_authenticated else None
+                    )
+
+                    # Create Ingredient objects
+                    for ingredient in data.get('ingredients', []):
+                        Ingredient.objects.create(
+                            recipe=recipe,
+                            ingredient_text=ingredient['name'],
+                            ingredient_amount=ingredient.get('amount'),
+                            ingredient_unit=ingredient.get('unit')
                         )
-                    }
-                ])
-                recipe_data = response.choices[0].message.content
 
-                # Parse the API response
-                data = json.loads(recipe_data)
+                    # Create Instruction objects
+                    for instruction in sorted(data.get('instructions', []), key=lambda x: x['order']):
+                        Instruction.objects.create(
+                            recipe=recipe,
+                            instruction_text=instruction['text'],
+                            instruction_order=instruction['order']
+                        )
 
-                # Create the Recipe object
-                recipe = Recipe.objects.create(
-                    title=data['title'],
-                    pub_date=timezone.now(),  # Use the current time as the publication date
-                    created_by=request.user.username if request.user.is_authenticated else None,
-                    creator=request.user if request.user.is_authenticated else None
-                )
-
-                # Create Ingredient objects
-                for ingredient in data.get('ingredients', []):
-                    Ingredient.objects.create(
-                        recipe=recipe,
-                        ingredient_text=ingredient['name'],
-                        ingredient_amount=ingredient.get('amount'),
-                        ingredient_unit=ingredient.get('unit')
-                    )
-
-                # Create Instruction objects
-                for instruction in sorted(data.get('instructions', []), key=lambda x: x['order']):
-                    Instruction.objects.create(
-                        recipe=recipe,
-                        instruction_text=instruction['text'],
-                        instruction_order=instruction['order']
-                    )
-
-                # Redirect to the edit_recipe view with the new recipe ID
-                return redirect('voxpopulirecipes:edit_recipe', recipe_id=recipe.id)
-            except Exception as e:
-                return render(request, 'voxpopulirecipes/error.html', {'error': str(e)})
+                    # Redirect to the edit_recipe view with the new recipe ID
+                    return redirect('voxpopulirecipes:edit_recipe', recipe_id=recipe.id)
+                except Exception as e:
+                    if attempt < max_retries - 1:  # Retry if not the last attempt
+                        time.sleep(1)  # Optional: Add a short delay before retrying
+                        continue
+                    else:  # Log the error and show the error page on the last attempt
+                        return render(request, 'voxpopulirecipes/error.html', {'error': str(e)})
     return render(request, 'voxpopulirecipes/paste_recipe.html')

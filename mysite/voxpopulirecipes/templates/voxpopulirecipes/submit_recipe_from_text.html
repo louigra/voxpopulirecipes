@@ -18,7 +18,7 @@
                             <p class="text-muted">
                                 Paste your recipe below and let us do the magic to extract the details.
                             </p>
-                            <form method="POST" action="{% url 'voxpopulirecipes:parse_recipe' %}" class="mt-4">
+                            <form method="POST" action="{% url 'voxpopulirecipes:parse_recipe' %}" class="mt-4" id="recipeForm">
                                 {% csrf_token %}
                                 <div class="d-flex justify-content-center">
                                     <textarea
@@ -41,6 +41,23 @@
     </div>
 </div>
 
+<!-- Modal -->
+<div class="modal fade" id="loadingModal" tabindex="-1" aria-labelledby="loadingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="loadingModalLabel">Processing Your Recipe</h5>
+            </div>
+            <div class="modal-body text-center">
+                <p>Please wait while we process your recipe. This may take a few moments. Do not refresh or leave the page.</p>
+                <div class="spinner-border text-primary" role="status">
+                    <span class="sr-only"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Custom Styles -->
 <style>
     .card {
@@ -48,8 +65,6 @@
         overflow: hidden;
         transition: transform 0.2s, box-shadow 0.2s;
     }
-
-
 
     .form-control {
         width: 80%; /* Set textarea to fill 80% of the card width */
@@ -65,5 +80,18 @@
         max-width: 100%;
     }
 </style>
+
+<!-- Scripts -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const recipeForm = document.getElementById("recipeForm");
+        const loadingModal = new bootstrap.Modal(document.getElementById("loadingModal"));
+
+        recipeForm.addEventListener("submit", function (event) {
+            // Show the loading modal when the form is submitted
+            loadingModal.show();
+        });
+    });
+</script>
 
 {% endblock %}
