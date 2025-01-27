@@ -35,7 +35,7 @@
                 <!-- Recipe Content Section -->
                 <div class="row">
                     <!-- Ingredients Section -->
-                    <div class="col-md-6 mb-4">
+                    <div class="col-12 col-lg-6 mb-4">
                         <div class="card shadow-sm">
                             <fieldset id="ingredients-section" class="create_section">
                                 <div class="card-header bg-primary text-white">
@@ -44,10 +44,10 @@
                                 <div class="card-body">
                                     {% for ingredient in recipe.ingredient_set.all %}
                                     <div class="ingredient">
-                                        <input type="text" name="ingredient_amount_{{ ingredient.id }}" placeholder="Amount" class="create_ingredient_input" value="{{ ingredient.ingredient_amount }}">
-                                        <input type="text" name="ingredient_unit_{{ ingredient.id }}" placeholder="Unit" class="create_ingredient_input" value="{{ ingredient.ingredient_unit }}">
-                                        <input type="text" name="ingredient_text_{{ ingredient.id }}" placeholder="Ingredient" class="create_ingredient_input" value="{{ ingredient.ingredient_text }}"required >
-                                        <button type="button" class="btn btn-danger" onclick="deleteIngredient(this, {{ ingredient.id }})">Delete</button>
+                                        <input type="text" name="ingredient_amount_{{ ingredient.id }}" placeholder="Amount" class="create_ingredient_input ingredient-amount" value="{{ ingredient.ingredient_amount }}">
+                                        <input type="text" name="ingredient_unit_{{ ingredient.id }}" placeholder="Unit" class="create_ingredient_input ingredient-unit" value="{{ ingredient.ingredient_unit }}">
+                                        <input type="text" name="ingredient_text_{{ ingredient.id }}" placeholder="Ingredient" class="create_ingredient_input ingredient-text" value="{{ ingredient.ingredient_text }}"required >
+                                        <button type="button" class="btn btn-delete ingredient-delete" onclick="deleteIngredient(this, {{ ingredient.id }})"><i class="bi bi-trash-fill"></i></button>
                                     </div>
                                     {% endfor %}
                                     <div id="ingredients-list">
@@ -62,7 +62,7 @@
 
 
                     <!-- Instructions Section -->
-                    <div class="col-md-6 mb-4">
+                    <div class="col-12 col-lg-6 mb-4">
                         <div class="card shadow-sm">
                             <fieldset id="instructions-section" class="create_section">
                                 <div class="card-header bg-success text-white">
@@ -72,7 +72,7 @@
                                     {% for instruction in recipe.instruction_set.all %}
                                     <div class="instruction">
                                         <textarea name="instruction_text_{{ instruction.id }}" placeholder="Instruction" class="create_instruction_input" required>{{ instruction.instruction_text }}</textarea>
-                                        <button type = "button" class="btn btn-danger" onclick="deleteInstruction(this, {{ instruction.id }})">Delete</button>
+                                        <button type = "button" class="btn btn-delete" onclick="deleteInstruction(this, {{ instruction.id }})"><i class="bi bi-trash-fill"></i></button>
                                     </div>
                                     {% endfor %}
                                     <div id="instructions-list">
@@ -87,7 +87,7 @@
 
                 <div class="row">
                     <!-- Image Upload Section -->
-                    <div class="col-md-7">
+                    <div class="col-12 col-lg-6 mb-4">
                         <div class="card shadow-sm">
                             <div class="card-header text-center bg-dark text-white">
                                 <h2>Upload an Image</h2>
@@ -119,7 +119,7 @@
                     </div>
 
                     <!-- Categorize Section -->
-                    <div class="col-md-5">
+                    <div class="col-12 col-lg-6 mb-4">
                         <div class="card shadow-sm">
                             <div class="card-header text-center bg-dark text-white">
                                 <h2>Categorize</h2>
@@ -202,7 +202,7 @@
 
             <div class="row">
                 <!-- Ingredients Section -->
-                <div class="col-md-6 mb-4">
+                <div class="col-12 col-lg-6 mb-4">
                     <div class="card shadow-sm">
                         <fieldset id="ingredients-section" class="create_section">
                             <div class="card-header bg-primary text-white">
@@ -210,10 +210,10 @@
                             </div>
                             <div class="card-body">
                                 <div class="ingredient">
-                                    <input type="text" id="ingredient_amount_1" name="ingredient_amount_1" placeholder="Amount" class="create_ingredient_input">
-                                    <input type="text" id="ingredient_unit_1" name="ingredient_unit_1" placeholder="Unit" class="create_ingredient_input">
-                                    <input type="text" id="ingredient_text_1" name="ingredient_text_1" placeholder="Ingredient" class="create_ingredient_input" required >
-                                    <button type="button" class="btn btn-danger" onclick="deleteIngredient(this)">Delete</button>
+                                    <input type="text" id="ingredient_amount_1" name="ingredient_amount_1" placeholder="Amount" class="create_ingredient_input ingredient-amount">
+                                    <input type="text" id="ingredient_unit_1" name="ingredient_unit_1" placeholder="Unit" class="create_ingredient_input ingredient-unit">
+                                    <input type="text" id="ingredient_text_1" name="ingredient_text_1" placeholder="Ingredient" class="create_ingredient_input ingredient-text" required >
+                                    <button type="button" class="btn btn-delete ingredient-delete" onclick="deleteIngredient(this)"><i class="bi bi-trash-fill"></i></button>
                                 </div>
                                 <div id="ingredients-list">
                                 </div>
@@ -226,7 +226,7 @@
 
                             
                 <!-- Instructions Section -->
-                <div class="col-md-6 mb-4">
+                <div class="col-12 col-lg-6 mb-4">
                     <div class="card shadow-sm">
                             <fieldset id="instructions-section" class="create_section">
                                 <div class="card-header bg-success text-white">
@@ -235,7 +235,7 @@
                                 <div class="card-body">
                                     <div class="instruction">
                                         <textarea name="instruction_text_1" placeholder="Instruction" class="create_instruction_input" required></textarea>
-                                        <button type="button" class="btn btn-danger" onclick="deleteInstruction(this)">Delete</button>
+                                        <button type="button" class="btn btn-delete" onclick="deleteInstruction(this)"><i class="bi bi-trash-fill"></i></button>
                                     </div>
                                     <div id="instructions-list">
                                     </div>
@@ -248,7 +248,7 @@
 
             <div class="row">
                 <!-- Image Upload Section -->
-                <div class="col-md-7">
+                <div class="col-12 col-lg-6 mb-4">
                     <div class="card shadow-sm">
                         <div class="card-header text-center bg-dark text-white">
                             <h2>Upload an Image</h2>
@@ -280,7 +280,7 @@
                 </div>
 
                     <!-- Categorize Section -->
-                    <div class="col-md-5">
+                    <div class="col-12 col-lg-6 mb-4">
                         <div class="card shadow-sm">
                             <div class="card-header text-center bg-dark text-white">
                                 <h2>Categorize</h2>
@@ -359,15 +359,68 @@
 
 <style>
 
-    .instruction {
-        display: flex;
-        align-items: center;
-        gap: 10px;
+  
+    .ingredient-amount {
+        width: 65px; /* Fixed width for "Amount" */
+    }
+    
+    .ingredient-unit {
+        width: 65px; /* Fixed width for "Unit" */
+    }
+    
+    .ingredient, .instruction {
+        display: flex; /* Enable Flexbox */
+        align-items: center; /* Center vertically */
+        justify-content: space-between; /* Space between inputs and button */
+        background-color: #f8f9fa; /* Light grey */
+        border: 1px solid #ddd; /* Subtle border */
+        border-radius: 8px; /* Rounded corners */
+        padding: 10px; /* Inner padding */
+        margin-bottom: 10px; /* Space between boxes */
+        flex-wrap: wrap; /* Allow inputs and button to wrap to a new line */
+    }
+    
+    .create_ingredient_input {
+        flex: 1; /* Inputs take available space */
+        min-width: 50px; /* Prevent inputs from becoming too small */
+        margin-right: 5px; /* Add spacing between inputs */
+        box-sizing: border-box; /* Include padding/borders in the width */
+    }
+    
+    .ingredient-text {
+        flex-grow: 2; /* Allow the text input to take more space */
+        flex-shrink: 1; /* Allow it to shrink if needed */
+        min-width: 120px; /* Set a minimum width */
     }
 
+    .instruction {
+        display: flex; /* Enable Flexbox */
+        align-items: center; /* Center items vertically */
+        justify-content: space-between; /* Space between textarea and button */
+        background-color: #f8f9fa; /* Light grey */
+        border: 1px solid #ddd; /* Subtle border */
+        border-radius: 8px; /* Rounded corners */
+        padding: 10px; /* Inner padding */
+        margin-bottom: 10px; /* Space between boxes */
+        flex-wrap: nowrap; /* Prevent wrapping for instructions */
+    }
+    
     .create_instruction_input {
-        flex:1;
-        min-width: 200px;
+        flex: 1; /* Take available space */
+        min-width: 120px; /* Ensure a usable width */
+        margin-right: 10px; /* Space between textarea and button */
+        box-sizing: border-box; /* Include padding/borders in the width */
+    }
+    
+    .btn-delete {
+        flex-shrink: 0; /* Prevent the button from shrinking */
+        margin-left: 10px; /* Add spacing from the textarea */
+        background: none; /* Remove background */
+        border: none; /* Remove border */
+        color: black; /* Icon color */
+        font-size: 1.5rem; /* Icon size */
+        cursor: pointer; /* Pointer cursor */
+        transition: color 0.2s ease, transform 0.2s ease; /* Smooth hover effect */
     }
 
     .btn-danger {
@@ -383,8 +436,23 @@
     }
 
     .create_ingredient_input, .create_instruction_input {
-        margin-right: 10px;
-        margin-bottom: 10px;
+        border: 1px solid #ccc; /* Subtle border for inputs */
+        border-radius: 6px; /* Rounded corners */
+        padding: 8px 12px; /* Add padding for better usability */
+        font-size: 1rem; /* Modern font size */
+        line-height: 1.5; /* Improve text readability */
+        box-shadow: none; /* Remove default input shadow */
+        outline: none; /* Remove default focus outline */
+        transition: border-color 0.2s ease, box-shadow 0.2s ease; /* Smooth transitions */
+        width: 100%; /* Ensure they take up available space */
+        max-width: 100%; /* Prevent inputs from overflowing */
+        box-sizing: border-box; /* Include padding/borders in width */
+    }
+    
+    /* Focus effect for modern look */
+    .create_ingredient_input:focus, .create_instruction_input:focus {
+        border-color: #e9574d; /* Highlight color on focus */
+        box-shadow: 0 0 5px rgba(233, 87, 77, 0.5); /* Subtle shadow on focus */
     }
 
     .create_instruction_input {
@@ -476,6 +544,49 @@
         background-color: #e9ecef;
         border-color: #adb5bd;
     }
+
+    #add-ingredient, #add-instruction {
+        display: block;
+        margin: 2px auto; /* Center the button horizontally */
+        padding: 8px 24px; /* Add padding for a better click area */
+        background-color: #e9574d; /* Highlight color */
+        color: white; /* Text color */
+        border: none; /* Remove border */
+        border-radius: 8px; /* Rounded corners */
+        font-size: 1.2rem; /* Slightly larger text size */
+        cursor: pointer; /* Change cursor on hover */
+        transition: background-color 0.3s, transform 0.2s; /* Smooth hover effect */
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    }
+    
+    #add-ingredient:hover, #add-instruction:hover {
+        background-color: #d64941; /* Slightly darker shade on hover */
+        transform: translateY(-2px); /* Lift effect */
+    }
+    
+    #add-ingredient:active, #add-instruction:active {
+        background-color: #c4443a; /* Even darker shade on click */
+        transform: translateY(0); /* Reset lift */
+    }
+
+
+    .btn-delete:hover {
+        color: #e9574d; /* Change to highlight color on hover */
+        transform: scale(1.1); /* Slightly enlarge icon on hover */
+    }
+    
+    .btn-delete:focus {
+        outline: none; /* Remove focus outline */
+    }
+
+    .ingredient .btn-delete, .instruction .btn-delete {
+        align-self: center; /* Ensures vertical centering within the container */
+    }
+
+    .ingredient, .instruction {
+        max-width: 100%; /* Ensure it doesn't overflow the parent container */
+    }
+
 </style>
 
 
@@ -554,10 +665,10 @@
 
             // set the content of the new div using the ingredient count so each set has its own unique names
             ingredientDiv.innerHTML = `
-                <input type="text" id="ingredient_amount_${ingredientCount}" name="ingredient_amount_${ingredientCount}" placeholder="Amount" class="create_ingredient_input">
-                <input type="text" id="ingredient_unit_${ingredientCount}" name="ingredient_unit_${ingredientCount}" placeholder="Unit" class="create_ingredient_input">
-                <input type="text" id="ingredient_text_${ingredientCount}" name="ingredient_text_${ingredientCount}" placeholder="Ingredient" class="create_ingredient_input" required>
-                <button type="button" class="btn btn-danger" onclick="deleteIngredient(this)">Delete</button>
+                <input type="text" id="ingredient_amount_${ingredientCount}" name="ingredient_amount_${ingredientCount}" placeholder="Amount" class="create_ingredient_input ingredient-amount">
+                <input type="text" id="ingredient_unit_${ingredientCount}" name="ingredient_unit_${ingredientCount}" placeholder="Unit" class="create_ingredient_input ingredient-unit">
+                <input type="text" id="ingredient_text_${ingredientCount}" name="ingredient_text_${ingredientCount}" placeholder="Ingredient" class="create_ingredient_input ingredient-text" required>
+                <button type="button" class="btn btn-delete ingredient-delete" onclick="deleteIngredient(this)"><i class="bi bi-trash-fill"></i></button>
             `;
 
             // append to the ingredient section
@@ -573,7 +684,7 @@
 
             instructionDiv.innerHTML = `
                 <textarea name="instruction_text_${instructionCount}" placeholder="Instruction" class="create_instruction_input" required></textarea>
-                <button type="button" class="btn btn-danger" onclick="deleteInstruction(this)">Delete</button>
+                <button type="button" class="btn btn-delete" onclick="deleteInstruction(this)"><i class="bi bi-trash-fill"></i></button>
             `;
 
             document.getElementById("instructions-list").appendChild(instructionDiv);
