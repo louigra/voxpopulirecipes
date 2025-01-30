@@ -6,6 +6,7 @@ client = OpenAI()
 
 
 import json
+import openai
 import time
 from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponse
@@ -16,6 +17,11 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.db.models import Avg
 from collections import defaultdict
+import pytesseract
+from PIL import Image
+import io
+
+
 
 # import pagination stuff
 from django.core.paginator import Paginator
@@ -542,25 +548,24 @@ def submit_recipe_from_image(request):
 
 from openai import OpenAI
 
-client = OpenAI()
-from django.shortcuts import render, redirect
-from .models import Recipe, Ingredient
 
-import time  # For adding a delay between retries
-import json
-from django.shortcuts import render, redirect
-from django.utils import timezone
-from .models import Recipe, Ingredient, Instruction
 
 def parse_recipe(request):
     if request.method == 'POST':
         recipe_text = request.POST.get('recipe_text', '')
+
+        # Handle image upload and extract text using OpenAI Vision API
+        recipe_image = request.FILES.get('recipe_image')
+        if recipe_image:
+            extracted_text = extract_text_from_image(recipe_image)
+            print(extracted_text)
+            if "Error" not in extracted_text:
+                recipe_text += "\n" + extracted_text  # Append extracted text to existing recipe_text
+
         if recipe_text:
-            max_retries = 2  # Number of retries
+            max_retries = 2
             for attempt in range(max_retries):
-                print(attempt)
                 try:
-                    # Call OpenAI API
                     response = client.chat.completions.create(
                         model="gpt-4",
                         messages=[
@@ -577,7 +582,7 @@ def parse_recipe(request):
                     )
                     recipe_data = response.choices[0].message.content
 
-                    # Parse the API response
+                    # Parse API response
                     data = json.loads(recipe_data)
 
                     # Create the Recipe object
@@ -608,9 +613,33 @@ def parse_recipe(request):
                     # Redirect to the edit_recipe view with the new recipe ID
                     return redirect('voxpopulirecipes:edit_recipe', recipe_id=recipe.id)
                 except Exception as e:
-                    if attempt < max_retries - 1:  # Retry if not the last attempt
-                        time.sleep(1)  # Optional: Add a short delay before retrying
+                    if attempt < max_retries - 1:
+                        time.sleep(1)
                         continue
-                    else:  # Log the error and show the error page on the last attempt
+                    else:
                         return render(request, 'voxpopulirecipes/error.html', {'error': str(e)})
-    return render(request, 'voxpopulirecipes/paste_recipe.html')
+
+    return render(request, 'voxpopulirecipes/parse_recipe.html')
+
+def extract_text_from_image(image):
+    """Extracts text from an image using Tesseract OCR"""
+    try:
+        # Save the uploaded image temporarily
+        image_path = '/tmp/temp_image.png'
+        with open(image_path, 'wb') as f:
+            f.write(image.read())
+
+        # Open the image using PIL
+        img = Image.open(image_path)
+
+        # Use Tesseract to extract text
+        extracted_text = pytesseract.image_to_string(img)
+
+        # Clean up the temporary file
+        img.close()
+
+        # Return the extracted text
+        return extracted_text.strip() if extracted_text else "Error: No text extracted"
+
+    except Exception as e:
+        return f"Error extracting text with Tesseract: {str(e)}"

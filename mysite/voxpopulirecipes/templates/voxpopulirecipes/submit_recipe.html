@@ -38,7 +38,7 @@
                     <div class="col-12 col-lg-6 mb-4">
                         <div class="card shadow-sm">
                             <fieldset id="ingredients-section" class="create_section">
-                                <div class="card-header bg-primary text-white">
+                                <div class="card-header text-center bg-primary text-white">
                                     <h2>Ingredients</h2>
                                 </div>
                                 <div class="card-body">
@@ -65,7 +65,7 @@
                     <div class="col-12 col-lg-6 mb-4">
                         <div class="card shadow-sm">
                             <fieldset id="instructions-section" class="create_section">
-                                <div class="card-header bg-success text-white">
+                                <div class="card-header text-center bg-success text-white">
                                     <h2>Instructions</h2>
                                 </div>
                                 <div class="card-body">
@@ -173,7 +173,12 @@
                         </div>
                     </div>
                 </div>
-            <input type="submit" class="btn btn-success" value="Publish">
+                <div>
+                    <input type="submit" class="btn btn-success" value="Publish">
+                    <a href="{% url 'voxpopulirecipes:delete_recipe' recipe.id %}" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Delete Recipe
+                    </a>
+                </div>
             <hr>
         </div>
 
@@ -205,7 +210,7 @@
                 <div class="col-12 col-lg-6 mb-4">
                     <div class="card shadow-sm">
                         <fieldset id="ingredients-section" class="create_section">
-                            <div class="card-header bg-primary text-white">
+                            <div class="card-header text-center bg-primary text-white">
                                 <h2>Ingredients</h2>
                             </div>
                             <div class="card-body">
@@ -229,7 +234,7 @@
                 <div class="col-12 col-lg-6 mb-4">
                     <div class="card shadow-sm">
                             <fieldset id="instructions-section" class="create_section">
-                                <div class="card-header bg-success text-white">
+                                <div class="card-header text-center bg-success text-white">
                                     <h2>Instructions</h2>
                                 </div>
                                 <div class="card-body">
@@ -335,7 +340,10 @@
                     </div>
             </div>
         </div>
+        <div>
         <input type="submit" class="btn btn-success" value="Publish">
+        
+        </div>
         <hr>
     </div>
 

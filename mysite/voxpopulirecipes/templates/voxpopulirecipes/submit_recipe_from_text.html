@@ -9,6 +9,43 @@
             <h1>Welcome to Vox Populi Recipes</h1>
         </div>
         <div class="card-body">
+
+        </div>
+        <div class="card shadow-sm">
+            <div class="card-header text-center bg-dark text-white">
+                <h2>Upload an Image</h2>
+            </div>
+            <div class="card-footer bg-dark text-white">
+                <div class="row py-4">
+                    <div class="col-lg-6 mx-auto">
+                        <form method="POST" action="{% url 'voxpopulirecipes:parse_recipe' %}" class="mt-4" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <!-- Upload image input -->
+                        <div class="input-group mb-3 px-2 py-2 rounded-pill bg-white shadow-sm">
+                            <label for="upload" class="btn btn-light m-0 rounded-pill px-4 w-100 d-flex align-items-center justify-content-center">
+                                <i class="fa fa-cloud-upload mr-2 text-muted"></i>
+                                <small class="text-uppercase font-weight-bold text-muted">Choose file</small>
+                            </label>
+                            <input id="upload" type="file" name="recipe_image" onchange="readURL(this, 'imageResult');" class="d-none">
+                        </div>
+                    
+                            <!-- Uploaded image area -->
+                            <div class="image-area mt-4">
+                                <img 
+                                    id="imageResult" 
+                                    src="{% if recipe and recipe.image %}{{ recipe.image.url }}{% else %}#{% endif %}" 
+                                    class="img-fluid rounded shadow-sm mx-auto d-block"
+                                >
+                            </div>
+                            <button type="submit" class="btn btn-success btn-lg w-100 mt-3">
+                                Submit Image 
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
             <!-- Recipe Submit Section -->
             <div class="row mt-5">
                 <div class="col-12">
@@ -18,7 +55,7 @@
                             <p class="text-muted">
                                 Paste your recipe below and let us do the magic to extract the details.
                             </p>
-                            <form method="POST" action="{% url 'voxpopulirecipes:parse_recipe' %}" class="mt-4" id="recipeForm">
+                            <form method="POST" action="{% url 'voxpopulirecipes:parse_recipe' %}" class="mt-4" id="recipeForm" enctype="multipart/form-data">
                                 {% csrf_token %}
                                 <div class="d-flex justify-content-center">
                                     <textarea
@@ -36,7 +73,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+
         </div>
     </div>
 </div>
@@ -84,14 +121,28 @@
 <!-- Scripts -->
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        const recipeForm = document.getElementById("recipeForm");
+        const forms = document.querySelectorAll("form"); // Select all forms
         const loadingModal = new bootstrap.Modal(document.getElementById("loadingModal"));
-
-        recipeForm.addEventListener("submit", function (event) {
-            // Show the loading modal when the form is submitted
-            loadingModal.show();
+    
+        forms.forEach(form => {
+            form.addEventListener("submit", function (event) {
+                loadingModal.show(); // Show the modal when any form is submitted
+            });
         });
     });
+
+        // Function to show the uploaded image
+        function readURL(input, targetImageId) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+    
+                reader.onload = function (e) {
+                    document.getElementById(targetImageId).src = e.target.result;
+                };
+    
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
 </script>
 
 {% endblock %}
