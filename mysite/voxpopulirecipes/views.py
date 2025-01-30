@@ -8,6 +8,11 @@ client = OpenAI()
 import json
 import openai
 import time
+import boto3
+import os
+import requests
+from io import BytesIO
+
 from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponse
 from django.template import loader
@@ -623,22 +628,21 @@ def parse_recipe(request):
 
 def extract_text_from_image(image):
     """Extracts text from an image using Tesseract OCR"""
+
     try:
-        # Save the uploaded image temporarily
-        image_path = '/tmp/temp_image.png'
-        with open(image_path, 'wb') as f:
-            f.write(image.read())
+        if hasattr(image, 'url'):  # If the image is stored in S3, it will have a URL
+            image_url = image.url
+            response = requests.get(image_url)
+            image_bytes = BytesIO(response.content)
+            img = Image.open(image_bytes)
+        else:
+            # If it's an uploaded file, read it directly
+            img = Image.open(image)
 
-        # Open the image using PIL
-        img = Image.open(image_path)
-
-        # Use Tesseract to extract text
+        img = img.convert("RGB")  # Ensure it's in a valid format
         extracted_text = pytesseract.image_to_string(img)
-
-        # Clean up the temporary file
         img.close()
 
-        # Return the extracted text
         return extracted_text.strip() if extracted_text else "Error: No text extracted"
 
     except Exception as e:
