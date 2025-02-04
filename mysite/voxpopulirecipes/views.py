@@ -6,12 +6,11 @@ client = OpenAI()
 
 
 import json
-import openai
-import time
+
 import boto3
-import os
+
 import requests
-from io import BytesIO
+
 
 from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponse
@@ -30,8 +29,9 @@ from django.conf import settings
 
 from django.utils.timezone import now
 
-import pytesseract
+
 from PIL import Image
+
 import io
 
 
@@ -659,20 +659,64 @@ def parse_recipe(request):
     print("📌 Rendering parse_recipe.html (skipped processing)")
     return render(request, 'voxpopulirecipes/parse_recipe.html')
 
+
+
+def resize_image(image_url, max_size=(1000, 1000), quality=70):
+    """Resize and compress image to reduce file size under 1MB."""
+    response = requests.get(image_url)
+    image = Image.open(io.BytesIO(response.content))
+
+    # Convert to grayscale for better OCR readability
+    image = image.convert("L")
+    image.thumbnail(max_size, Image.LANCZOS)
+
+    # Save to bytes with compression
+    img_byte_arr = io.BytesIO()
+    image.save(img_byte_arr, format="JPEG", quality=quality)
+    img_byte_arr.seek(0)
+
+    # Check file size
+    file_size_kb = len(img_byte_arr.getvalue()) / 1024
+    print(f"📌 Resized image size: {file_size_kb:.2f} KB")  # Debugging info
+
+    return img_byte_arr
+
 def extract_text_from_s3(image_url):
-    """Extracts text from an image stored in S3 using Tesseract OCR"""
+    """Extract text using OCR.Space with resized image and explicit file type."""
     try:
-        # Download the image from S3
-        response = requests.get(image_url)
-        image_bytes = BytesIO(response.content)
-        img = Image.open(image_bytes)
+        api_key = "K84625900288957"
+        resized_image = resize_image(image_url)
 
-        # Convert to RGB to avoid errors
-        img = img.convert("RGB")
-        extracted_text = pytesseract.image_to_string(img)
-        img.close()
+        # Ensure file is under 1024KB
+        if len(resized_image.getvalue()) > 1024 * 1024:
+            return "Error: Resized image is still too large."
 
-        return extracted_text.strip() if extracted_text else "Error: No text extracted"
+        payload = {
+            "apikey": api_key,
+            "language": "eng",
+            "filetype": "jpg",
+            "OCREngine": "2",  # 🔹 Use better OCR engine
+        }
+        files = {
+            "image": ("image.jpg", resized_image, "image/jpeg")  # 🔹 Force correct filename & MIME type
+        }
+
+        response = requests.post("https://api.ocr.space/parse/image", data=payload, files=files)
+        result = response.json()
+
+        print("📌 OCR.Space API Response:", result)  # Debugging
+
+        if result.get("IsErroredOnProcessing", False):
+            return f"Error: {result.get('ErrorMessage', 'OCR processing failed')}"
+
+        parsed_results = result.get("ParsedResults", [])
+        if not parsed_results:
+            return "Error: No text extracted"
+
+        parsed_text = parsed_results[0].get("ParsedText", "").strip()
+        return parsed_text if parsed_text else "Error: No text found in OCR response"
 
     except Exception as e:
-        return f"Error extracting text with Tesseract: {str(e)}"
+        return f"Error extracting text with OCR.Space: {str(e)}"
+    
+    
