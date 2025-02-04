@@ -565,35 +565,46 @@ from openai import OpenAI
 s3_client = boto3.client('s3')
 
 def parse_recipe(request):
+    print("📌 Request received, method:", request.method)  # Check if it's POST
+
     if request.method == 'POST':
         recipe_text = request.POST.get('recipe_text', '')
-
-        # Handle image upload
         recipe_image = request.FILES.get('recipe_image')
+
+        print("📌 Recipe text:", recipe_text)
+        print("📌 Recipe image received:", bool(recipe_image))  # True if an image is received
+
+        if not recipe_text and not recipe_image:
+            print("❌ No recipe text or image received, rendering parse_recipe.html")
+            return render(request, 'voxpopulirecipes/parse_recipe.html', {'error': 'No data received'})
+
         image_url = None
 
         if recipe_image:
-            # Save image to S3 bucket
-            timestamp = now().strftime("%Y%m%d%H%M%S")
-            image_filename = f"recipes/{timestamp}_{recipe_image.name}"
-            s3_path = f"media/{image_filename}"  # Ensure correct media prefix for S3
+            try:
+                # Generate S3 path and save image
+                timestamp = now().strftime("%Y%m%d%H%M%S")
+                image_filename = f"recipes/{timestamp}_{recipe_image.name}"
+                s3_path = f"media/{image_filename}"
 
-            # Upload image to S3
-            default_storage.save(s3_path, recipe_image)
+                # Save the image to S3
+                default_storage.save(s3_path, recipe_image)
+                image_url = f"{settings.MEDIA_URL}{image_filename}"
+                print("✅ Image successfully uploaded to S3:", image_url)
 
-            # Construct the S3 URL
-            image_url = f"{settings.MEDIA_URL}{image_filename}"
-            print("Uploaded image URL:", image_url)
+                # Extract text from the image
+                extracted_text = extract_text_from_s3(image_url)
+                print("📌 Extracted text:", extracted_text)
 
-            # Extract text from the uploaded image
-            extracted_text = extract_text_from_s3(image_url)
-            print("Extracted text:", extracted_text)
-
-            if "Error" not in extracted_text:
-                recipe_text += "\n" + extracted_text  # Append extracted text
+                if "Error" not in extracted_text:
+                    recipe_text += "\n" + extracted_text  # Append extracted text
+            except Exception as e:
+                print("❌ Error during image upload or text extraction:", e)
+                return render(request, 'voxpopulirecipes/error.html', {'error': str(e)})
 
         if recipe_text:
             try:
+                print("📌 Sending text to OpenAI for parsing...")
                 response = client.chat.completions.create(
                     model="gpt-4",
                     messages=[
@@ -609,6 +620,7 @@ def parse_recipe(request):
                     ]
                 )
                 recipe_data = response.choices[0].message.content
+                print("✅ OpenAI Response Received:", recipe_data)
 
                 # Parse API response
                 data = json.loads(recipe_data)
@@ -638,13 +650,13 @@ def parse_recipe(request):
                         instruction_order=instruction['order']
                     )
 
-                print("Recipe successfully created, redirecting...")
+                print("✅ Recipe successfully created, redirecting...")
                 return redirect('voxpopulirecipes:edit_recipe', recipe_id=recipe.id)
             except Exception as e:
-                print("Error during processing:", e)
+                print("❌ Error during OpenAI processing:", e)
                 return render(request, 'voxpopulirecipes/error.html', {'error': str(e)})
 
-    print("Rendering parse_recipe.html")
+    print("📌 Rendering parse_recipe.html (skipped processing)")
     return render(request, 'voxpopulirecipes/parse_recipe.html')
 
 def extract_text_from_s3(image_url):
