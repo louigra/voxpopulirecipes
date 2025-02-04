@@ -12,6 +12,7 @@ import boto3
 import os
 import requests
 from io import BytesIO
+import shutil
 
 from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponse
@@ -658,6 +659,10 @@ def parse_recipe(request):
 
     print("📌 Rendering parse_recipe.html (skipped processing)")
     return render(request, 'voxpopulirecipes/parse_recipe.html')
+
+
+# Manually set the Tesseract binary path
+pytesseract.pytesseract.tesseract_cmd = shutil.which("tesseract") or "/usr/bin/tesseract"
 
 def extract_text_from_s3(image_url):
     """Extracts text from an image stored in S3 using Tesseract OCR"""
