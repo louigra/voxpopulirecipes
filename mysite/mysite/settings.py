@@ -191,30 +191,17 @@ AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
 AWS_S3_FILE_OVERWRITE = False
 AWS_S3_REGION_NAME = 'us-east-2'
 
-# print("AWS_STORAGE_BUCKET_NAME:", os.environ.get('AWS_STORAGE_BUCKET_NAME'))
-# print("AWS_ACCESS_KEY_ID:", os.environ.get('AWS_ACCESS_KEY_ID'))
-# print("AWS_SECRET_ACCESS_KEY:", os.environ.get('AWS_SECRET_ACCESS_KEY'))
-
-
 STORAGES = {
     'default': {
         "BACKEND": 'storages.backends.s3boto3.S3Boto3Storage',  # Default storage (S3)
     },
     'staticfiles': {
         "BACKEND": 'storages.backends.s3boto3.S3Boto3Storage',  # Static files stay on S3
-    },
-    'recipe_uploads': {  # Local storage ONLY for recipe parsing
-        "BACKEND": 'django.core.files.storage.FileSystemStorage',
-        "OPTIONS": {
-            "location": os.path.join(BASE_DIR, 'media/recipe_uploads'),  # Local folder for these images
-        }
-    },
+    }
 }
 
 # Media settings
 MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
-# print("MEDIA_URL:", MEDIA_URL)
-# Default location for media files in local development (not used with S3 in production)
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 

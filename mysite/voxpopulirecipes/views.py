@@ -23,9 +23,11 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Avg
 from collections import defaultdict
 
-from django.utils.module_loading import import_string
+from django.core.files.storage import default_storage
+
+
 from django.conf import settings
-from django.core.files.base import ContentFile
+
 from django.utils.timezone import now
 
 import pytesseract
@@ -559,99 +561,102 @@ def submit_recipe_from_image(request):
 
 from openai import OpenAI
 
-
-
-local_storage = import_string(settings.STORAGES['recipe_uploads']['BACKEND'])(**settings.STORAGES['recipe_uploads'].get('OPTIONS', {}))
+# Initialize S3 client
+s3_client = boto3.client('s3')
 
 def parse_recipe(request):
     if request.method == 'POST':
         recipe_text = request.POST.get('recipe_text', '')
 
-        # Handle image upload for recipe parsing
+        # Handle image upload
         recipe_image = request.FILES.get('recipe_image')
-        image_path = None
+        image_url = None
 
         if recipe_image:
-            # Save the image locally for processing
+            # Save image to S3 bucket
             timestamp = now().strftime("%Y%m%d%H%M%S")
-            image_filename = f"recipe_{timestamp}_{recipe_image.name}"
-            image_path = local_storage.save(image_filename, ContentFile(recipe_image.read()))
+            image_filename = f"recipes/{timestamp}_{recipe_image.name}"
+            s3_path = f"media/{image_filename}"  # Ensure correct media prefix for S3
 
-            # Extract text from the locally saved image
-            extracted_text = extract_text_from_image(os.path.join(settings.MEDIA_ROOT, 'recipe_uploads', image_filename))
-            print(extracted_text)
+            # Upload image to S3
+            default_storage.save(s3_path, recipe_image)
+
+            # Construct the S3 URL
+            image_url = f"{settings.MEDIA_URL}{image_filename}"
+            print("Uploaded image URL:", image_url)
+
+            # Extract text from the uploaded image
+            extracted_text = extract_text_from_s3(image_url)
+            print("Extracted text:", extracted_text)
 
             if "Error" not in extracted_text:
-                recipe_text += "\n" + extracted_text  # Append extracted text to existing recipe_text
+                recipe_text += "\n" + extracted_text  # Append extracted text
 
         if recipe_text:
-            max_retries = 2
-            for attempt in range(max_retries):
-                try:
-                    response = client.chat.completions.create(
-                        model="gpt-4",
-                        messages=[
-                            {"role": "system", "content": "You are a recipe parser."},
-                            {
-                                "role": "user",
-                                "content": (
-                                    "Extract the following recipe details and format them as JSON "
-                                    "with title, ingredients (name, amount, unit), and instructions (text, order):\n\n"
-                                    + recipe_text
-                                )
-                            }
-                        ]
+            try:
+                response = client.chat.completions.create(
+                    model="gpt-4",
+                    messages=[
+                        {"role": "system", "content": "You are a recipe parser."},
+                        {
+                            "role": "user",
+                            "content": (
+                                "Extract the following recipe details and format them as JSON "
+                                "with title, ingredients (name, amount, unit), and instructions (text, order):\n\n"
+                                + recipe_text
+                            )
+                        }
+                    ]
+                )
+                recipe_data = response.choices[0].message.content
+
+                # Parse API response
+                data = json.loads(recipe_data)
+
+                # Create Recipe object
+                recipe = Recipe.objects.create(
+                    title=data['title'],
+                    pub_date=now(),
+                    created_by=request.user.username if request.user.is_authenticated else None,
+                    creator=request.user if request.user.is_authenticated else None
+                )
+
+                # Create Ingredient objects
+                for ingredient in data.get('ingredients', []):
+                    Ingredient.objects.create(
+                        recipe=recipe,
+                        ingredient_text=ingredient['name'],
+                        ingredient_amount=ingredient.get('amount'),
+                        ingredient_unit=ingredient.get('unit')
                     )
-                    recipe_data = response.choices[0].message.content
 
-                    # Parse API response
-                    data = json.loads(recipe_data)
-
-                    # Create the Recipe object
-                    recipe = Recipe.objects.create(
-                        title=data['title'],
-                        pub_date=timezone.now(),
-                        created_by=request.user.username if request.user.is_authenticated else None,
-                        creator=request.user if request.user.is_authenticated else None
+                # Create Instruction objects
+                for instruction in sorted(data.get('instructions', []), key=lambda x: x['order']):
+                    Instruction.objects.create(
+                        recipe=recipe,
+                        instruction_text=instruction['text'],
+                        instruction_order=instruction['order']
                     )
 
-                    # Create Ingredient objects
-                    for ingredient in data.get('ingredients', []):
-                        Ingredient.objects.create(
-                            recipe=recipe,
-                            ingredient_text=ingredient['name'],
-                            ingredient_amount=ingredient.get('amount'),
-                            ingredient_unit=ingredient.get('unit')
-                        )
+                print("Recipe successfully created, redirecting...")
+                return redirect('voxpopulirecipes:edit_recipe', recipe_id=recipe.id)
+            except Exception as e:
+                print("Error during processing:", e)
+                return render(request, 'voxpopulirecipes/error.html', {'error': str(e)})
 
-                    # Create Instruction objects
-                    for instruction in sorted(data.get('instructions', []), key=lambda x: x['order']):
-                        Instruction.objects.create(
-                            recipe=recipe,
-                            instruction_text=instruction['text'],
-                            instruction_order=instruction['order']
-                        )
-
-                    # Delete the locally stored image after processing
-                    if image_path and os.path.exists(os.path.join(settings.MEDIA_ROOT, 'recipe_uploads', image_filename)):
-                        os.remove(os.path.join(settings.MEDIA_ROOT, 'recipe_uploads', image_filename))
-
-                    # Redirect to the edit_recipe view with the new recipe ID
-                    return redirect('voxpopulirecipes:edit_recipe', recipe_id=recipe.id)
-                except Exception as e:
-                    if attempt < max_retries - 1:
-                        time.sleep(1)
-                        continue
-                    else:
-                        return render(request, 'voxpopulirecipes/error.html', {'error': str(e)})
-
+    print("Rendering parse_recipe.html")
     return render(request, 'voxpopulirecipes/parse_recipe.html')
 
-def extract_text_from_image(image_path):
-    """Extracts text from a locally stored image using Tesseract OCR"""
+def extract_text_from_s3(image_url):
+    """Extracts text from an image stored in S3 using Tesseract OCR"""
     try:
-        img = Image.open(image_path)
-        img = img.convert("RGB")  # Ensure it's in a valid format
+        # Download the image from S3
+        response = requests.get(image_url)
+        image_bytes = BytesIO(response.content)
+        img = Image.open(image_bytes)
+
+        # Convert to RGB to avoid errors
+        img = img.convert("RGB")
         extracted_text = pytesseract.image_to_string(img)
         img.close()
 
