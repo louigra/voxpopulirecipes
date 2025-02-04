@@ -14,9 +14,9 @@
                 <div class="col-md-6 mb-4">
                     <div class="card shadow-sm h-100 card-option">
                         <div class="card-body text-center">
-                            <h3 class="card-title">Upload a Recipe</h3>
+                            <h3 class="card-title">Paste in Text</h3>
                             <p class="card-text text-muted">
-                                Upload an image or paste in text and let us take care of the rest!
+                                Paste in text and let us take care of the rest!
                             </p>
                             <a href="{% url 'voxpopulirecipes:submit_recipe_from_text' %}" class="btn btn-success btn-lg mt-3">
                                 <i class="bi bi-cloud-upload"></i> Submit Recipe
@@ -25,20 +25,20 @@
                     </div>
                 </div>
 
-                {% comment %} <!-- Image Submit Section -->
+                <!-- Image Submit Section -->
                 <div class="col-md-6 mb-4">
                     <div class="card shadow-sm h-100 card-option">
                         <div class="card-body text-center">
-                            <h3 class="card-title">Submit a Recipe from an Image</h3>
+                            <h3 class="card-title">Upload an Image</h3>
                             <p class="card-text text-muted">
-                                Upload or take a picture of a recipe and we will handle the rest!
+                                Extract the text from an image, then submit it
                             </p>
                             <a href="{% url 'voxpopulirecipes:submit_recipe_from_image' %}" class="btn btn-success btn-lg mt-3">
                                 <i class="bi bi-camera"></i> Submit Image
                             </a>
                         </div>
                     </div>
-                </div> {% endcomment %}
+                </div>
 
                 <!-- Manual Submit Section -->
                 <div class="col-md-6 mb-4">
