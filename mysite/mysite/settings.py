@@ -198,10 +198,16 @@ AWS_S3_REGION_NAME = 'us-east-2'
 
 STORAGES = {
     'default': {
-        "BACKEND": 'storages.backends.s3boto3.S3Boto3Storage',
+        "BACKEND": 'storages.backends.s3boto3.S3Boto3Storage',  # Default storage (S3)
     },
     'staticfiles': {
-        "BACKEND": 'storages.backends.s3boto3.S3Boto3Storage',
+        "BACKEND": 'storages.backends.s3boto3.S3Boto3Storage',  # Static files stay on S3
+    },
+    'recipe_uploads': {  # Local storage ONLY for recipe parsing
+        "BACKEND": 'django.core.files.storage.FileSystemStorage',
+        "OPTIONS": {
+            "location": os.path.join(BASE_DIR, 'media/recipe_uploads'),  # Local folder for these images
+        }
     },
 }
 

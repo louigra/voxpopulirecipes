@@ -22,6 +22,12 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.db.models import Avg
 from collections import defaultdict
+
+from django.utils.module_loading import import_string
+from django.conf import settings
+from django.core.files.base import ContentFile
+from django.utils.timezone import now
+
 import pytesseract
 from PIL import Image
 import io
@@ -555,15 +561,26 @@ from openai import OpenAI
 
 
 
+local_storage = import_string(settings.STORAGES['recipe_uploads']['BACKEND'])(**settings.STORAGES['recipe_uploads'].get('OPTIONS', {}))
+
 def parse_recipe(request):
     if request.method == 'POST':
         recipe_text = request.POST.get('recipe_text', '')
 
-        # Handle image upload and extract text using OpenAI Vision API
+        # Handle image upload for recipe parsing
         recipe_image = request.FILES.get('recipe_image')
+        image_path = None
+
         if recipe_image:
-            extracted_text = extract_text_from_image(recipe_image)
+            # Save the image locally for processing
+            timestamp = now().strftime("%Y%m%d%H%M%S")
+            image_filename = f"recipe_{timestamp}_{recipe_image.name}"
+            image_path = local_storage.save(image_filename, ContentFile(recipe_image.read()))
+
+            # Extract text from the locally saved image
+            extracted_text = extract_text_from_image(os.path.join(settings.MEDIA_ROOT, 'recipe_uploads', image_filename))
             print(extracted_text)
+
             if "Error" not in extracted_text:
                 recipe_text += "\n" + extracted_text  # Append extracted text to existing recipe_text
 
@@ -615,6 +632,10 @@ def parse_recipe(request):
                             instruction_order=instruction['order']
                         )
 
+                    # Delete the locally stored image after processing
+                    if image_path and os.path.exists(os.path.join(settings.MEDIA_ROOT, 'recipe_uploads', image_filename)):
+                        os.remove(os.path.join(settings.MEDIA_ROOT, 'recipe_uploads', image_filename))
+
                     # Redirect to the edit_recipe view with the new recipe ID
                     return redirect('voxpopulirecipes:edit_recipe', recipe_id=recipe.id)
                 except Exception as e:
@@ -626,19 +647,10 @@ def parse_recipe(request):
 
     return render(request, 'voxpopulirecipes/parse_recipe.html')
 
-def extract_text_from_image(image):
-    """Extracts text from an image using Tesseract OCR"""
-
+def extract_text_from_image(image_path):
+    """Extracts text from a locally stored image using Tesseract OCR"""
     try:
-        if hasattr(image, 'url'):  # If the image is stored in S3, it will have a URL
-            image_url = image.url
-            response = requests.get(image_url)
-            image_bytes = BytesIO(response.content)
-            img = Image.open(image_bytes)
-        else:
-            # If it's an uploaded file, read it directly
-            img = Image.open(image)
-
+        img = Image.open(image_path)
         img = img.convert("RGB")  # Ensure it's in a valid format
         extracted_text = pytesseract.image_to_string(img)
         img.close()
