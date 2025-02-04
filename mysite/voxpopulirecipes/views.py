@@ -545,105 +545,78 @@ def view_user_book(request, user_id):
 def submit_recipe_selector(request):
     return render(request, "voxpopulirecipes/submit_recipe_selector.html")
 
-def submit_recipe_from_text(request):
-    return render(request , "voxpopulirecipes/submit_recipe_from_text.html")
+def parse_text_recipe(request):
+    return render(request , "voxpopulirecipes/parse_text_recipe.html")
 
-def submit_recipe_from_image(request):
-    return render(request, "voxpopulirecipes/submit_recipe_from_image.html")
-
-from openai import OpenAI
-
-
+def parse_image_recipe(request):
+    return render(request, "voxpopulirecipes/parse_image_recipe.html")
 
 def parse_recipe(request):
     if request.method == 'POST':
         recipe_text = request.POST.get('recipe_text', '')
 
-        # Handle image upload and extract text using OpenAI Vision API
-        recipe_image = request.FILES.get('recipe_image')
-        if recipe_image:
-            extracted_text = extract_text_from_image(recipe_image)
-            print(extracted_text)
-            if "Error" not in extracted_text:
-                recipe_text += "\n" + extracted_text  # Append extracted text to existing recipe_text
+        if not recipe_text:
+            return render(request, 'voxpopulirecipes/parse_recipe.html', {'error': 'No text provided'})
 
-        if recipe_text:
-            max_retries = 2
-            for attempt in range(max_retries):
-                try:
-                    response = client.chat.completions.create(
-                        model="gpt-4",
-                        messages=[
-                            {"role": "system", "content": "You are a recipe parser."},
-                            {
-                                "role": "user",
-                                "content": (
-                                    "Extract the following recipe details and format them as JSON "
-                                    "with title, ingredients (name, amount, unit), and instructions (text, order):\n\n"
-                                    + recipe_text
-                                )
-                            }
-                        ]
-                    )
-                    recipe_data = response.choices[0].message.content
-
-                    # Parse API response
-                    data = json.loads(recipe_data)
-
-                    # Create the Recipe object
-                    recipe = Recipe.objects.create(
-                        title=data['title'],
-                        pub_date=timezone.now(),
-                        created_by=request.user.username if request.user.is_authenticated else None,
-                        creator=request.user if request.user.is_authenticated else None
-                    )
-
-                    # Create Ingredient objects
-                    for ingredient in data.get('ingredients', []):
-                        Ingredient.objects.create(
-                            recipe=recipe,
-                            ingredient_text=ingredient['name'],
-                            ingredient_amount=ingredient.get('amount'),
-                            ingredient_unit=ingredient.get('unit')
+        try:
+            response = client.chat.completions.create(
+                model="gpt-4",
+                messages=[
+                    {"role": "system", "content": "You are a recipe parser."},
+                    {
+                        "role": "user",
+                        "content": (
+                            "Extract the following recipe details and format them as JSON "
+                            "with title, ingredients (name, amount, unit), and instructions (text, order):\n\n"
+                            + recipe_text
                         )
+                    }
+                ]
+            )
+            recipe_data = response.choices[0].message.content
+            data = json.loads(recipe_data)
 
-                    # Create Instruction objects
-                    for instruction in sorted(data.get('instructions', []), key=lambda x: x['order']):
-                        Instruction.objects.create(
-                            recipe=recipe,
-                            instruction_text=instruction['text'],
-                            instruction_order=instruction['order']
-                        )
+            # Save Recipe
+            recipe = Recipe.objects.create(
+                title=data['title'],
+                pub_date=timezone.now(),
+                created_by=request.user.username if request.user.is_authenticated else None,
+                creator=request.user if request.user.is_authenticated else None
+            )
 
-                    # Redirect to the edit_recipe view with the new recipe ID
-                    return redirect('voxpopulirecipes:edit_recipe', recipe_id=recipe.id)
-                except Exception as e:
-                    if attempt < max_retries - 1:
-                        time.sleep(1)
-                        continue
-                    else:
-                        return render(request, 'voxpopulirecipes/error.html', {'error': str(e)})
+            # Save Ingredients
+            for ingredient in data.get('ingredients', []):
+                Ingredient.objects.create(
+                    recipe=recipe,
+                    ingredient_text=ingredient['name'],
+                    ingredient_amount=ingredient.get('amount'),
+                    ingredient_unit=ingredient.get('unit')
+                )
+
+            # Save Instructions
+            for instruction in sorted(data.get('instructions', []), key=lambda x: x['order']):
+                Instruction.objects.create(
+                    recipe=recipe,
+                    instruction_text=instruction['text'],
+                    instruction_order=instruction['order']
+                )
+
+            return redirect('voxpopulirecipes:edit_recipe', recipe_id=recipe.id)
+
+        except Exception as e:
+            return render(request, 'voxpopulirecipes/error.html', {'error': str(e)})
 
     return render(request, 'voxpopulirecipes/parse_recipe.html')
 
-def extract_text_from_image(image):
-    """Extracts text from an image using Tesseract OCR"""
-
-    try:
-        if hasattr(image, 'url'):  # If the image is stored in S3, it will have a URL
-            image_url = image.url
-            response = requests.get(image_url)
-            image_bytes = BytesIO(response.content)
-            img = Image.open(image_bytes)
-        else:
-            # If it's an uploaded file, read it directly
-            img = Image.open(image)
-
-        img = img.convert("RGB")  # Ensure it's in a valid format
-        extracted_text = pytesseract.image_to_string(img)
-        img.close()
-
-        return extracted_text.strip() if extracted_text else "Error: No text extracted"
-
-    except Exception as e:
-        return f"Error extracting text with Tesseract: {str(e)}"
+# Extract text from image and return JSON
+def extract_recipe_text(request):
+    if request.method == 'POST' and request.FILES.get('recipe_image'):
+        try:
+            img = Image.open(request.FILES['recipe_image'])
+            img = img.convert("RGB")
+            extracted_text = pytesseract.image_to_string(img).strip()
+            img.close()
+            return JsonResponse({"extracted_text": extracted_text}, status=200)
+        except Exception as e:
+            return JsonResponse({"error": f"Error: {str(e)}"}, status=500)
+    return JsonResponse({"error": "Invalid request"}, status=400)

@@ -18,14 +18,14 @@
                             <p class="card-text text-muted">
                                 Upload an image or paste in text and let us take care of the rest!
                             </p>
-                            <a href="{% url 'voxpopulirecipes:submit_recipe_from_text' %}" class="btn btn-success btn-lg mt-3">
+                            <a href="{% url 'voxpopulirecipes:parse_text_recipe' %}" class="btn btn-success btn-lg mt-3">
                                 <i class="bi bi-cloud-upload"></i> Submit Recipe
                             </a>
                         </div>
                     </div>
                 </div>
 
-                {% comment %} <!-- Image Submit Section -->
+                <!-- Image Submit Section -->
                 <div class="col-md-6 mb-4">
                     <div class="card shadow-sm h-100 card-option">
                         <div class="card-body text-center">
@@ -33,12 +33,12 @@
                             <p class="card-text text-muted">
                                 Upload or take a picture of a recipe and we will handle the rest!
                             </p>
-                            <a href="{% url 'voxpopulirecipes:submit_recipe_from_image' %}" class="btn btn-success btn-lg mt-3">
+                            <a href="{% url 'voxpopulirecipes:parse_image_recipe' %}" class="btn btn-success btn-lg mt-3">
                                 <i class="bi bi-camera"></i> Submit Image
                             </a>
                         </div>
                     </div>
-                </div> {% endcomment %}
+                </div> 
 
                 <!-- Manual Submit Section -->
                 <div class="col-md-6 mb-4">
