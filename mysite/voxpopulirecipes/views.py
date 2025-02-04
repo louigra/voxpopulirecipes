@@ -18,6 +18,8 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Avg
 from collections import defaultdict
 import pytesseract
+
+pytesseract.pytesseract.tesseract_cmd = "/opt/homebrew/bin/tesseract"
 from PIL import Image
 
 
