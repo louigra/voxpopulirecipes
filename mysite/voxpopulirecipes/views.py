@@ -6,11 +6,6 @@ client = OpenAI()
 
 
 import json
-import openai
-import time
-import boto3
-import os
-import requests
 from io import BytesIO
 
 from django.shortcuts import get_object_or_404, render, redirect
@@ -24,7 +19,7 @@ from django.db.models import Avg
 from collections import defaultdict
 import pytesseract
 from PIL import Image
-import io
+
 
 
 
