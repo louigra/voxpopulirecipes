@@ -661,23 +661,40 @@ def parse_recipe(request):
     return render(request, 'voxpopulirecipes/parse_recipe.html')
 
 
+import pytesseract
+from PIL import Image
+import requests
+from io import BytesIO
+
 # Manually set the Tesseract binary path
-pytesseract.pytesseract.tesseract_cmd = shutil.which("tesseract") or "/usr/bin/tesseract"
+pytesseract.pytesseract.tesseract_cmd = "/opt/homebrew/bin/tesseract"
 
 def extract_text_from_s3(image_url):
     """Extracts text from an image stored in S3 using Tesseract OCR"""
     try:
+        print("📌 Fetching image from S3:", image_url)
+
         # Download the image from S3
         response = requests.get(image_url)
+        if response.status_code != 200:
+            print(f"❌ Failed to fetch image: {response.status_code}")
+            return f"Error: Unable to download image ({response.status_code})"
+
         image_bytes = BytesIO(response.content)
         img = Image.open(image_bytes)
 
         # Convert to RGB to avoid errors
         img = img.convert("RGB")
+
+        # Print the detected Tesseract path for debugging
+        print("📌 Using Tesseract path:", pytesseract.pytesseract.tesseract_cmd)
+
+        # Run OCR
         extracted_text = pytesseract.image_to_string(img)
         img.close()
 
         return extracted_text.strip() if extracted_text else "Error: No text extracted"
 
     except Exception as e:
+        print("❌ Error extracting text:", e)
         return f"Error extracting text with Tesseract: {str(e)}"
