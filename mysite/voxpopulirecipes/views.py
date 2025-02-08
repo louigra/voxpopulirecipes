@@ -610,7 +610,7 @@ def parse_recipe(request):
                         "role": "user",
                         "content": (
                             "Extract the following recipe details and format them as JSON "
-                            "with title, ingredients (name, amount, unit), and instructions (text, order):\n\n"
+                            "with title, ingredients (name, amount, unit), and instructions (text, order).  If instruction text will be more than 500 characters, make 2 separate instructions.:\n\n"
                             + recipe_text
                         )
                     }
