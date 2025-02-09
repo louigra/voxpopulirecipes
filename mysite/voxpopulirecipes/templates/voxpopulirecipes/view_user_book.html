@@ -172,7 +172,7 @@
                                     <div class="card-body">
                                         <p class="mb-1"><strong>Created by:</strong> {{ recipe.creator.username }}</p>
                                         <p class="mb-0"><strong>Created on:</strong> {{ recipe.pub_date }}</p>
-                                        <p class="mb-0"><strong>Meal Types:</strong>
+                                        <p class="mb-0"><strong>Dish Types:</strong>
                                             {% for item in recipe_mealtypes %}
                                                 {% if item.recipe_id == recipe.id %}
                                                     {% for mealtype_map in item.mealtypes %}

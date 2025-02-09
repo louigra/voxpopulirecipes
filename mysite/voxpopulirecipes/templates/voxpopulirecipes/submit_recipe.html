@@ -35,6 +35,9 @@
                 <!-- Recipe Content Section -->
                 <div class="row">
                     <!-- Ingredients Section -->
+
+
+                    
                     <div class="col-12 col-lg-6 mb-4">
                         <div class="card shadow-sm">
                             <fieldset id="ingredients-section" class="create_section">
@@ -43,18 +46,24 @@
                                 </div>
                                 <div class="card-body">
                                     {% for ingredient in recipe.ingredient_set.all %}
-                                    <div class="ingredient">
-                                        <input type="text" name="ingredient_amount_{{ ingredient.id }}" placeholder="Amount" class="create_ingredient_input ingredient-amount" value="{{ ingredient.ingredient_amount }}">
-                                        <input type="text" name="ingredient_unit_{{ ingredient.id }}" placeholder="Unit" class="create_ingredient_input ingredient-unit" value="{{ ingredient.ingredient_unit }}">
-                                        <input type="text" name="ingredient_text_{{ ingredient.id }}" placeholder="Ingredient" class="create_ingredient_input ingredient-text" value="{{ ingredient.ingredient_text }}"required >
-                                        <button type="button" class="btn btn-delete ingredient-delete" onclick="deleteIngredient(this, {{ ingredient.id }})"><i class="bi bi-trash-fill"></i></button>
+                                    <div class="ingredient d-flex mb-3 position-relative">
+                                        <!-- Inputs container with padding-right to avoid overlap -->
+                                        <div class="flex-grow-1 d-flex flex-wrap gap-2 pe-5">
+                                            <input type="text" name="ingredient_amount_{{ ingredient.id }}" placeholder="Amount" class="create_ingredient_input ingredient-amount form-control" value="{{ ingredient.ingredient_amount }}">
+                                            <input type="text" name="ingredient_unit_{{ ingredient.id }}" placeholder="Unit" class="create_ingredient_input ingredient-unit form-control" value="{{ ingredient.ingredient_unit }}">
+                                            <input type="text" name="ingredient_text_{{ ingredient.id }}" placeholder="Ingredient" class="create_ingredient_input ingredient-text form-control" value="{{ ingredient.ingredient_text }}" required>
+                                        </div>
+                                        <!-- Trash button properly aligned -->
+                                        <div class="d-flex align-items-center position-absolute" style="top: 0; right: 0; height: 100%;">
+                                            <button type="button" class="btn btn-delete" onclick="deleteIngredient(this, {{ ingredient.id }})">
+                                                <i class="bi bi-trash-fill"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                     {% endfor %}
                                     <div id="ingredients-list">
                                     </div>
                                 </div>
-                                
-
                                 <button type="button" class="btn btn-secondary" id="add-ingredient">Add another ingredient</button>
                             </fieldset>
                         </div>
@@ -125,7 +134,7 @@
                                 <h2>Categorize</h2>
                             </div>
                             <div class="card-body">
-                                <label for="mealtypes">Meal Types:</label>
+                                <label for="mealtypes">Dish Types:</label>
                                 <div id="mealtypes" class="mb-3 d-flex flex-wrap gap-2">
                                     {% for mealtype in mealtypes %}
                                     <button 
@@ -138,6 +147,10 @@
                                     </button>
                                     {% endfor %}
                                 </div>
+                                <button type="button" class="btn btn-add-cuisine-mealtype" id="openMealTypeModal">
+                                    <i class="bi bi-plus-circle-dotted"></i>
+                                </button>
+                                <br>
                     
                                 <label for="cuisines">Cuisines:</label>
                                 <div id="cuisines" class="mb-3 d-flex flex-wrap gap-2">
@@ -152,6 +165,9 @@
                                     </button>
                                     {% endfor %}
                                 </div>
+                                <button type="button" class="btn btn-add-cuisine-mealtype" id="openCuisineModal">
+                                    <i class="bi bi-plus-circle-dotted"></i>
+                                </button>
                             </div>
                                 <!-- Hidden inputs for mealtypes -->
                                 <div id="mealtype-inputs">
@@ -188,7 +204,7 @@
 
 
 
-
+<!-- CREATING A NEW RECIPE FROM SCRATCH SECTION -->
 
         {% else %}
 
@@ -214,20 +230,27 @@
                                 <h2>Ingredients</h2>
                             </div>
                             <div class="card-body">
-                                <div class="ingredient">
-                                    <input type="text" id="ingredient_amount_1" name="ingredient_amount_1" placeholder="Amount" class="create_ingredient_input ingredient-amount">
-                                    <input type="text" id="ingredient_unit_1" name="ingredient_unit_1" placeholder="Unit" class="create_ingredient_input ingredient-unit">
-                                    <input type="text" id="ingredient_text_1" name="ingredient_text_1" placeholder="Ingredient" class="create_ingredient_input ingredient-text" required >
-                                    <button type="button" class="btn btn-delete ingredient-delete" onclick="deleteIngredient(this)"><i class="bi bi-trash-fill"></i></button>
+                                <div class="ingredient d-flex mb-3 position-relative">
+                                    <!-- Inputs container with padding-right to avoid overlap -->
+                                    <div class="flex-grow-1 d-flex flex-wrap gap-2 pe-5">
+                                        <input type="text" id="ingredient_amount_1" name="ingredient_amount_1" placeholder="Amount" class="create_ingredient_input ingredient-amount form-control">
+                                        <input type="text" id="ingredient_unit_1" name="ingredient_unit_1" placeholder="Unit" class="create_ingredient_input ingredient-unit form-control">
+                                        <input type="text" id="ingredient_text_1" name="ingredient_text_1" placeholder="Ingredient" class="create_ingredient_input ingredient-text form-control" required>
+                                    </div>
+                                    <!-- Trash button properly aligned -->
+                                    <div class="d-flex align-items-center position-absolute" style="top: 0; right: 0; height: 100%;">
+                                        <button type="button" class="btn btn-delete" onclick="deleteIngredient(this)">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </button>
+                                    </div>
                                 </div>
                                 <div id="ingredients-list">
                                 </div>
                             </div>
-
-                                <button type="button" class="btn btn-secondary" id="add-ingredient">Add another ingredient</button>
-                            </fieldset>
-                        </div>
+                            <button type="button" class="btn btn-secondary" id="add-ingredient">Add another ingredient</button>
+                        </fieldset>
                     </div>
+                </div>
 
                             
                 <!-- Instructions Section -->
@@ -291,7 +314,7 @@
                                 <h2>Categorize</h2>
                             </div>
                             <div class="card-body">
-                                <label for="mealtypes">Meal Types:</label>
+                                <label for="mealtypes">Dish Types:</label>
                                 <div id="mealtypes" class="mb-3 d-flex flex-wrap gap-2">
                                     {% for mealtype in mealtypes %}
                                     <button 
@@ -304,6 +327,10 @@
                                     </button>
                                     {% endfor %}
                                 </div>
+                                <button type="button" class="btn btn-add-cuisine-mealtype" id="openMealTypeModal">
+                                    <i class="bi bi-plus-circle-dotted"></i>
+                                </button>
+                                <br>
                     
                                 <label for="cuisines">Cuisines:</label>
                                 <div id="cuisines" class="mb-3 d-flex flex-wrap gap-2">
@@ -317,7 +344,11 @@
                                         {{ cuisine.name }}
                                     </button>
                                     {% endfor %}
+                                    
                                 </div>
+                                <button type="button" class="btn btn-add-cuisine-mealtype" id="openCuisineModal">
+                                    <i class="bi bi-plus-circle-dotted"></i>
+                                </button>
                             </div>
                         </div>
                         <!-- Hidden inputs for mealtypes -->
@@ -341,7 +372,11 @@
             </div>
         </div>
         <div>
+
         <input type="submit" class="btn btn-success" value="Publish">
+
+
+
         
         </div>
         <hr>
@@ -349,6 +384,83 @@
 
         {% endif %}
     </form>
+
+                <!-- Cuisine Modal -->
+                <div class="modal fade" id="cuisineModal" tabindex="-1" role="dialog" aria-labelledby="cuisineModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="cuisineModalLabel">Add a Cuisine Type</h5>
+                                <button id="cuisine-modal-close" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="cuisineForm">
+                                    {% csrf_token %}
+                                    
+                                    <div class="form-group">
+                                        
+                                        <input 
+                                            type="text" 
+                                            id="cuisineName" 
+                                            name="cuisine_name" 
+                                            class="form-control" 
+                                            pattern="[A-Za-z\s]+" 
+                                            title="Cuisine name should only contain letters." 
+                                            required 
+                                            placeholder="Enter cuisine name">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Mealtype Modal -->
+                <div class="modal fade" id="mealtypeModal" tabindex="-1" role="dialog" aria-labelledby="mealtypeModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="mealtypeModalLabel">Add a Dish Type</h5>
+                                <button id="mealtype-modal-close" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="mealtypeForm">
+                                    {% csrf_token %}
+                                    <div class="form-group">
+                                        <input 
+                                            type="text" 
+                                            id="mealtypeName" 
+                                            name="mealtype_name" 
+                                            class="form-control" 
+                                            pattern="[A-Za-z\s]+" 
+                                            title="Mealtype name should only contain letters." 
+                                            required 
+                                            placeholder="Enter Dish Type">
+                                    </div>
+                
+                                    <!-- Toggle Switch -->
+                                    <div class="form-group d-flex align-items-center">
+                                        <label for="mealtypeBaking" class="me-2">Is this a baking dish?</label>
+                                        <input 
+                                            type="checkbox" 
+                                            id="mealtypeBaking" 
+                                            name="mealtype_baking" 
+                                            class="form-check-input">
+                                    </div>
+                
+                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
     </div>
 
 {% else %}
@@ -420,7 +532,7 @@
         box-sizing: border-box; /* Include padding/borders in the width */
     }
     
-    .btn-delete {
+    .btn-delete, .btn-add-cuisine-mealtype {
         flex-shrink: 0; /* Prevent the button from shrinking */
         margin-left: 10px; /* Add spacing from the textarea */
         background: none; /* Remove background */
@@ -578,12 +690,12 @@
     }
 
 
-    .btn-delete:hover {
+    .btn-delete:hover, .btn-add-cuisine-mealtype:hover {
         color: #e9574d; /* Change to highlight color on hover */
         transform: scale(1.1); /* Slightly enlarge icon on hover */
     }
     
-    .btn-delete:focus {
+    .btn-delete:focus, .btn-add-cuisine-mealtype:focus {
         outline: none; /* Remove focus outline */
     }
 
@@ -669,14 +781,22 @@
 
             // onclick of add ingredient button, make a new div and set the class
             const ingredientDiv = document.createElement("div");
-            ingredientDiv.classList.add("ingredient");
-
-            // set the content of the new div using the ingredient count so each set has its own unique names
+            ingredientDiv.classList.add("ingredient", "d-flex", "mb-3", "position-relative");
+            
+            // Set the content of the new div using the ingredient count so each set has its own unique names
             ingredientDiv.innerHTML = `
-                <input type="text" id="ingredient_amount_${ingredientCount}" name="ingredient_amount_${ingredientCount}" placeholder="Amount" class="create_ingredient_input ingredient-amount">
-                <input type="text" id="ingredient_unit_${ingredientCount}" name="ingredient_unit_${ingredientCount}" placeholder="Unit" class="create_ingredient_input ingredient-unit">
-                <input type="text" id="ingredient_text_${ingredientCount}" name="ingredient_text_${ingredientCount}" placeholder="Ingredient" class="create_ingredient_input ingredient-text" required>
-                <button type="button" class="btn btn-delete ingredient-delete" onclick="deleteIngredient(this)"><i class="bi bi-trash-fill"></i></button>
+                <!-- Inputs container with padding-right to avoid overlap -->
+                <div class="flex-grow-1 d-flex flex-wrap gap-2 pe-5">
+                    <input type="text" id="ingredient_amount_${ingredientCount}" name="ingredient_amount_${ingredientCount}" placeholder="Amount" class="create_ingredient_input ingredient-amount form-control">
+                    <input type="text" id="ingredient_unit_${ingredientCount}" name="ingredient_unit_${ingredientCount}" placeholder="Unit" class="create_ingredient_input ingredient-unit form-control">
+                    <input type="text" id="ingredient_text_${ingredientCount}" name="ingredient_text_${ingredientCount}" placeholder="Ingredient" class="create_ingredient_input ingredient-text form-control" required>
+                </div>
+                <!-- Trash button properly aligned -->
+                <div class="d-flex align-items-center position-absolute" style="top: 0; right: 0; height: 100%;">
+                    <button type="button" class="btn btn-delete" onclick="deleteIngredient(this)">
+                        <i class="bi bi-trash-fill"></i>
+                    </button>
+                </div>
             `;
 
             // append to the ingredient section
@@ -765,6 +885,176 @@
             button.addEventListener("click", handleToggle);
         });
     });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const cuisineModal = new bootstrap.Modal(document.getElementById('cuisineModal'));
+        document.getElementById('openCuisineModal').addEventListener('click', function () {
+                console.log('Opening cuisine modal');
+    
+                    // Show the modal
+                    
+                    document.getElementById('cuisine-modal-close').addEventListener('click', function () {
+                        cuisineModal.hide();
+                    });
+                    cuisineModal.show();
+                })
+                
+        });
+
+        document.getElementById('cuisineForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+        
+            // Retrieve the value from the input field
+            const cuisineName = document.getElementById('cuisineName').value.trim();
+            if (cuisineName) {
+                formData.append('cuisine_name', cuisineName);
+            } else {
+                alert('Please enter a valid cuisine name.');
+                return; // Stop if the input is invalid
+            }
+        
+            // Send the cuisine name to the backend
+            fetch(`/add-cuisine/`, {
+                method: 'POST',
+                body: formData,
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Dynamically add the new button to the list
+                        const cuisineContainer = document.getElementById('cuisines');
+                        const newButton = document.createElement('button');
+                        newButton.type = 'button';
+                        newButton.className = 'btn toggle-button';
+                        newButton.dataset.id = data.cuisine_id; // Use the ID returned from the backend
+                        newButton.dataset.type = 'cuisine';
+                        newButton.textContent = cuisineName;
+        
+                        // Add toggle functionality
+                        newButton.addEventListener('click', function () {
+                            this.classList.toggle('active');
+                            const inputId = `cuisine-hidden-${this.dataset.id}`;
+                            const cuisineInputs = document.getElementById('cuisine-inputs');
+                            const existingInput = document.getElementById(inputId);
+        
+                            if (this.classList.contains('active')) {
+                                if (!existingInput) {
+                                    const hiddenInput = document.createElement('input');
+                                    hiddenInput.type = 'hidden';
+                                    hiddenInput.name = 'cuisines';
+                                    hiddenInput.value = this.dataset.id;
+                                    hiddenInput.id = inputId;
+                                    cuisineInputs.appendChild(hiddenInput);
+                                }
+                            } else {
+                                if (existingInput) {
+                                    existingInput.remove();
+                                }
+                            }
+                        });
+        
+                        cuisineContainer.appendChild(newButton);
+        
+                        // Close the modal and reset the form
+                        const cuisineModal = bootstrap.Modal.getInstance(document.getElementById('cuisineModal'));
+                        cuisineModal.hide();
+                        this.reset(); // Reset the form fields
+        
+                        
+                    } else {
+                        alert(data.message || 'Failed to add the cuisine.');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        });
+    
+        document.addEventListener("DOMContentLoaded", function () {
+            const mealtypeModal = new bootstrap.Modal(document.getElementById('mealtypeModal'));
+            document.getElementById('openMealTypeModal').addEventListener('click', function () {
+                    console.log('Opening mealtype modal');
+        
+                        // Show the modal
+                        
+                        document.getElementById('mealtype-modal-close').addEventListener('click', function () {
+                            mealtypeModal.hide();
+                        });
+                        mealtypeModal.show();
+                    })
+                    
+            });
+
+
+            document.getElementById('mealtypeForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+            
+                // Retrieve the value from the input field
+                const mealtypeName = document.getElementById('mealtypeName').value.trim();
+                const mealtypeBaking = document.getElementById('mealtypeBaking').checked ? "on" : "";
+                console.log(mealtypeBaking);
+                if (mealtypeName) {
+                    formData.append('mealtype_name', mealtypeName);
+                    formData.append('mealtype_baking', mealtypeBaking);
+                } else {
+                    alert('Please enter a valid dish type name.');
+                    return; // Stop if the input is invalid
+                }
+            
+                // Send the cuisine name to the backend
+                fetch(`/add-mealtype/`, {
+                    method: 'POST',
+                    body: formData,
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Dynamically add the new button to the list
+                            const mealtypeContainer = document.getElementById('mealtypes');
+                            const newButton = document.createElement('button');
+                            newButton.type = 'button';
+                            newButton.className = 'btn toggle-button';
+                            newButton.dataset.id = data.mealtype_id; // Use the ID returned from the backend
+                            newButton.dataset.type = 'mealtype';
+                            newButton.textContent = mealtypeName;
+            
+                            // Add toggle functionality
+                            newButton.addEventListener('click', function () {
+                                this.classList.toggle('active');
+                                const inputId = `mealtype-hidden-${this.dataset.id}`;
+                                const mealtypeInputs = document.getElementById('mealtype-inputs');
+                                const existingInput = document.getElementById(inputId);
+            
+                                if (this.classList.contains('active')) {
+                                    if (!existingInput) {
+                                        const hiddenInput = document.createElement('input');
+                                        hiddenInput.type = 'hidden';
+                                        hiddenInput.name = 'mealtypes';
+                                        hiddenInput.value = this.dataset.id;
+                                        hiddenInput.id = inputId;
+                                        mealtypeInputs.appendChild(hiddenInput);
+                                    }
+                                } else {
+                                    if (existingInput) {
+                                        existingInput.remove();
+                                    }
+                                }
+                            });
+            
+                            mealtypeContainer.appendChild(newButton);
+            
+                            // Close the modal and reset the form
+                            const mealtypeModal = bootstrap.Modal.getInstance(document.getElementById('mealtypeModal'));
+                            mealtypeModal.hide();
+                            this.reset(); // Reset the form fields
+            
+                            
+                        } else {
+                            alert(data.message || 'Failed to add the dishtype.');
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
 
 </script>
 

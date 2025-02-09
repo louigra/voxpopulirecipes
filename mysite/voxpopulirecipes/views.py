@@ -715,5 +715,48 @@ def extract_text_from_s3(image_url):
 
     except Exception as e:
         return f"Error extracting text with OCR.Space: {str(e)}"
+
+
+def add_cuisine(request):
+    if request.method == "POST":
+        cuisine_name = request.POST.get("cuisine_name", "").strip()
+        if cuisine_name:
+            # Check for duplicate cuisines
+            if Cuisine.objects.filter(name__iexact=cuisine_name).exists():
+                return JsonResponse({
+                    "success": False,
+                    "message": "Cuisine already exists."
+                })
+            
+            # Create the new cuisine
+            cuisine = Cuisine.objects.create(name=cuisine_name)
+            return JsonResponse({
+                "success": True,
+                "message": "Cuisine added successfully!",
+                "cuisine_id": cuisine.id  # Return the new cuisine ID
+            })
+        return JsonResponse({"success": False, "message": "Cuisine name is required."})
+    return JsonResponse({"success": False, "message": "Invalid request method."})
     
-    
+def add_mealtype(request):
+    if request.method == "POST":
+        mealtype_name = request.POST.get("mealtype_name", "").strip()
+        mealtype_baking = request.POST.get("mealtype_baking") == "on"  # Convert to boolean
+        print(mealtype_baking)
+        if mealtype_name:
+            if MealType.objects.filter(name__iexact=mealtype_name).exists():
+                return JsonResponse({
+                    "success": False,
+                    "message": "Meal type already exists."
+                })
+                
+            # Create the new meal type
+            mealType = MealType.objects.create(name=mealtype_name, baking=mealtype_baking)
+            return JsonResponse({
+                "success": True,
+                "message": "Meal type added successfully!",
+                "mealtype_id": mealType.id  # Return the new meal type ID
+            })
+            
+        return JsonResponse({"success": False, "message": "Meal type name is required."})
+    return JsonResponse({"success": False, "message": "Invalid request method."})

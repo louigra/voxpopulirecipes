@@ -26,4 +26,6 @@ urlpatterns = [
     path("submit_recipe_from_text/", views.submit_recipe_from_text, name="submit_recipe_from_text"),
     path("submit_recipe_from_image/", views.submit_recipe_from_image, name="submit_recipe_from_image"),
     path("extract_text", views.extract_text, name="extract_text"),
+    path("add-mealtype/", views.add_mealtype, name="add_mealtype"),
+    path("add-cuisine/", views.add_cuisine, name="add_cuisine"),
 ]
