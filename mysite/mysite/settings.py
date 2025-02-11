@@ -36,8 +36,8 @@ prod = True
 if prod:
     DEBUG = False
     
-    ALLOWED_HOSTS = ['https://voxpopulirecipes.com', 'voxpopulirecipes.com', 'voxpopulirecipes-production.up.railway.app', 'https://voxpopulirecipes-production.up.railway.app']
-    CSRF_TRUSTED_ORIGINS =['https://voxpopulirecipes.com', 'https://voxpopulirecipes-production.up.railway.app']
+    ALLOWED_HOSTS = ['https://voxpopulirecipes.com', 'voxpopulirecipes.com', 'https://cleanplate.io', 'cleanplate.io', 'voxpopulirecipes-production.up.railway.app', 'https://voxpopulirecipes-production.up.railway.app']
+    CSRF_TRUSTED_ORIGINS =['https://voxpopulirecipes.com', 'https://voxpopulirecipes-production.up.railway.app', 'https://cleanplate.io']
 
     DATABASES = {
         'default': {
