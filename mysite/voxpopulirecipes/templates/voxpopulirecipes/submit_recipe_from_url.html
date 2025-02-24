@@ -1,0 +1,125 @@
+{% extends 'voxpopulirecipes/base.html' %}
+
+{% block content %}
+
+<div class="container mt-4">
+    <!-- Card Container -->
+    <div class="card shadow-lg">
+
+        <div class="card-body">
+
+
+    </div>
+            <!-- Recipe Submit Section -->
+            <div class="row mt-5">
+                <div class="col-12">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body text-center">
+                            <h2 class="card-title">Submit a Recipe from URL</h2>
+                            <p class="text-muted">
+                                Paste in a URL and we'll extract the recipe details for you.
+                            </p>
+                            <form id="firecrawlForm" method="POST" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="d-flex justify-content-center">
+                                    <textarea
+                                        class="form-control"
+                                        name="recipe_url"
+                                        rows="2"
+                                        placeholder="Paste your URL here"
+                                        required
+                                    ></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-lg w-100 mt-3" id="extractTextBtn">
+                                    Scrape URL
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- Extracting Text Modal -->
+<div class="modal fade" id="extractingTextModal" tabindex="-1" aria-labelledby="extractingTextModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="extractingTextModalLabel">Extracting Text</h5>
+            </div>
+            <div class="modal-body text-center">
+                <p>Hang tight! We are scraping that url for you.</p>
+                <div class="spinner-border text-primary" role="status">
+                    <span class="sr-only"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Styles -->
+<style>
+    .card {
+        border-radius: 10px;
+        overflow: hidden;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .form-control {
+        width: 80%; /* Set textarea to fill 80% of the card width */
+    }
+
+    .btn-lg {
+        padding: 12px 20px;
+        font-size: 1.25rem;
+    }
+
+    .form-control,
+    .btn-lg {
+        max-width: 100%;
+    }
+</style>
+
+<!-- Scripts -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("extractTextBtn").addEventListener("click", function (event) {
+            event.preventDefault(); // Prevent default form submission
+    
+            let formData = new FormData(document.getElementById("firecrawlForm"));
+            let extractingTextModal = new bootstrap.Modal(document.getElementById("extractingTextModal"));
+            extractingTextModal.show(); // Show extracting modal
+    
+            fetch("{% url 'voxpopulirecipes:extract_recipe_from_url' %}", {
+                method: "POST",
+                body: formData,
+                headers: { 
+                    "X-CSRFToken": "{{ csrf_token }}",
+                }
+            })
+            .then(response => response.json()) // Parse JSON response
+            .then(data => {
+                extractingTextModal.hide(); // Hide modal once response is received
+    
+                if (data.recipe_id) {
+                    // Redirect to the edit page using JavaScript
+                    window.location.href = `{% url 'voxpopulirecipes:edit_recipe' 12345 %}`.replace("12345", data.recipe_id);
+                } else {
+                    alert("Error: " + data.error);
+                }
+            })
+            .catch(error => {
+                console.error("Error extracting text:", error);
+                extractingTextModal.hide();
+                alert("An error occurred while extracting the recipe.");
+            });
+        });
+    });
+
+</script>
+
+{% endblock %}

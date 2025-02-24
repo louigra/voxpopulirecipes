@@ -10,6 +10,23 @@
         <div class="card-body">
             <!-- AI Recipe Submit Buttons -->
             <div class="row mt-5">
+
+
+                <!-- URL Submit Section -->
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm h-100 card-option">
+                        <div class="card-body text-center">
+                            <h3 class="card-title">Upload a URL</h3>
+                            <p class="card-text text-muted">
+                                Paste in a url, and we'll extract the recipe details for you.
+                            </p>
+                            <a href="{% url 'voxpopulirecipes:submit_recipe_from_url' %}" class="btn btn-success btn-lg mt-3">
+                                <i class="bi bi-camera"></i> Submit URL
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Text Submit Section -->
                 <div class="col-md-6 mb-4">
                     <div class="card shadow-sm h-100 card-option">
@@ -39,6 +56,8 @@
                         </div>
                     </div>
                 </div>
+
+
 
                 <!-- Manual Submit Section -->
                 <div class="col-md-6 mb-4">

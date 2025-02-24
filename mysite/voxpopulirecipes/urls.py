@@ -28,4 +28,6 @@ urlpatterns = [
     path("extract_text", views.extract_text, name="extract_text"),
     path("add-mealtype/", views.add_mealtype, name="add_mealtype"),
     path("add-cuisine/", views.add_cuisine, name="add_cuisine"),
+    path("submit_recipe_from_url/", views.submit_recipe_from_url, name="submit_recipe_from_url"),
+    path("extract_recipe_from_url", views.extract_recipe_from_url, name="extract_recipe_from_url"),
 ]

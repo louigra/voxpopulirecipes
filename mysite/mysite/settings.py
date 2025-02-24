@@ -30,6 +30,7 @@ SECRET_KEY = 'django-insecure-q^pp+9se2wzg&&8ou37i%b*kb^1=tr=gqu!ty=$k(vn!1+ku3v
 DEBUG = True
 
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
+FIRECRAWL_API_KEY = os.environ.get('FIRECRAWL_API_KEY')
 
 prod = True
 

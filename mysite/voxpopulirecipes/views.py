@@ -21,8 +21,12 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.db.models import Avg
 from collections import defaultdict
+from firecrawl import FirecrawlApp
 
 from django.core.files.storage import default_storage
+
+from pydantic import BaseModel, Field, ValidationError
+from typing import List, Optional
 
 
 from django.conf import settings
@@ -559,6 +563,9 @@ def submit_recipe_from_text(request):
 def submit_recipe_from_image(request):
     return render(request, "voxpopulirecipes/submit_recipe_from_image.html")
 
+def submit_recipe_from_url(request):
+    return render(request, "voxpopulirecipes/submit_recipe_from_url.html")
+
 from openai import OpenAI
 
 # Initialize S3 client
@@ -589,6 +596,99 @@ def extract_text(request):
             return JsonResponse({"error": str(e)}, status=500)
 
     return JsonResponse({"error": "No image provided"}, status=400)
+
+
+# Initialize FirecrawlApp with your API key
+app = FirecrawlApp(api_key=settings.FIRECRAWL_API_KEY)
+
+# Define schema to match Django models
+class IngredientSchema(BaseModel):
+    ingredient_text: str
+    ingredient_amount: Optional[str] = ""
+    ingredient_unit: Optional[str] = ""
+
+class InstructionSchema(BaseModel):
+    instruction_text: str
+    instruction_order: int = Field(default=0)
+
+class RecipeSchema(BaseModel):
+    title: str
+    created_by: Optional[str] = None
+    mealType: Optional[str] = None
+    cuisine: Optional[str] = None
+    baking: bool = False
+    ingredients: List[IngredientSchema]
+    instructions: List[InstructionSchema]
+    
+def extract_recipe_from_url(request):
+    if request.method == "POST":
+        try:
+            api_key = settings.FIRECRAWL_API_KEY  # Get API key from Django settings
+            if not api_key:
+                return JsonResponse({"error": "API key is missing"}, status=500)
+
+            app = FirecrawlApp(api_key=api_key)
+            website_url = request.POST.get("recipe_url", "").strip()
+
+            if website_url:
+                # Request structured JSON data from Firecrawl
+                response = app.scrape_url(website_url, {
+                    "formats": ["json"],
+                    "jsonOptions": {
+                        "schema": RecipeSchema.model_json_schema(),
+                    }
+                })
+
+                if "json" not in response:
+                    return JsonResponse({"error": "Invalid Firecrawl response format"}, status=500)
+
+                recipe_data = response["json"]
+
+                # Validate JSON data against Pydantic schema
+                try:
+                    parsed_recipe = RecipeSchema(**recipe_data)
+                except ValidationError as e:
+                    return JsonResponse({"error": f"Data validation failed: {str(e)}"}, status=400)
+
+                # Save Recipe
+                recipe = Recipe.objects.create(
+                    title=parsed_recipe.title,
+                    pub_date=now(),
+                    created_by=request.user.username if request.user.is_authenticated else None,
+                    creator=request.user if request.user.is_authenticated else None,
+                    mealType=None,
+                    cuisine=None,
+                    baking=parsed_recipe.baking,
+                )
+
+                # Save Ingredients
+                for ing in parsed_recipe.ingredients:
+                    Ingredient.objects.create(
+                        recipe=recipe,
+                        ingredient_text=ing.ingredient_text,
+                        ingredient_amount="" if ing.ingredient_amount and ing.ingredient_amount.lower() == "none" else ing.ingredient_amount,
+                        ingredient_unit="" if ing.ingredient_unit and ing.ingredient_unit.lower() == "none" else ing.ingredient_unit,
+                    )
+
+                # Save Instructions
+                for instr in parsed_recipe.instructions:
+                    Instruction.objects.create(
+                        recipe=recipe,
+                        instruction_text=instr.instruction_text,
+                        instruction_order=instr.instruction_order,
+                    )
+
+                print("✅ Recipe successfully created, sending JSON response...")
+
+                # Instead of redirecting, return JSON with recipe ID
+                return JsonResponse({"message": "Recipe successfully created!", "recipe_id": recipe.id}, status=200)
+
+            return JsonResponse({"error": "No URL provided"}, status=400)
+        
+        except Exception as e:
+            return JsonResponse({"error": f"Server error: {str(e)}"}, status=500)
+
+    return JsonResponse({"error": "Invalid request method"}, status=405)
 
 def parse_recipe(request):
     """Handles OpenAI recipe parsing after OCR is complete."""

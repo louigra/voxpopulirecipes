@@ -2,7 +2,8 @@
 	<div class="container-fluid">
 		<a class="navbar-brand" href="{% url 'voxpopulirecipes:main' %}">
 			{% load static %}
-			<img src="{% static 'voxpopulirecipes/logo.png' %}" alt="My image" width="60" height="60">
+			<img src="{% static 'voxpopulirecipes/cleanplateio-high-resolution-logo-transparent(1).png' %}" 
+				 alt="CleanPlate.io logo">
 		</a>
 		<!-- Cooking Mode Toggle -->
 		<div class="cooking-mode-box ms-3">
@@ -147,6 +148,13 @@
 	background-color: #37393e; /* Slightly darker gray on hover */
 	transition: background-color 0.3s ease;
 }
+
+.navbar-brand img {
+    width: 80px; /* Set the desired width */
+    height: auto; /* Automatically adjust height to maintain aspect ratio */
+    max-height: 60px; /* Optional: ensure it doesn't exceed a specific height */
+}
+
 </style>
 
 <script>
