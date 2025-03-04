@@ -70,6 +70,13 @@
                     role="tabpanel" 
                     aria-labelledby="table-of-contents-tab">
                     <h1 class="text-center">Your Recipes</h1>
+                    <!-- Toggle switch for hiding images -->
+                    <div class="text-center mt-3">
+                        <label class="form-check-label fw-bold" for="toggleImages">Hide Recipe Images</label>
+                        <div class="form-check form-switch d-inline ms-2">
+                            <input class="form-check-input" type="checkbox" id="toggleImages">
+                        </div>
+                    </div>
                     <div class="col-12">
                         <div class="accordion" id="Meal_type_Accordion">
                             {% for mealtype, cuisines in mealtype_cuisine_map.items %}
@@ -101,20 +108,18 @@
                                                                 <a href="{% url 'voxpopulirecipes:detail' recipe.id %}" class="text-decoration-none">
                                                                     <div class="card h-100 shadow-sm">
                                                                         {% if recipe.image %}
-                                                                            <img
+                                                                            <img 
                                                                                 src="{{ recipe.image.url }}" 
-                                                                                class="card-img-top" 
+                                                                                class="card-img-top recipe-image-toc" 
                                                                                 alt="{{ recipe.title }}" 
-                                                                                style="object-fit: cover; height: 200px;"
-                                                                            >
+                                                                                style="object-fit: cover; height: 200px;">
                                                                         {% else %}
-                                                                            <img
+                                                                            <img 
                                                                                 {% load static %}
                                                                                 src="{% static 'voxpopulirecipes/logo.png' %}" 
-                                                                                class="card-img-top" 
+                                                                                class="card-img-top recipe-image-toc" 
                                                                                 alt="Default Image" 
-                                                                                style="object-fit: cover; height: 200px;"
-                                                                            >
+                                                                                style="object-fit: cover; height: 200px;">
                                                                         {% endif %}
                                                                         <div class="card-body text-center">
                                                                             <h5 class="card-title text-dark">
@@ -620,6 +625,20 @@
         });
     });
 
+    document.addEventListener("DOMContentLoaded", function () {
+        const toggleImages = document.getElementById("toggleImages");
+        const images = document.querySelectorAll(".recipe-image-toc");
+
+        toggleImages.addEventListener("change", function () {
+            images.forEach(image => {
+                if (toggleImages.checked) {
+                    image.style.display = "none";  // Hide images
+                } else {
+                    image.style.display = "block"; // Show images
+                }
+            });
+        });
+    });
     
 </script>
 

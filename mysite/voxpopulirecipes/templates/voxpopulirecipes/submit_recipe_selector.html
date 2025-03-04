@@ -1,6 +1,8 @@
 {% extends 'voxpopulirecipes/base.html' %}
 
 {% block content %}
+
+{% if user.is_authenticated %}
 <div class="container mt-4">
     <!-- Card Container -->
     <div class="card shadow-lg">
@@ -11,17 +13,17 @@
             <!-- AI Recipe Submit Buttons -->
             <div class="row mt-5">
 
-
                 <!-- URL Submit Section -->
                 <div class="col-md-6 mb-4">
                     <div class="card shadow-sm h-100 card-option">
                         <div class="card-body text-center">
                             <h3 class="card-title">Upload a URL</h3>
-                            <p class="card-text text-muted">
-                                Paste in a url, and we'll extract the recipe details for you.
+                            <p class="card-text text-muted d-none d-md-block">
+                                Paste in a URL, and we'll extract the recipe details for you.
                             </p>
-                            <a href="{% url 'voxpopulirecipes:submit_recipe_from_url' %}" class="btn btn-success btn-lg mt-3">
-                                <i class="bi bi-camera"></i> Submit URL
+                            <a href="{% url 'voxpopulirecipes:submit_recipe_from_url' %}" 
+                               class="btn btn-success btn-lg btn-block mt-3">
+                                <i class="bi bi-link"></i> Submit URL
                             </a>
                         </div>
                     </div>
@@ -32,11 +34,12 @@
                     <div class="card shadow-sm h-100 card-option">
                         <div class="card-body text-center">
                             <h3 class="card-title">Paste in Text</h3>
-                            <p class="card-text text-muted">
+                            <p class="card-text text-muted d-none d-md-block">
                                 Paste in text and let us take care of the rest!
                             </p>
-                            <a href="{% url 'voxpopulirecipes:submit_recipe_from_text' %}" class="btn btn-success btn-lg mt-3">
-                                <i class="bi bi-cloud-upload"></i> Submit Recipe
+                            <a href="{% url 'voxpopulirecipes:submit_recipe_from_text' %}" 
+                               class="btn btn-success btn-lg btn-block mt-3">
+                                <i class="bi bi-cloud-upload"></i> Submit Text
                             </a>
                         </div>
                     </div>
@@ -47,36 +50,59 @@
                     <div class="card shadow-sm h-100 card-option">
                         <div class="card-body text-center">
                             <h3 class="card-title">Upload an Image</h3>
-                            <p class="card-text text-muted">
-                                Extract the text from an image, then submit it
+                            <p class="card-text text-muted d-none d-md-block">
+                                Extract the text from an image, then submit it.
                             </p>
-                            <a href="{% url 'voxpopulirecipes:submit_recipe_from_image' %}" class="btn btn-success btn-lg mt-3">
+                            <a href="{% url 'voxpopulirecipes:submit_recipe_from_image' %}" 
+                               class="btn btn-success btn-lg btn-block mt-3">
                                 <i class="bi bi-camera"></i> Submit Image
                             </a>
                         </div>
                     </div>
                 </div>
 
-
-
                 <!-- Manual Submit Section -->
                 <div class="col-md-6 mb-4">
                     <div class="card shadow-sm h-100 card-option">
                         <div class="card-body text-center">
                             <h3 class="card-title">Enter a New Recipe</h3>
-                            <p class="card-text text-muted">
+                            <p class="card-text text-muted d-none d-md-block">
                                 Manually add a new recipe with all the details.
                             </p>
-                            <a href="{% url 'voxpopulirecipes:submit_recipe' %}" class="btn btn-success btn-lg mt-3">
+                            <a href="{% url 'voxpopulirecipes:submit_recipe' %}" 
+                               class="btn btn-success btn-lg btn-block mt-3">
                                 <i class="bi bi-pencil"></i> Submit Manually
                             </a>
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
 </div>
+
+{% else %}
+<div class="container mt-4">
+    <div class="card shadow-lg">
+        <div class="card-header bg-dark text-white text-center">
+            <h1>Sign in to submit a recipe</h1>
+        </div>
+        <div class="card-body">
+            <p class="lead text-center">
+                You must be signed in to submit a recipe.
+            </p>
+            <div class="text-center">
+                <a href="{% url 'login' %}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-box-arrow-in-right"></i> Sign In
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+
 
 <!-- Custom Styles -->
 <style>
@@ -103,6 +129,14 @@
     .card-text {
         font-size: 1rem;
         color: #6c757d;
+    }
+
+    /* Make buttons take full width on smaller screens */
+    @media (max-width: 768px) {
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
     }
 </style>
 
