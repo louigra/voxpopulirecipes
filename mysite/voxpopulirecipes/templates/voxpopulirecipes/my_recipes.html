@@ -69,12 +69,14 @@
                     id="table-of-contents" 
                     role="tabpanel" 
                     aria-labelledby="table-of-contents-tab">
-                    <h1 class="text-center">Your Recipes</h1>
-                    <!-- Toggle switch for hiding images -->
-                    <div class="text-center mt-3">
-                        <label class="form-check-label fw-bold" for="toggleImages">Hide Recipe Images</label>
-                        <div class="form-check form-switch d-inline ms-2">
-                            <input class="form-check-input" type="checkbox" id="toggleImages">
+                    <!-- Flex container to align heading and toggle in the same row -->
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h1 class="m-0">Your Recipes</h1> 
+                        <div class="d-flex align-items-center">
+                            <label class="form-check-label fw-bold me-2" for="toggleImages">Hide Recipe Images</label>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="toggleImages">
+                            </div>
                         </div>
                     </div>
                     <div class="col-12">
